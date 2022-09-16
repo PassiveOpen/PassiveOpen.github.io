@@ -1,0 +1,52 @@
+tr {
+  transition: 0.2s;
+  background-color: var(--color-0) !important;
+
+  th {
+    background-color: var(--color-5) !important;
+  }
+
+  &.row-total {
+    background-color: var(--color-5) !important;
+  }
+  &.row-group {
+    background-color: var(--color-10) !important;
+    cursor: pointer;
+  }
+  &:hover {
+    background-color: var(--color-20) !important;
+  }
+
+  &.row-folded:not(.row-group) {
+    // visibility: collapse;
+    height: 0;
+    td {
+      border-bottom-width: 0px;
+      padding: 0px;
+      line-height: 0px;
+      overflow: hidden;
+    }
+  }
+}
+:host,
+table {
+  width: 100%;
+}
+
+.mat-column-calcAmount,
+.mat-column-price,
+.mat-column-calcPrice {
+  text-align: right;
+  width: 60px;
+}
+.mat-column-calcPrice {
+  padding-right: 16px;
+}
+
+.mat-column-sizeOrVersion,
+.mat-column-other {
+  min-width: 60px;
+}
+.mat-column-name {
+  min-width: 200px;
+}

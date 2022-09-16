@@ -1,0 +1,9 @@
+::ng-deep {
+  .popup-arrow-mid {
+    left: calc(50% - 10px) !important;
+    background: inherit;
+  }
+}
+:host {
+  position: relative !important;
+}

@@ -1,0 +1,22 @@
+<h1>Smart home</h1>
+<p>
+  something about totals
+</p>
+
+<ng-container *ngFor="let d of tables">
+  <ng-container *ngTemplateOutlet="simple; context: { $implicit: d}">
+  </ng-container>
+</ng-container>
+
+<ng-template #simple let-data>
+  <h2 [innerHTML]="data.alias"></h2>
+  <span *ngIf="data.name === 'finish'">
+    Nice to discover alot of moldings:
+    https://en.wikipedia.org/wiki/Molding_(decorative)
+  </span>
+  <app-table [data]="data"></app-table>
+</ng-template>
+
+
+<h2>totals</h2>
+<app-table [data]="totals"></app-table>

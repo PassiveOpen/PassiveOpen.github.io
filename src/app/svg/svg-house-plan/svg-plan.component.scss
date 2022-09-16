@@ -1,0 +1,431 @@
+$sensor-smoke: rgb(168, 0, 0);
+$sun-color: rgb(253, 200, 101);
+::ng-deep {
+  .sensor-pir,
+  .sensor-vent-out,
+  .sensor-ethernet,
+  .sensor-perilex,
+  .sensor-light-switch {
+    fill: var(--primary-color);
+    &.sensor-cable {
+      stroke: var(--primary-color) !important;
+    }
+  }
+  .sensor-vent-in,
+  .sensor-camera,
+  .sensor-poe,
+  .sensor-socket,
+  .sensor-light {
+    fill: var(--accent-color);
+    &.sensor-cable {
+      stroke: var(--accent-color) !important;
+    }
+  }
+
+  .sensor-temperature,
+  .sensor-alarm,
+  .sensor-dlc,
+  .sensor-light-switch {
+    fill: var(--first-color);
+    &.sensor-cable {
+      stroke: var(--first-color) !important;
+    }
+  }
+  .sensor-wifi,
+  .sensor-blinds,
+  .sensor-dimmer {
+    fill: var(--second-color);
+    &.sensor-cable {
+      stroke: var(--second-color) !important;
+    }
+  }
+
+  .sensor-smoke {
+    fill: $sensor-smoke;
+    &.sensor-cable {
+      stroke: $sensor-smoke !important;
+    }
+  }
+
+  //dev only
+
+  // .el-group-6,
+  // .el-group-5,
+  // .el-group-4,
+  // .el-group-3,
+  // .el-group-2,
+  // .el-group-1 {
+  //   display: none;
+  // }
+
+  .selection-active {
+    .g-sensor {
+      & > g > *:not(.selected) {
+        opacity: 0 !important;
+      }
+    }
+  }
+
+  svg.plan {
+    // transform-box: fill-box;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    // background: darkcyan;
+    .all {
+      transition: 0.4s;
+    }
+    .g-sun {
+      transition: 0.4s;
+      opacity: 0;
+      g {
+        transform-origin: center;
+        fill: $sun-color;
+      }
+    }
+    #view-lines {
+      fill: none;
+      stroke: var(--primary-color);
+      opacity: 0;
+    }
+    .render-img {
+      pointer-events: none;
+      transition: 0.4s;
+      opacity: 0;
+      clip-path: polygon(
+        0% 0%,
+        100% 0%,
+        100% 130%,
+        51.7% 78.7%,
+        51.7% 52.9%,
+        42.4% 36.5%,
+        33.1% 36.5%
+      );
+    }
+
+    .house-wind-rose,
+    .g-sensor,
+    .g-grid,
+    .g-wall,
+    .g-room {
+      fill: none;
+      transition: 0.4s, stroke-width 1ms;
+      stroke: black;
+      stroke-linecap: square;
+      // opacity: 0.8;
+    }
+
+    #tower-walls {
+      fill: var(--accent-color);
+      stroke: none;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .house-stramien {
+      transition: 0.4s, stroke-width 1ms;
+      stroke: red;
+      .house-stramien-out {
+        stroke: orange;
+      }
+      stroke-linecap: square;
+    }
+
+    .house-wind-rose {
+      opacity: 0;
+      .house-wind-rose-text {
+        stroke: none;
+        fill: currentColor;
+      }
+      .house-wind-rose-1 {
+        fill: currentColor;
+      }
+    }
+
+    .g-grid {
+      .grid-main {
+        stroke: rgb(101, 101, 101);
+      }
+      .grid-sub {
+        stroke: rgb(229, 229, 229);
+      }
+      .grid-subsub {
+        stroke: rgb(190, 190, 190);
+      }
+    }
+
+    .g-sensor {
+      & > * {
+        opacity: 0;
+        pointer-events: none;
+        overflow: visible;
+      }
+      * {
+        transition: 0.2s;
+      }
+      polyline {
+        transition: 0.5s;
+        fill: none;
+        stroke: blue;
+        &.cable-connection {
+          stroke: rgb(7, 147, 114);
+        }
+      }
+      & > g {
+        transition: 0.5s;
+        fill: var(--primary-color);
+        stroke: none;
+      }
+    }
+
+    .g-room {
+      #L0-House {
+        fill: var(--accent-color) !important;
+        opacity: 0.7;
+      }
+      polygon {
+        stroke: none !important;
+        transition: 0.4s;
+        fill: var(--primary-color) !important;
+        opacity: 0.8;
+        &:hover {
+          fill: var(--primary-lighter-color);
+        }
+        &.room-hole {
+          box-shadow: inset 3px 5px 2px rgb(0 0 0 / 0.4);
+        }
+        &.selected {
+          fill: var(--primary-color);
+        }
+      }
+    }
+
+    .g-wall {
+      transition: 0.4s;
+      opacity: 1;
+      .selected {
+        polygon {
+          fill: var(--primary-color);
+        }
+        circle {
+          opacity: 1;
+        }
+      }
+
+      polygon {
+        &:hover {
+          fill: var(--primary-lighter-color);
+        }
+        transition: 0.5s;
+        fill-rule: nonzero;
+      }
+      circle {
+        fill: red;
+        stroke: var(--color-100);
+        // opacity: 0;
+      }
+      .type-outer {
+        stroke: rgb(86, 86, 86);
+        .side-out {
+          stroke: rgb(14, 3, 167);
+        }
+      }
+      .side-out {
+        transition: 0.6s;
+      }
+      .type-inner {
+        opacity: 0.5;
+        stroke: rgb(86, 86, 86);
+      }
+      .type-theoretic {
+        opacity: 1;
+        stroke: rgb(0, 145, 182);
+        stroke-width: 3px;
+      }
+      .wall-fill {
+        stroke: none;
+      }
+    }
+
+    .g-door {
+      g {
+        transition: opacity 0.4s;
+      }
+      polygon {
+        transition: 0.5s;
+      }
+      path {
+        fill: none;
+        stroke: rgb(86, 86, 86);
+        stroke-linecap: square;
+      }
+    }
+
+    .g-window {
+      polygon {
+        transition: 0.5s;
+        fill: rgba(255, 255, 255, 0.6);
+        stroke: rgb(86, 86, 86);
+      }
+      path {
+        fill: none;
+        stroke: rgb(86, 86, 86);
+        stroke-linecap: square;
+      }
+    }
+
+    .plan-stair-plan {
+      .measure-stair {
+        display: none;
+      }
+    }
+  }
+
+  ////////////////////// Sections //////////////////////
+  .section-welcome:not(.fullscreen) {
+    .all {
+      transform: scale(0.6) translateX(25%);
+    }
+    .render-img {
+      opacity: 1 !important;
+    }
+    .g-window {
+      g {
+        opacity: 0 !important;
+      }
+    }
+  }
+  .section-welcome,
+  .section-passiv {
+    .g-door {
+      g {
+        opacity: 0 !important;
+      }
+    }
+  }
+
+  .section-basics {
+    .house-wind-rose,
+    .g-grid {
+      transition: 2s;
+      opacity: 0.7 !important;
+    }
+  }
+
+  .section-tower {
+    .room-f {
+      transition: 2s;
+      fill: var(--primary-color) !important;
+    }
+  }
+
+  .section-wired-light {
+    .g-sensor *[class*="sensor-light-switch"],
+    .g-sensor *[class*="sensor-dimmer"],
+    .g-sensor *[class*="sensor-light"] {
+      opacity: 1;
+      pointer-events: all;
+    }
+  }
+  .section-wired-power {
+    .g-sensor *[class*="sensor-perilex"],
+    .g-sensor *[class*="sensor-socket"] {
+      opacity: 1;
+      pointer-events: all;
+    }
+  }
+  .section-wired-ethernet {
+    .g-sensor *[class*="sensor-poe"],
+    .g-sensor *[class*="sensor-wifi"],
+    .g-sensor *[class*="sensor-ethernet"] {
+      opacity: 1;
+      pointer-events: all;
+    }
+  }
+  .section-wired-safety {
+    .g-sensor *[class*="sensor-pir"],
+    .g-sensor *[class*="sensor-camera"],
+    .g-sensor *[class*="sensor-smoke"],
+    .g-sensor *[class*="sensor-alarm"] {
+      opacity: 1;
+      pointer-events: all;
+    }
+  }
+  .section-wired-extra {
+    .g-sensor *[class*="sensor-pir"],
+    .g-sensor *[class*="sensor-blinds"],
+    .g-sensor *[class*="sensor-temperature"] {
+      opacity: 1;
+      pointer-events: all;
+    }
+  }
+
+  ////////////////////// Sections //////////////////////
+
+  //<============== States ===============>//
+
+  //<============== States ===============>//
+
+  ////////////////////// Tags //////////////////////
+  .tag-base-dimension {
+    #L0-West-WestWall,
+    #L0-North-NorthWall,
+    #L0-Central-SouthWall,
+    #L0-East-EastWall {
+      .side-out {
+        transition: 0.4s;
+        stroke-width: 1 !important;
+        stroke: var(--primary-color) !important;
+        stroke-linecap: round;
+      }
+    }
+  }
+
+  .tag-orientation {
+    .main-stop {
+      stop-color: $sun-color;
+    }
+    .alt-stop {
+      stop-color: var(--color-0);
+    }
+    .house-wind-rose {
+      opacity: 0.7 !important;
+    }
+    #L0-Central {
+      fill: $sun-color !important;
+    }
+    #L0-West,
+    #L0-Central,
+    #L0-East {
+      shape-rendering: crispEdges;
+      fill: url(#MyGradient) !important;
+    }
+    .g-sun {
+      opacity: 0.7 !important;
+      g {
+        animation: spin-animation 12s infinite;
+      }
+    }
+  }
+  .tag-insulated {
+    .g-wall *:not(.type-inner) polygon {
+      fill: var(--primary-color);
+      stroke: none !important;
+    }
+  }
+  .tag-viewlines {
+    #view-lines {
+      opacity: 0.7 !important;
+    }
+  }
+  ////////////////////// Tags //////////////////////
+}
+
+@keyframes spin-animation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(359deg);
+  }
+}

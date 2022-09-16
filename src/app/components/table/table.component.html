@@ -1,0 +1,16 @@
+<table mat-table [dataSource]="dataSource" class="mat-elevation-z0" multiTemplateDataRows id="table-{{costTable.name}}">
+  <ng-container [matColumnDef]="col['id']" *ngFor="let col of columns">
+    <th mat-header-cell *matHeaderCellDef> {{col['name']}} </th>
+    <td mat-cell *matCellDef="let row">
+      <span [innerHTML]="col['prefix']"></span>
+      <span *ngIf="row[col['id']]" [innerHTML]="col['def']( row[col['id']], row['unit'] )"></span>
+      <span [innerHTML]="col['postfix']"></span>
+    </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="columnNames;sticky: true"></tr>
+  <ng-container *matRowDef="let row; columns: columnNames;">
+    <tr mat-row (click)="rowClick(row)" #tableRows class="group-{{row.uuid}} row-{{row.type}}"
+      [class.row-folded]="row.uuid"></tr>
+  </ng-container>
+
+</table>

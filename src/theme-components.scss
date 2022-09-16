@@ -1,0 +1,74 @@
+@mixin passiv-color($theme) {
+  $color-config: mat.get-color-config($theme);
+
+  $primary: map.get($color-config, "primary");
+  $accent: map.get($color-config, "accent");
+  $foreground: map.get($color-config, foreground);
+  $background: map.get($color-config, background);
+
+  $bg: mat-color($background, background);
+  $txt: mat-color($foreground, base);
+  --color-0: #{mix($bg, $txt, 100%)};
+  --color-5: #{mix($bg, $txt, 95%)};
+  --color-10: #{mix($bg, $txt, 90%)};
+  --color-15: #{mix($bg, $txt, 85%)};
+  --color-20: #{mix($bg, $txt, 80%)};
+  --color-30: #{mix($bg, $txt, 70%)};
+  --color-40: #{mix($bg, $txt, 60%)};
+  --color-50: #{mix($bg, $txt, 50%)};
+  --color-60: #{mix($bg, $txt, 40%)};
+  --color-70: #{mix($bg, $txt, 30%)};
+  --color-80: #{mix($bg, $txt, 20%)};
+  --color-90: #{mix($bg, $txt, 10%)};
+  --color-100: #{mix($bg, $txt, 00%)};
+
+  --accent-50: #{mix(mat-color($accent), $bg, 50%)};
+
+  a {
+    color: mat-color($foreground, text);
+  }
+  .base {
+    color: mat-color($foreground, text);
+    background-color: mat-color($background, background);
+  }
+  .bg {
+    background-color: mat-color($background, background);
+  }
+  .bg-contrast {
+    background-color: mat-color($foreground, text);
+  }
+  .text {
+    color: mat-color($foreground, text);
+  }
+
+  // Fills
+  .bg-fill {
+    fill: mat-color($background, background);
+  }
+  .bg-contrast-fill {
+    fill: mat-color($foreground, text);
+  }
+
+  // Strokes
+  .bg-stroke {
+    stroke: mat-color($background, background);
+  }
+  .bg-contrast-stroke {
+    stroke: mat-color($foreground, text);
+  }
+
+  section > label > span:first-of-type,
+  .mat-button-tag,
+  .side {
+    background-color: mat-color($background, background);
+  }
+
+  .g-wall polygon {
+    fill: mat-color($foreground, text, 0.5);
+  }
+
+  .building-walls,
+  .building-ground-fill {
+    fill: mat-color($background, background);
+  }
+}

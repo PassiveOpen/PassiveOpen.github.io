@@ -1,0 +1,19 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+main {
+  min-height: calc(100vh - 56px);
+}
+
+footer {
+  .mat-toolbar {
+    padding: 48px 0 48px;
+    font-size: 0.8rem;
+    opacity: 0.8;
+    font-weight: 400;
+  }
+}
+.mat-drawer-content {
+  overflow-y: hidden;
+}

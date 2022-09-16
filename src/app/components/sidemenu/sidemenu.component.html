@@ -1,0 +1,75 @@
+<div class="side">
+  <mat-action-list class="menu" fxLayout="column" fxLayoutAlign="start start" fxFlex="1 1">
+    <button mat-list-item (click)="open()">
+      <mat-icon *ngIf="!mini">close</mat-icon>
+      <mat-icon *ngIf="mini">menu</mat-icon>
+      <span *ngIf="!mini">Close</span>
+      <span *ngIf="mini">{{title}}</span>
+    </button>
+
+    <button mat-list-item class="title">
+      <mat-icon style="opacity:0;transition: 0;">gite</mat-icon>
+      <span>{{title}}</span>
+    </button>
+    <button mat-list-item routerLink="/house" [disabled]="house.isActive" #house="routerLinkActive"
+      routerLinkActive="active" (click)="click()">
+      <mat-icon style="font-family:'Material Icons Outlined';">home</mat-icon>
+      <span>The house</span>
+    </button>
+    <button mat-list-item routerLink="/stairs" [disabled]="stairs.isActive" #stairs="routerLinkActive"
+      routerLinkActive="active" (click)="click()">
+      <mat-icon style="font-family:'Material Icons Outlined';">stairs</mat-icon>
+      <span>Stairs</span>
+    </button>
+    <button mat-list-item routerLink="/facade" [disabled]="facade.isActive" #facade="routerLinkActive"
+      routerLinkActive="active" (click)="click()">
+      <mat-icon>roofing</mat-icon>
+      <span>Façade</span>
+    </button>
+    <button mat-list-item routerLink="/construction" [disabled]="construction.isActive" #construction="routerLinkActive"
+      routerLinkActive="active" (click)="click()">
+      <mat-icon>handyman</mat-icon>
+      <span>Construction</span>
+    </button>
+    <button mat-list-item routerLink="/wired" [disabled]="wired.isActive" #wired="routerLinkActive"
+      routerLinkActive="active" (click)="click()">
+      <mat-icon>bolt</mat-icon>
+      <span>Wired</span>
+    </button>
+    <button mat-list-item routerLink="/costs" [disabled]="wired.isActive" #wired="routerLinkActive"
+      routerLinkActive="active" (click)="click()">
+      <mat-icon style="font-family:'Material Icons Outlined';">savings</mat-icon>
+      <span>Costs</span>
+    </button>
+    <button mat-list-item routerLink="/installations" [disabled]="installations.isActive"
+      #installations="routerLinkActive" routerLinkActive="active" (click)="click()">
+      <mat-icon>solar_power</mat-icon>
+      <span>Installations</span>
+    </button>
+    <button mat-list-item routerLink="/map" [disabled]="map.isActive" #map="routerLinkActive" routerLinkActive="active"
+      (click)="click()">
+      <mat-icon>pin_drop</mat-icon>
+      <span>Map</span>
+    </button>
+
+    <div fxFlex="1 1"></div>
+
+
+    <button mat-list-item (click)="darkMode = !darkMode" color="accent">
+      <mat-icon style="opacity:0;transition: 0;">dark_mode</mat-icon>
+      <span fxLayoutAlign="start center" fxLayoutGap="16px">
+        <mat-icon *ngIf="darkMode">light_mode</mat-icon>
+        <mat-icon *ngIf="!darkMode">dark_mode</mat-icon>
+        <div>{{darkMode?'Light':'Dark'}} mode</div>
+      </span>
+
+    </button>
+
+    <button mat-list-item (click)="collapsed = !collapsed" style="opacity: 0.7;">
+      <mat-icon [ngStyle]="{'transform': 'rotate('+
+        (collapsed?0:-180)+'deg) scale(0.7)'}">double_arrow</mat-icon>
+      <span>Collapse</span>
+    </button>
+  </mat-action-list>
+
+</div>

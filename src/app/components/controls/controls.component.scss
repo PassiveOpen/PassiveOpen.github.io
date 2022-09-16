@@ -1,0 +1,44 @@
+:host {
+  display: block;
+  position: fixed;
+  bottom: 0px;
+  z-index: 9999;
+  &.controls-left {
+    left: 50px;
+    .sub-controls {
+      left: -24px;
+      bottom: 8px;
+      position: relative;
+    }
+    label {
+      position: absolute;
+      text-align: left;
+      left: 50px;
+      color: var(--color-100);
+    }
+  }
+  &.controls-right {
+    right: 50px;
+    .sub-controls {
+      right: -24px;
+      bottom: 8px;
+      position: relative;
+    }
+    label {
+      position: absolute;
+      text-align: right;
+      right: 50px;
+      color: var(--color-100);
+    }
+  }
+}
+.active {
+  background-color: var(--accent-50) !important;
+  box-shadow: 0px 0px 0px 0px rgb(0 0 0 / 20%), 0px 0px 0px 0px rgb(0 0 0 / 14%),
+    0px 0px 0px 0px rgb(0 0 0 / 12) !important;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 8px 16px 8px;
+}

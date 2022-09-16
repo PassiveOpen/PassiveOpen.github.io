@@ -1,0 +1,26 @@
+.matrix {
+
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+
+  .matrix-cell {
+    display: block;
+    // height: 40px;
+    // width: 40px;
+    border: 1px solid black;
+    border-radius: 0px;
+    padding: 0px;
+    margin: 0px;
+    min-width: initial;
+    min-height: inherit;
+    line-height: 1em;
+    white-space: pre-wrap;
+    &.too-much,
+    &.too-litte {
+      border: 1px solid rgb(255, 255, 255);
+      opacity: 0.6;
+    }
+  }
+}

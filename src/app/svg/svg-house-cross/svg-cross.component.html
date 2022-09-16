@@ -1,0 +1,72 @@
+<!-- <div *ngIf="cross" style="padding-left: 48px;">
+  {{cross.innerWidth}} m<br />
+</div> -->
+
+<svg #svg class="cross" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <polygon id="clip-roof" d="M130.532,285.709c0,0-17.042,21.134-29.287,14.291c-20.5-11.457-98.902,19.709-98.902,19.709
+    l-5.333,253.333h152.667L130.532,285.709z"></polygon>
+
+    <pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="scale(0.1)">
+      <path d="M-1,1 l2,-2
+               M0,4 l4,-4
+               M3,5 l2,-2" style="stroke:black; stroke-width:0.1" />
+    </pattern>
+
+  </defs>
+  <clipPath id="clip-roof2">
+    <use xlink:href="#clip-roof" overflow="visible"></use>
+  </clipPath>
+
+  <g class="all" transform="rotate(0)">
+    <g class="g-figure"></g>
+    <g class="g-building">
+      <polygon id="building-walls"></polygon>
+      <polygon id="building-room"></polygon>
+      <polygon id="building-crawler"></polygon>
+      <polyline id="building-ground-line"></polyline>
+
+      <polygon id="building-fill"></polygon>
+      <polygon id="building-ground-fill"></polygon>
+      <polygon id="building-ground" fill="url(#diagonalHatch)"></polygon>
+    </g>
+
+    <g class="g-roof-circle" [ngStyle]="{opacity:roofCheck(RoofStyle.roofCircle)}">
+      <polygon id="building-roof-circle-wall1"></polygon>
+      <polygon id="building-roof-circle-wall2"></polygon>
+      <polygon id="roof-circle" clip-path="url(#clip-roof2)"></polygon>
+      <polygon id="roof-circle-shadow"></polygon>
+      <polygon id="roof-circle-fill"></polygon>
+    </g>
+    <g class="g-roof-70" [ngStyle]="{opacity:roofCheck(RoofStyle.roof70)}">
+      <polygon id="building-roof-70-wall1"></polygon>
+      <polygon id="building-roof-70-wall2"></polygon>
+      <polygon id="roof-70" clip-path="url(#clip-roof2)"></polygon>
+      <polygon id="roof-70-fill"></polygon>
+      <polygon id="roof-70-shadow"></polygon>
+    </g>
+
+
+    <!-- Helpers -->
+    <g class="g-helper">
+      <circle *ngFor="let i of [0,1,2,3,4,5,6,7,8,9,10]" id="roof-point-{{i}}"></circle>
+      <g class="g-h-circle-roof">
+        <polyline id="roof-circle__h-line"></polyline>
+        <path id="roof-circle__h-circle"></path>
+      </g>
+      <g class="g-h-bend-point">
+        <polyline id="bend-point__h-line"></polyline>
+        <circle id="bend-point__h-point"></circle>
+      </g>
+
+    </g>
+
+    <g class="cross-measure">
+
+      <g id="minimum"></g>
+      <g id="minimum-h"></g>
+      <g id="minimum-room"></g>
+      <g id="minimum-room-h"></g>
+    </g>
+  </g>
+</svg>

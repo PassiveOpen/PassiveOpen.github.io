@@ -1,0 +1,146 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+.page {
+  position: relative;
+}
+.container {
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  flex: 1 1 100vw;
+  main {
+    max-width: 800px;
+    justify-content: center;
+    display: flex;
+    flex-direction: row;
+    flex: 10 1 800px;
+  }
+  .left-flex,
+  .right-flex,
+  .center {
+    transition: 0.6s;
+  }
+
+  &.show-left {
+    .left-flex {
+      flex: 1 1 100vw;
+    }
+    .right-flex {
+      flex: 1 1 0vw;
+    }
+  }
+  &.show-right {
+    .left-flex {
+      flex: 1 1 0vw;
+    }
+    .right-flex {
+      flex: 1 1 100vw;
+    }
+  }
+  .center {
+    flex: 1 1 100vw;
+    border-left: 0vw solid transparent;
+    border-right: 0vw solid transparent;
+    max-width: 450px;
+    overflow-x: hidden;
+    z-index: 2;
+  }
+
+  .left-blinder,
+  .right-blinder {
+    display: block;
+    height: 100%;
+    width: 0vw;
+    position: absolute;
+    // background: white;
+    z-index: 5;
+    transition: 0.8s ease-in;
+    opacity: 0.8;
+  }
+  .left-blinder {
+    left: 0px;
+  }
+  .right-blinder {
+    right: 0px;
+  }
+  &.fullscreen {
+    &.show-left .left-blinder {
+      transition: 0.6s ease-out;
+      width: 100vw;
+      opacity: 1;
+    }
+    &.show-right .right-blinder {
+      transition: 0.6s ease-out;
+      width: 100vw;
+      opacity: 1;
+    }
+  }
+}
+
+/////////// SVG ///////////
+.floating {
+  top: 0;
+  height: calc(100vh);
+  position: fixed;
+  max-width: calc(100vh);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 500;
+  transition: 1s;
+  &.floating-right {
+    left: 50vw;
+    width: 50vw;
+  }
+  &.floating-left {
+    right: 50vw;
+    width: 50vw;
+  }
+  & > * {
+    overflow: hidden;
+    flex: 1 1 100%;
+    position: relative;
+  }
+}
+
+.show-right {
+  .floating-left {
+    width: 50vw;
+    right: 100vw;
+  }
+}
+.show-left {
+  .floating-right {
+    width: 50vw;
+    left: 100vw;
+  }
+}
+.fullscreen {
+  &.show-left .floating-left {
+    width: 100vw;
+    right: 0vw;
+    max-width: calc(100vw);
+  }
+  &.show-right .floating-right {
+    width: 100vw;
+    left: 0vw;
+    max-width: calc(100vw);
+  }
+}
+/////////// SVG ///////////
+
+/////////// Goal line ///////////
+.goal-marker {
+  position: fixed;
+  border: 1px solid var(--color-30);
+  height: 13px;
+  width: 13px;
+  transform: rotate(45deg);
+  left: -10px;
+}
+.svg-plan-stair-plan {
+  // position: absolute;
+  // transform: translateX(-200px);
+}

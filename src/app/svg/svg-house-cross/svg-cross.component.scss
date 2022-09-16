@@ -1,0 +1,97 @@
+::ng-deep {
+  svg.cross {
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    *[id*="-fill"] {
+      stroke: none;
+      opacity: 0;
+      &#building-ground-fill {
+        opacity: 1;
+        fill: var(--color-0);
+      }
+    }
+    * {
+      transition: fill 0.4s;
+    }
+
+    .g-roof-circle,
+    .g-roof-70,
+    .g-building {
+      stroke: var(--color-70);
+      fill: var(--color-30);
+      #building-crawler,
+      #building-room {
+        fill: var(--color-0);
+      }
+    }
+
+    .g-helper > * {
+      stroke: var(--primary-color) !important;
+      opacity: 0;
+      fill: none;
+
+      &[id^="roof-point-"] {
+        opacity: 1 !important;
+        // fill: var(--primary-color) !important;
+      }
+    }
+    // .minimum,
+    // .minimum-room {
+    //   opacity: 0;
+    // }
+  }
+
+  ////////////////////// Sections //////////////////////
+  .section-roof-basics {
+    #building-ground-fill {
+      fill: transparent !important;
+    }
+  }
+  .tag-roof-both,
+  .section-roof-choice {
+    #roof-70-shadow {
+      opacity: 0.6;
+      fill: var(--primary-color) !important;
+    }
+    #roof-circle-shadow {
+      opacity: 1;
+      fill: var(--accent-color) !important;
+    }
+  }
+
+  .section-roof-edge {
+  }
+  ////////////////////// Sections //////////////////////
+
+  ////////////////////// Tags //////////////////////
+  .tag-half-circle {
+    .g-h-circle-roof {
+      opacity: 1 !important;
+    }
+  }
+  .tag-bend-point {
+    .g-h-bend-point {
+      opacity: 1 !important;
+    }
+  }
+
+  ////////////////////// Tags //////////////////////
+  ////////////////////// States //////////////////////
+  .state-grey {
+    #building-roof-circle-wall1,
+    #building-roof-circle-wall2,
+    #building-roof-70-wall1,
+    #building-roof-70-wall2,
+    *[id*="-fill"]:not(#building-ground-fill) {
+      fill: var(--color-90) !important;
+      opacity: 1 !important;
+    }
+    *[id*="-shadow"] {
+      fill: var(--color-90) !important;
+    }
+  }
+
+  ////////////////////// States //////////////////////
+}

@@ -1,0 +1,56 @@
+<div class="page">
+
+  <div class="container 
+  tag-{{(tag$ |async) }} 
+  floor-{{(floor$ |async) }} 
+  section-{{(scroll$ |async).section }} 
+  show-{{(scroll$ |async).graphicSide }} 
+  {{(popupActive$ | async)?'popup-active':''}} 
+  {{(fullscreen$ | async)?'fullscreen':''}}
+  {{(cssStates$ |async) }} 
+  ">
+
+
+    <div class="left-blinder bg"></div>
+    <main>
+      <div class="left-flex"></div>
+      <div class="center">
+        <router-outlet></router-outlet>
+        <!-- <disqus [identifier]="router.url"></disqus> -->
+      </div>
+      <div class="right-flex"></div>
+    </main>
+
+    <div class="right-blinder bg"></div>
+    <controls @slideInOut class="controls controls-left" *ngIf="graphicSide === GraphicSide.left"></controls>
+    <controls @slideInOut class="controls controls-right" *ngIf="graphicSide === GraphicSide.right"></controls>
+
+    <ng-container *ngIf="(scroll$ |async).graphic as graphic">
+      <div class="floating floating-left">
+        <app-svg-cross *ngIf="graphic === Graphic.cross" class="svg-cross"></app-svg-cross>
+      </div>
+      <div class="floating floating-right">
+        <ng-container *ngIf="graphic === Graphic.plan">
+          <app-svg-stair-plan [isChild]="true" class="svg-plan-stair-plan" fxFlex="0 0 0">
+          </app-svg-stair-plan>
+          <app-svg-plan style="max-height: 580px;" class="svg-plan"></app-svg-plan>
+        </ng-container>
+
+        <ng-container *ngIf="graphic === Graphic.window">
+          <app-three-window></app-three-window>
+        </ng-container>
+        <ng-container *ngIf="graphic === Graphic.stair">
+          <app-svg-stair-plan fxFlex="1 1 50%" class="svg-stair-plan">
+          </app-svg-stair-plan>
+          <app-svg-stair-steps fxFlex="1 1 50%" class="svg-stair-steps">
+          </app-svg-stair-steps>
+        </ng-container>
+      </div>
+    </ng-container>
+
+  </div>
+
+</div>
+<div class="goal-marker" [ngStyle]="{'top': goalLine*100+'vh' }">
+
+</div>

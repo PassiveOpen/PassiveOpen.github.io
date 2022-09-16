@@ -1,0 +1,8 @@
+:host {
+  display: inline-block;
+}
+::ng-deep { // works also in the svg-views
+  svg > g > g > path:first-child {
+    fill: rgb(116, 116, 116);
+  }
+}

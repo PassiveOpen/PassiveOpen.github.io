@@ -1,0 +1,354 @@
+<ng-container *ngIf="(house$|async) as house">
+
+  <section [id]="Section.welcome">
+    <h1>Welcome to {{house.name}}</h1>
+    <p class="mat-caption">
+      A passiv-haus but in Dutch (neo)-renaissance style, but above all open-source.
+      We love to share our plans as a community. See it as free building plans for your own house or give it to your
+      constructor. Its truly free.
+    </p>
+  </section>
+
+  <section [id]="Section.passiv">
+    <h2>Passiv? <span style="font-size: 0.7em;">(Its German)</span></h2>
+    <p>Passive houses are the future. Feel free to <a href="https://passivehouse.com/" target="_blank">search online for
+        'Passiv
+        Haus'</a> (not really sexy or
+      anything). Therefor let us try to
+      explain it. Well, really short: </p>
+    <ul>
+      <li>
+        <tag [tag]="tags.insulated" [overlayTemplate]="insulated" cdkOverlayOrigin>Great
+          insulated</tag>
+
+        <ng-template #insulated>
+          Insulation keeps you warm. Passiv houses have almost no heatloss so therefore (almost) no heating is needed!
+          The
+          walls are thicker than you are used to: {{0.5}} meter
+        </ng-template>
+
+      </li>
+      <li>Well & compact desinged</li>
+      <li>
+        <tag [tag]="tags.orientation" [overlayTemplate]="orientation" cdkOverlayOrigin>Orientation</tag> to the sun
+
+        <ng-template #orientation>
+          In the winter, we need the sun to warmup the house. In the summer the house needs to be shaded on the outside
+          to prevent overheating.
+        </ng-template>
+      </li>
+      <li>No thermal bridges</li>
+      <li>Can be houses, but also offices etc</li>
+      <li>Sustainable (well in our opinion)</li>
+    </ul>
+    <p>Passiv Haus in one punchline:</p>
+    <div fxLayoutAlign="center" style="margin:8px 0 32px;">
+      <tag [tag]="tags.efficiency" [overlayTemplate]="efficiency" cdkOverlayOrigin>Efficiency first</tag>
+      <ng-template #efficiency>
+        It is even a hashtag <b>#EfficiencyFirst</b>. Why look at green energy if we wast still alot of energy. (
+        Ofcourse we still need green energy! ). First insulation to the max, before thinking of solarpanels.
+      </ng-template>
+    </div>
+    <p>
+      Sometimes passive houses are often not so pretty. (maybe, if you like
+      form-follow-function). Effiency first, but style second for us! Therefore we try to combine old design styles with
+      this great concept.
+    </p>
+
+
+  </section>
+
+  <section [id]="Section.basics">
+    <h2>The basics</h2>
+    <p>
+      The house is based on parametric design. So play with all the sliders, its interactive. Lets start at the very
+      basics. And why does it look like a church from above?
+    </p>
+    <h3>Threefold or Trinity</h3>
+    <p>The main house, seen from the south (up here) has three equal parts, we call them the
+      <tag [tag]="tags.baseDimension" [overlayTemplate]="baseDimension" cdkOverlayOrigin>base
+        dimension</tag>. A design seen often in classical buildings. It comes often with great <tag
+        [tag]="tags.viewlines">viewlines</tag>.
+    </p>
+
+    <ng-template #baseDimension>
+      It is not really a thing, more a concept. The house has a west-east-length of 3 * base-dimension (Rule of thirds /
+      Trinity). It
+      helps the already complex roof to look good. And also, very helpfull with calculations.
+    </ng-template>
+
+    <label>
+      <span>Base dimension
+      </span>
+      <mat-slider min="6" max="15" [ngModel]="house.studAmount"
+        (input)="update('house','studAmount', $event.value, tags.baseDimension);" tickInterval="1">
+      </mat-slider>
+    </label>
+
+    <label class="technical">
+      <span>Technical </span>
+      We talk in studs, wooden columns in the wall. They are the core that follow a grid of
+      {{house.studDistance *100}} cm. The <tag [tag]="tags.baseDimension" [overlayTemplate]="baseDimension"
+        cdkOverlayOrigin>base
+        dimension</tag> wall has now {{house.studAmount}} studs.
+    </label>
+    <label class="technical">
+      <span>Design</span>
+      <ul>
+        <li>We follow <a href="https://en.wikipedia.org/wiki/Rule_of_thirds">Rule of thirds</a> </li>
+      </ul>
+    </label>
+
+    <!-- <label>
+      <span>
+        Distance between (meter)
+      </span>
+      <mat-slider min="0.60" max="0.62" [ngModel]="house.studDistance" (input)="update('studDistance',$event.value)" step="0.01"
+        thumbLabel  tickInterval="1"></mat-slider>
+    </label> -->
+  </section>
+
+
+  <section [id]="Section.extensions">
+    <h2>Extensions</h2>
+    <p>
+      Break boring lines on the southface and create more interesting view points with a <tag
+        [tag]="tags.extensionToSouth" [overlayTemplate]="extensionToSouth" cdkOverlayOrigin>south extension</tag>
+      <i></i>. The
+      colder, darker side (less windows by design) is located in the convenient <tag [tag]="tags.extensionToNorth"
+        [overlayTemplate]="extensionToNorth" cdkOverlayOrigin>north wing</tag>
+    </p>
+    <h3>Body parts </h3>
+
+    <ng-template #extensionToSouth>
+      This extension is to greaten the three-part south facade, creates a bigger roof on the second floor.
+    </ng-template>
+    <ng-template #extensionToNorth>
+      <!-- - todo -->
+      Dont make this too long, it does not fit with the compact design, enlarge the base-dimension if you like.
+    </ng-template>
+
+    <label>
+      <span>South extension
+      </span>
+      <mat-slider min="0" max="4" [ngModel]="house.studAmountSouth"
+        (input)="update('house','studAmountSouth',$event.value, tags.extensionToSouth)" thumbLabel
+        [displayWith]="studLabel" tickInterval="1">
+      </mat-slider>
+    </label>
+    <label>
+      <span>
+        North wing
+      </span>
+      <mat-slider [min]="9" [max]="18" [ngModel]="house.studAmountNorth"
+        (input)="update('house','studAmountNorth',$event.value ,tags.extensionToNorth)" thumbLabel
+        [displayWith]="studLabel" tickInterval="1">
+      </mat-slider>
+    </label>
+    <label>
+      <span>
+        West wing
+      </span>
+      <mat-slider [min]="5" [max]="15" [ngModel]="house.studAmountWest"
+        (input)="update('house','studAmountWest',$event.value ,tags.extensionToWest)" thumbLabel
+        [displayWith]="studLabel" tickInterval="1">
+      </mat-slider>
+    </label>
+    <label>
+      <span>
+        East wing
+      </span>
+      <mat-slider [min]="5" [max]="9" [ngModel]="house.studAmountEast"
+        (input)="update('house','studAmountEast',$event.value ,tags.extensionToEast)" thumbLabel
+        [displayWith]="studLabel" tickInterval="1">
+      </mat-slider>
+    </label>
+
+    <label class="technical">
+      <span>Technical
+      </span>
+
+      <table>
+        <tr>
+          <td>{{house.studAmountSouth}}</td>
+          <td> South studs</td>
+        </tr>
+        <tr>
+          <td>{{house.studAmountNorth}}</td>
+          <td> studs makes a wall</td>
+        </tr>
+
+        <tr>
+          <td>{{ house.stats.wall.innerLength }}m</td>
+          <td> Inside wall Length</td>
+        </tr>
+        <tr>
+          <td>{{ house.stats.wall.innerArea }}m2</td>
+          <td> Inside wall Area</td>
+        </tr>
+        <tr>
+          <td>{{ house.stats.wall.outerLength }}m</td>
+          <td> Outside wall Length</td>
+        </tr>
+        <tr>
+          <td>{{ house.stats.wall.outerArea }}m2</td>
+          <td> Outside wall Area</td>
+        </tr>
+        <tr>
+          <td>{{ house.stats.floor.total | json }}m2</td>
+          <td> floor </td>
+        </tr>
+      </table>
+
+    </label>
+
+
+  </section>
+
+
+  <section [id]="Section.tower" style="padding-bottom: 80px;">
+    <h3>Tower</h3>
+    <p>This tower is a practical backdoor and allows you to walk from the kitch to the rest of the house. It creates
+      also a viewpoint from the roof! We like the tower. </p>
+    <mat-slide-toggle [ngModel]="house.showTower" (ngModelChange)="update('house','showTower',$event)">With a
+      practical
+      tower
+    </mat-slide-toggle>
+  </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <section [id]="Section.roofBasics">
+
+
+    <h1>Cross section</h1>
+
+    <h2>Slicing it, the basics</h2>
+    <p>High ceilings are nice and makes the house feel larger, they costs more but worth it. Heat problems are less with
+      floorheathing.</p>
+    <label>
+      <span>Ceiling height: {{house.cross.ceilingHeight}} m</span>
+      <mat-slider min="1.9" max="3.6" [ngModel]="house.cross.ceilingHeight"
+        (input)="update('cross','ceilingHeight',$event.value)" step="0.1" tickInterval="1"></mat-slider>
+    </label>
+
+    <h3>Foundation: {{house.cross.crawlerSpace? 'crawler space':'flat foundation'}}</h3>
+    <p>Way too technical in this design fase! However a crawler space can raise the whole building, changing the overall
+      experience. It can protect more against climate change. Floodings or heavy rains. It is also more expensive and
+      takes more time to build.</p>
+    <mat-slide-toggle [ngModel]="house.cross.crawlerSpace" (ngModelChange)="update('cross','crawlerSpace',$event)">With
+      a
+      {{house.cross.crawlerSpace? 'crawler space':'flat foundation'}}
+    </mat-slide-toggle>
+    <label>
+      <span>Ground floor above ground: {{house.cross.floorAboveGround}} m</span>
+      <mat-slider min="0" max="1" [ngModel]="house.cross.floorAboveGround"
+        (input)="update('cross','floorAboveGround',$event.value)" step="0.1" tickInterval="1"></mat-slider>
+    </label>
+
+
+  </section>
+
+
+  <section [id]="Section.roofCircle">
+
+    <h2>Roof style</h2>
+    <p><a href="https://en.wikipedia.org/wiki/Mansard_roof" target="_blank">Mansard or Gambrel roof</a> is gives a nice
+      classic countryside stylefull roof.There are three methods to create them. We check both the "circle" and
+      '70&deg;/30&deg;'</p>
+
+    <h2>Circle-based</h2>
+    <p>Draw a <tag [tag]="tags.halfCircle">half circle</tag> with 45&deg; lines to create the breakpoints. If you use
+      the slider to create more overhang, the circle moves with it, to keep proportions. The angles are resp: 67.5&deg;,
+      22.5&deg;
+    </p>
+
+
+
+    <label>
+      <span>(Fictive) 'Wider roof'</span>
+      <mat-slider min="0" max="2" [ngModel]="house.cross.roofCirclePullDown"
+        (input)="update('cross','roofCirclePullDown',$event.value,tags.halfCircle)" step="0.1" tickInterval="1">
+      </mat-slider>
+    </label>
+
+    <label>
+      <span>Walls under the roof {{house.cross.roofCircleWalls}}m</span>
+      <mat-slider min="0" max="2" [ngModel]="house.cross.roofCircleWalls"
+        (input)="update('cross','roofCircleWalls',$event.value)" step="0.1" tickInterval="1"></mat-slider>
+    </label>
+
+  </section>
+
+
+  <section [id]="Section.roof70">
+    <h2>The 70&deg;/30&deg; roof</h2>
+    <p>With this technique, draw a line 70&deg; until a <tag [tag]="tags.bendPoint" [overlayTemplate]="bendPoint"
+        cdkOverlayOrigin>bend point</tag>. After than follow
+      30&deg;. Think about the solar potential!
+    </p>
+
+    . A common seen classical symmetrical design.
+    <ng-template #bendPoint>
+      A concept, how far is the bend-point of the roof, away from the outside wall.
+    </ng-template>
+
+    <label>
+      <span>Move <tag [tag]="tags.bendPoint" [overlayTemplate]="bendPoint" cdkOverlayOrigin>bend point</tag></span>
+      <mat-slider min="0" max="2" [ngModel]="house.cross.roof70offset"
+        (input)="update('cross','roof70offset',$event.value,tags.bendPoint)" step="0.1" tickInterval="1"></mat-slider>
+    </label>
+
+    <label>
+      <span>Walls under the roof: {{house.cross.roof70Walls}}m</span>
+      <mat-slider min="0" max="2" [ngModel]="house.cross.roof70Walls"
+        (input)="update('cross','roof70Walls',$event.value, tags.roofWalls)" step="0.1" tickInterval="1"></mat-slider>
+    </label>
+
+    <label>
+      <span>Roof extension: {{house.cross.roof70Extension}}m</span>
+      <mat-slider min="0" max="2" [ngModel]="house.cross.roof70Extension"
+        (input)="update('cross','roof70Extension',$event.value)" step="0.1" tickInterval="1"></mat-slider>
+    </label>
+
+  </section>
+
+
+  <section [id]="Section.roofChoice">
+    <h3>Roof, 70&deg; or Circle</h3>
+    <p>We should choose a roof. There are more possibilities in the end. But for now a mansard roof it is.
+    </p>
+    <mat-button-toggle-group name="roofstyle" [(ngModel)]="house.cross.roofStyle"
+      (ngModelChange)="choosenRoofstyle($event)">
+      <mat-button-toggle [value]="RoofStyle.roofCircle">Circle based</mat-button-toggle>
+      <mat-button-toggle [value]="RoofStyle.roofCircleAnd70">Both</mat-button-toggle>
+      <mat-button-toggle [value]="RoofStyle.roof70">70&deg; based</mat-button-toggle>
+    </mat-button-toggle-group>
+
+  </section>
+
+
+  <section [id]="Section.roofEdge">
+    <h3>The roof edge</h3>
+    <p>We can look at the silhouette to image it a bit better. We can also add or remove a gutter, and more decorative
+    </p>
+  </section>
+
+
+</ng-container>

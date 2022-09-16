@@ -1,0 +1,114 @@
+<ng-container *ngIf="(house$|async) as house">
+  <section [id]="Section.stairStart">
+
+    <h1>Stairs</h1>
+    <p class="mat-caption">
+      Stairs are its own thing. There are even whole pinterest collections dedicated to stairs.
+    </p>
+
+  </section>
+  <section [id]="Section.stairBasic">
+
+    <h2>Stair 101</h2>
+    <p>
+      There are different approaches to calculate stairs. We already did the following for us.
+    </p>
+    <ol>
+      <li>The <b>vertical</b> distance is already decided by the house: {{house.stair.totalRise}}m</li>
+      <li>Building code allows the rise of the step to be between:
+        182mm and 220mm.Therefore we can only have between <b>{{house.stair.minSteps}} and {{house.stair.maxSteps}}
+          steps</b> </li>
+    </ol>
+    <label>
+      <span>Total steps: horizontal {{house.stair.steps}}</span>
+      <mat-slider [min]="house.stair.minSteps" [max]=house.stair.maxSteps [ngModel]="house.stair.steps"
+        (input)="update('stair', 'steps',$event.value,Tag.amountSteps)" step="1" thumbLabel [displayWith]="sizeLabel"
+        tickInterval="1">
+      </mat-slider>
+    </label>
+    <ol start="3">
+      <li>The min and max <b>horizontal distance</b> is easy, the stairs should be between 30&deg; and 35&deg;</li>
+    </ol>
+
+    <!-- Stairs are quite complex to calculate. There are two ways
+    <ul>
+      <li>start with the total horizontal distance (total run/ total flight)</li>
+      <li>Amount of steps</li>
+    </ul> -->
+    <label>
+      <span>Total length stairs: horizontal {{house.stair.totalRun}}m</span>
+      <mat-slider [min]="totalRunMin" [max]=totalRunMax [ngModel]="house.stair.totalRun"
+        (input)="update('stair', 'totalRun',$event.value)" step="0.1" thumbLabel [displayWith]="sizeLabel"
+        tickInterval="1">
+      </mat-slider>
+    </label>
+    <!-- <div class="matrix">
+
+      <ng-container *ngFor="let steps of [].constructor(rangeSteps); let step = index;">
+        <span class="matrix-step" fxFlex="0 0 20%">{{house.stair.minSteps+step}} steps</span>
+        <ng-container *ngFor="let totalR of [].constructor(deltas); let dx = index;">
+          <ng-container *ngIf="currentCell(step,dx) as rise">
+
+            <button mat-flat-button fxFlex="1 1 20%" class="matrix-cell matrix-{{step}}--{{dx}}"
+              [overlayTemplate]="bendPoint" cdkOverlayOrigin [ngClass]="score(rise,this.currentRun(dx))"
+              (click)="select(house.stair.minSteps+step,this.currentRun(dx))">
+              {{rise}} mm
+              <ng-template #bendPoint>
+                {{house.stair.minSteps+step}} steps width a total run of: {{this.currentRun(dx)}}m
+              </ng-template>
+            </button>
+
+          </ng-container>
+
+        </ng-container>
+      </ng-container>
+
+
+    </div> -->
+
+  </section>
+  <section [id]="Section.stairCheck">
+    <h2>The good, bad and perfect stairs</h2>
+    <label>
+      <span>Checks</span>
+      The angle will be {{house.stair.angle}}&deg;
+      <div>Steps: {{house.stair.steps}}</div>
+      <div>Rise: {{house.stair.rise}} m</div>
+      <div>Run: {{house.stair.run}} m</div>
+      <div>Rise+Run+Rise: {{house.stair.step*10}} cm</div>
+    </label>
+  </section>
+
+  <section [id]="Section.stairPlan">
+    <h2>Stair layout</h2>
+    <p>
+      Stairs can be straight, but we like to have two bends. This makes the stairs relative more compact. It prevents to
+      falldown the complete stairs in accidents.
+      Sideplus, it comes with a nice open hall effect.
+    </p>
+
+    <label>
+      <span>Width {{house.stair.walkWidth}}m</span>
+      <mat-slider [min]=0.7 [max]=1.2 [ngModel]="house.stair.walkWidth"
+        (input)="update('stair', 'walkWidth',$event.value)" step="0.1" tickInterval="1">
+      </mat-slider>
+    </label>
+    <label>
+      <span>Total width of stairs: {{house.stair.totalWidth}}m</span>
+      <mat-slider [min]="house.stair.walkWidth*2" [max]=12 [ngModel]="house.stair.totalWidth"
+        (input)="update('stair', 'totalWidth',$event.value)" step="0.1" tickInterval="1">
+      </mat-slider>
+    </label>
+    <label>
+      <span>Steps on the rightside: {{house.stair.stepsRight}} of {{house.stair.steps}}</span>
+      <mat-slider [min]="0" [max]="house.stair.steps/2" [ngModel]="house.stair.stepsRight"
+        (input)="update('stair', 'stepsRight',$event.value)" step="1" tickInterval="1">
+      </mat-slider>
+    </label>
+    <p>
+      For now we keep the model as simple as possible. Stairs are quite complex. Steps can change direction slowly to
+      make it a piece of art by it self.
+    </p>
+    <img width="100%" src="https://berkela.home.xs4all.nl/stijgpunten/afbeeldingen/tn_2005extra07_11.jpg">
+  </section>
+</ng-container>

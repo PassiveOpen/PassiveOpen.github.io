@@ -1,0 +1,21 @@
+<mat-sidenav-container class="example-container">
+  <mat-sidenav mode="side" opened>
+    <app-sidemenu></app-sidemenu>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <main>
+      <router-outlet></router-outlet>
+      
+    </main>
+    <footer>
+      <mat-toolbar fxLayout="column" fxLayoutAlign="center center">
+        <div>
+          {{title}} 2019 - {{year}}
+        </div>
+        <div>
+          Everything is Free and open source. See <a href="https://github.com/meijer3/passiv">github</a>
+        </div>
+      </mat-toolbar>
+    </footer>
+  </mat-sidenav-content>
+</mat-sidenav-container>

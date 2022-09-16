@@ -1,0 +1,221 @@
+<h1>Smart home</h1>
+
+
+
+<section [id]="Section.wiredPower">
+  <h2>
+    Electricity
+  </h2>
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.socket}}" url="assets/svg/{{SensorType.socket}}.svg">
+    </app-svg>
+    <span>Normal - 230v</span>
+  </h3>
+  <p>
+    The standard in Sweden is 10amps per group (1.5mm2). In Netherlands that would be 16amps and 2.5mm2
+  </p>
+
+  <label class="technical">
+    <span>Technical </span>
+    Total cable length: {{getCable(SensorType.socket)}}m<br>
+    Groups: {{getGroups(SensorType.socket)}}<br>
+    Amount: {{getOutlets(SensorType.socket)}}<br>
+  </label>
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.perilex}}" url="assets/svg/{{SensorType.perilex}}.svg">
+    </app-svg>
+    <span>3Phase - 400v</span>
+  </h3>
+  <p>
+    This weird symbol is a <tag>perilex</tag> plug. It has 3-phase (or sometimes just two). The main goal is the devide
+    the load over 3 wires instead of one. It requires more wires though. Think induction in the kitchen, or e-car (not
+    this connector).
+  </p>
+
+  <label class=" technical">
+    <span>Technical </span>
+    Total cable length: {{getCable(SensorType.perilex)}}m<br>
+    Groups: {{getGroups(SensorType.perilex)}}<br>
+    Amount: {{getOutlets(SensorType.perilex)}}<br>
+  </label>
+
+</section>
+
+<section [id]="Section.wiredLight">
+  <h2>
+    lightning
+  </h2>
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.light}}" url="assets/svg/{{SensorType.light}}.svg"></app-svg>
+    <span>Lamps</span>
+  </h3>
+  <p>
+    Lamps can come in 230v and 24v.
+    Most lamps should be dimmable and wires run back to the PLC
+  </p>
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.lightSwitch}}" url="assets/svg/{{SensorType.lightSwitch}}.svg"></app-svg>
+    <span>Double switch </span>
+  </h3>
+  <p>
+    Double pulse switches. Allows for 6 options. Single, double and long press.
+    They are 24v and wires run back to the PLC.
+  </p>
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.dimmer}}" url="assets/svg/{{SensorType.dimmer}}.svg"></app-svg>
+    <span>Dimmer</span>
+  </h3>
+  <p>
+    All dimmable lights have a dim level that became less bright during the evening. Following the
+    <a href="https://community.home-assistant.io/t/circadian-lighting-custom-component/61246">circadian lightning.</a>.
+    This button is only to overrule and switch on or off
+  </p>
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.dlc}}" url="assets/svg/{{SensorType.dlc}}.svg"></app-svg>
+    <span>DLC, or light plugs</span>
+  </h3>
+  <p>
+    Completely strange for outstanders. but every fixed light has a seperate miniplug. In Sweden they had a old one, and
+    since 2019 they follow the EU standard of DLC.
+  </p>
+
+</section>
+
+<section [id]="Section.wiredEthernet">
+  <h2>
+    Network / Ethernet
+  </h2>
+
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.ethernet}}" url="assets/svg/{{SensorType.ethernet}}.svg"></app-svg>
+    <span>Ethernet (rj45)</span>
+  </h3>
+  <p>
+    If you work home, you need reliable internet. A wall outlet for a normal internet cable works the best.
+    Not limited to computers, many devices can have them as well. Like speakers, television etc.
+  </p>
+  <label class=" technical">
+    <span>Technical </span>
+    Amount: {{getOutlets(SensorType.ethernet)}}<br>
+    Total cable length: {{getCable(SensorType.ethernet, 0)}}m<br>
+  </label>
+
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.poe}}" url="assets/svg/{{SensorType.poe}}.svg"></app-svg>
+    <span>Power-over-Ethernet </span>
+  </h3>
+  <p>Its a internet cable with (often) 48volts. So you can power up a device with only the internet cable. Perfect for a
+    ring-doorbel, security camera or even wifi-access-points
+  </p>
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.wifi}}" url="assets/svg/{{SensorType.wifi}}.svg"></app-svg>
+    <span>Wifi</span>
+  </h3>
+  <p>Maybe most important for any mobile device, or guests
+  </p>
+  <label class=" technical">
+    <span>Technical </span>
+    Amount: {{getOutlets(SensorType.wifi)}} Access points<br>
+  </label>
+
+
+
+</section>
+
+
+<section [id]="Section.wiredSafety">
+  <h2>
+    Safety
+  </h2>
+
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.smoke}}" url="assets/svg/{{SensorType.smoke}}.svg"></app-svg>
+    <span>Smoke/heat detectors</span>
+  </h3>
+  <p>We have a firefighter in the family. On a serious note, everyone should have multiple of smoke sensors. A heat
+    sensor in the kitchen.
+  </p>
+  <label class=" technical">
+    <span>Technical </span>
+    Amount: {{getOutlets(SensorType.smoke)}}<br>
+    Total cable length: {{getCable(SensorType.smoke, 0)}}m<br>
+  </label>
+
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.camera}}" url="assets/svg/{{SensorType.camera}}.svg"></app-svg>
+    <span>Camera's</span>
+  </h3>
+  <p>
+    The most optional step. Gives a bit of comfort, security wise. It does allow you to monitor your house, when you are
+    away (via your own VPN of course)
+  </p>
+  <label class=" technical">
+    <span>Technical </span>
+    Amount: {{getOutlets(SensorType.camera)}} PoE<br>
+  </label>
+
+
+
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.pir}}" url="assets/svg/{{SensorType.pir}}.svg"></app-svg>
+    <app-svg class="sensor-{{SensorType.alarm}}" url="assets/svg/{{SensorType.alarm}}.svg"></app-svg>
+    <span>Window/Door sensors/Motion detection</span>
+  </h3>
+  <p>
+    Extends the alarm functoin
+  </p>
+
+
+
+</section>
+
+
+
+<section [id]="Section.wiredExtra">
+  <h2>
+    Other smarts
+  </h2>
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.blinds}}" url="assets/svg/{{SensorType.blinds}}.svg"></app-svg>
+    <span>Sun blinds / screens</span>
+  </h3>
+  <p>
+    Essential to a passive house, because the sun radiation is to much during the summer.
+  </p>
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.pir}}" url="assets/svg/{{SensorType.pir}}.svg"></app-svg>
+    <span>Motion sensors</span>
+  </h3>
+  <p>
+    Fun addon to help to automate the smart-home. Lights can be turned on/off automatically.
+  </p>
+
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.temperature}}" url="assets/svg/{{SensorType.temperature}}.svg"></app-svg>
+    <span>Temperature</span>
+  </h3>
+  <p>
+    Help to regulate the heat/cooling and ventilation in certain area's of the house
+  </p>
+
+</section>
+
+
+
+<app-svg class="sensor-{{SensorType.ventIn}}" url="assets/svg/{{SensorType.ventIn}}.svg"></app-svg>
+<app-svg class="sensor-{{SensorType.ventOut}}" url="assets/svg/{{SensorType.ventOut}}.svg"></app-svg>

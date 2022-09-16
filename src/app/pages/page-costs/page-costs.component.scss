@@ -1,0 +1,21 @@
+:host {
+  max-width: 900px;
+  display: block;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+app-table {
+  margin: 32px 0 64px;
+  display: block;
+}
+::ng-deep {
+  #table-total {
+    .mat-column-sizeOrVersion,
+    .mat-column-other,
+    .mat-column-calcAmount,
+    .mat-column-calcAmount,
+    .mat-column-price {
+      color: rgba(0, 0, 0, 0);
+    }
+  }
+}

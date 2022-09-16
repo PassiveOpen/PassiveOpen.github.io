@@ -1,0 +1,11 @@
+.mat-button-tag {
+  padding: 3px 0 5px;
+  border: 1px solid var(--color-30);
+  line-height: 1em;
+  ::ng-deep {
+    .mat-button-wrapper {
+      padding: 8px;
+      font-weight: initial;
+    }
+  }
+}

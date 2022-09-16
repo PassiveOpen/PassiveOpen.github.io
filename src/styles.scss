@@ -1,0 +1,141 @@
+@use "@angular/material" as mat;
+@use "sass:map";
+@import "~@angular/material/theming";
+@import "theme";
+@import "~ol/ol.css";
+@include mat.core();
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+h1 {
+  margin: 80px 0 8px !important;
+}
+
+h2 {
+  margin: 16px 0 8px !important;
+}
+
+h3 {
+  margin: 16px 0 0px !important;
+}
+
+p {
+  margin: 0 0 8px 0 !important;
+}
+
+.mat-caption {
+  opacity: 0.8;
+  line-height: 1.1em;
+}
+
+section {
+  margin: 25vh 0;
+  border-left: 1px solid rgba(0, 0, 0, 0);
+  padding: 16px 4px 16px 16px;
+  transition: 0.6s;
+
+  &.section-active {
+    border-left-color: rgba(0, 0, 0, 0.2);
+  }
+
+  &:hover {
+    border-left-color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+a {
+  color: rgb(31, 31, 31);
+  text-decoration: none;
+  transition: 0.4s;
+  border-radius: 3px;
+  &:hover {
+    background: grey;
+  }
+}
+
+// Sliders
+section > label {
+  width: 100%;
+  border: 1px solid var(--color-30);
+  display: block;
+  border-radius: 4px;
+  padding: 4px 16px;
+  margin: 16px 0;
+  box-sizing: border-box;
+  position: relative;
+  font-size: 1em;
+
+  & > span:first-of-type {
+    position: relative;
+    top: -0.2em;
+    padding: 0 1.5em;
+    display: block;
+    width: fit-content;
+    margin-top: -0.8em;
+  }
+
+  .mat-slider {
+    width: 100%;
+  }
+
+  &.technical {
+    font-size: 0.9em;
+    line-height: 1.1em;
+    color: green;
+  }
+}
+
+.popup {
+  $color: rgb(152, 152, 152);
+  border: solid 1px $color;
+  border-radius: 4px;
+  padding: 8px 16px;
+  position: absolute !important;
+  box-shadow: 2px 2px 0px 2px $color;
+  display: block;
+
+  // pointer-events: none;
+  .popup-arrow {
+    box-shadow: 4px 2px 0px 0px $color;
+    border: 1px solid;
+    width: 20px;
+    height: 20px;
+    transform: rotate(45deg);
+    border-color: transparent $color $color transparent;
+    border-top-left-radius: 100%;
+    bottom: -11px;
+    position: absolute;
+    left: 0px;
+  }
+
+  &.flipped .popup-arrow {
+    transform: rotate(225deg);
+    top: -11px;
+    bottom: initial;
+    box-shadow: 0px 0px 0px 0px $color;
+  }
+}
+
+.popup-active {
+  .center {
+    opacity: 0.5;
+  }
+}
+
+.measure {
+  fill: none;
+  transition: 0.4s;
+  stroke: var(--measure);
+  text {
+    paint-order: stroke;
+    stroke: var(--color-0);
+    fill: var(--measure);
+  }
+}
+#disqus_thread {
+  margin: 200px 0 80px;
+}
