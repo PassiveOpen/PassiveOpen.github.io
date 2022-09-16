@@ -1,6 +1,5 @@
 # Open Passive: Angluar
 
-
 # Run first time
 
 1. Let npm install all node_modules.
@@ -35,7 +34,7 @@ Makes sure you add all the [sections](src\app\components\enum.data.ts)
 
 Add a new group to the `SVG.html` and forloop
 
-Makes sure you add to [the main model](src\app\house\lovLund.ts)
+Makes sure you add to [the main model](src\app\house\passiveopen.ts)
 
 [house.service](src\app\house\house.service.ts) should have the keys
 
