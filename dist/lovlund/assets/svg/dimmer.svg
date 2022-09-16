@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="64px"
+	 height="64px" viewBox="0 0 64 64" style="enable-background:new 0 0 64 64;" xml:space="preserve">
+<g id="dimmer">
+	<g>
+		<path d="M52,0H12C5.373,0,0,5.373,0,12v40c0,6.627,5.373,12,12,12h40c6.627,0,12-5.373,12-12V12C64,5.373,58.627,0,52,0z"/>
+		<path d="M12,62C6.486,62,2,57.514,2,52V12C2,6.486,6.486,2,12,2h40c5.514,0,10,4.486,10,10v40c0,5.514-4.486,10-10,10H12z"/>
+	</g>
+	<path style="fill:#FFFFFF;" d="M32,58.167C17.571,58.167,5.833,46.429,5.833,32S17.571,5.833,32,5.833S58.167,17.571,58.167,32
+		S46.429,58.167,32,58.167z M32,11.833c-11.12,0-20.167,9.047-20.167,20.167S20.88,52.167,32,52.167S52.167,43.12,52.167,32
+		S43.12,11.833,32,11.833z"/>
+</g>
+<g id="Layer_1">
+</g>
+</svg>
