@@ -1,18 +1,18 @@
 import { SafeHtml } from '@angular/platform-browser';
 import * as d3 from 'd3';
-import { House } from '../../house/house.model';
+import { House, xy } from '../../house/house.model';
 import { Floor } from '../../components/enum.data';
 import { BaseSVG } from '../base.model';
 import { offset, round } from 'src/app/shared/global-functions';
 export class Room extends BaseSVG {
-  coords: [number, number][] = [];
+  coords: xy[] = [];
   floor = Floor.ground;
   parent: House;
   hole = false;
-  centralElectricity = [0, 0];
+  centralElectricity: xy = [0, 0];
   theoretic = false;
 
-  northWestCorner: [number, number];
+  northWestCorner: xy;
   width = 0;
   height = 0;
 
@@ -61,7 +61,8 @@ export class Room extends BaseSVG {
     }
     return Math.abs(Math.round(d3.polygonArea(this.coords) * 1e1) / 1e1);
   };
-  volume = () => { // todo
+  volume = () => {
+    // todo
     if (this.floor === Floor.top || this.hole) {
       return this.area() * this.parent.cross.ceilingHeight;
     }

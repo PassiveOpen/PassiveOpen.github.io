@@ -23,20 +23,23 @@ export class BaseSVG {
   selector: string = '';
   index = 0;
   visible = true;
+  outOfDesign = false;
   theoretic = false;
 
   show(floor): boolean {
     return (
       (this.floor === floor || this.floor === Floor.all) &&
       !this.theoretic &&
-      this.visible
+      this.visible &&
+      !this.outOfDesign
     );
   }
 
   async redraw(theme, floor: Floor, meterPerPixel: number) {
     this.onUpdate(theme);
 
-    if (theme instanceof House) {
+    if (theme.showTower !== undefined) {
+      // aka instance of House (House is based on this class! dont use instanceof).
       if (this.floor === undefined && this.parent && this.parent.floor) {
         this.floor = this.parent.floor;
       }
@@ -51,11 +54,11 @@ export class BaseSVG {
   createSelector() {
     if (this.selector) return;
     if (this.parent) {
-      if (this.parent instanceof House) {
+      if (this.parent.selector) {
+        this.selector = this.parent.selector;
+      } else {
         if (this.floor === Floor.ground) this.selector = `L0`;
         if (this.floor === Floor.top) this.selector = `L1`;
-      } else {
-        this.selector = this.parent.selector;
       }
     }
 

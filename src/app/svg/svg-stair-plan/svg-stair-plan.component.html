@@ -1,12 +1,16 @@
 <svg #svg class="stairs-plan" preserveAspectRatio="xMidYMid meet">
   <defs>
     <polygon id="clip-roof-ref"></polygon>
+    <polygon id="clip-ground-floor-ref"></polygon>
   </defs>
   <clipPath id="clip-roof">
     <use xlink:href="#clip-roof-ref" overflow="visible"></use>
   </clipPath>
+  <clipPath id="clip-ground-floor">
+    <use xlink:href="#clip-ground-floor-ref" overflow="visible"></use>
+  </clipPath>
 
-  <g *ngIf="(house$ | async) as house">
+  <g *ngIf="(house$ | async) as house" class="floor-clip" clip-path="url(#clip-ground-floor)">
     <g class="g-walk-line">
       <path class="walk-line"></path>
       <circle id="walk-line-dot walk-line-{{i}}" *ngFor="let item of [].constructor(25); let i = index;"> </circle>
@@ -17,13 +21,15 @@
     <polyline class="right-corner-line"></polyline> -->
 
     <!-- <g class="g-step-plan"> -->
-    <g class="g-step-plan" clip-path="url(#clip-roof)">
-      <g id="step-plan-{{i}}" *ngFor="let item of [].constructor(25); let i = index;">
-        <polygon class="step-plan-lines"></polygon>
-        <polyline class="step-plan-rise"></polyline>
-        <text class="step-plan-text"></text>
+    <g class="g-step-plan">
+      <g clip-path="url(#clip-roof)">
+        <g id="step-plan-{{i}}" *ngFor="let item of [].constructor(25); let i = index;">
+          <polygon class="step-plan-lines"></polygon>
+          <polyline class="step-plan-rise"></polyline>
+          <text class="step-plan-text"></text>
+        </g>
+        <!-- <circle class="step-stinger step-stinger-{{i}}" *ngFor="let item of [].constructor(25); let i = index;"> </circle> -->
       </g>
-      <!-- <circle class="step-stinger step-stinger-{{i}}" *ngFor="let item of [].constructor(25); let i = index;"> </circle> -->
     </g>
 
     <g class="measure-stair" *ngIf="!isChild">

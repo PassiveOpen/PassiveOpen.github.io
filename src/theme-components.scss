@@ -63,12 +63,4 @@
     background-color: mat-color($background, background);
   }
 
-  .g-wall polygon {
-    fill: mat-color($foreground, text, 0.5);
-  }
-
-  .building-walls,
-  .building-ground-fill {
-    fill: mat-color($background, background);
-  }
 }

@@ -59,7 +59,9 @@ export class Cross {
   gableWallArea = -1;
 
   minimumHeight = 1.5;
+  minimumHeightWidth = -1;
   minimumHeightRoom = 2.3;
+  minimumHeightRoomWidth = -1;
 
   roofStyle: RoofStyle = RoofStyle.roof70;
   viewedRoofStyle: RoofStyle = RoofStyle.roof70;
@@ -133,7 +135,16 @@ export class Cross {
     this.roofInnerContourLine();
 
     this.gableWallArea = 10; // ToDo
-    this.outerWallHeight = Math.abs(this.groundElevation) // ToDo
+    this.outerWallHeight = Math.abs(this.groundElevation); // ToDo
+
+    this.minimumHeightWidth = round(
+      3,
+      this.getIntersectionWithRoof(this.minimumHeight)[0]
+    );
+    this.minimumHeightRoomWidth = round(
+      3,
+      this.getIntersectionWithRoof(this.minimumHeightRoom)[0]
+    );
   }
 
   createBuilding() {

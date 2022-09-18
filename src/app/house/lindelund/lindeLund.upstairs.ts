@@ -6,7 +6,7 @@ import { Room } from 'src/app/model/specific/room.model';
 import { Wall, WallSide, WallType } from 'src/app/model/specific/wall.model';
 import { Window, WindowForm } from 'src/app/model/specific/window.model';
 import { getDiagonal, offset, round } from 'src/app/shared/global-functions';
-import { House } from '../house.model';
+import { House, xy } from '../house.model';
 
 export const lindeLundUpstairs = [
   // toilet upstairs
@@ -207,25 +207,30 @@ export const lindeLundUpstairs = [
       }),
     ],
   }),
+
   // Main bedroom
   new Room({
     name: 'main-bedroom',
     floor: Floor.top,
     onUpdate: function (this: Room, house: House) {
+      const mainBedroomSetBack = 1;
       this.width = round(2, house.stramien.in.we.c - house.stramien.in.we.b);
       this.northWestCorner = [house.stramien.in.we.b, house.stramien.in.ns.a];
       this.height = round(
-        2,
+        3,
         house.stramien.in.ns.b -
+          this.northWestCorner[1] -
           house.tower.houseIncrement -
-          house.wallOuterThickness * 2
+          house.wallInnerThickness -
+          mainBedroomSetBack
       );
 
       const midWall = house.stair.totalWidth + house.wallInnerThickness;
       const stairWall =
-        house.stramien.in.ns.a +
         house.stair.stairOrigin[1] -
+        this.northWestCorner[1] -
         house.wallInnerThickness;
+
       this.coords = [
         this.northWestCorner,
         offset(this.northWestCorner, [this.width, 0]),
@@ -252,20 +257,6 @@ export const lindeLundUpstairs = [
           };
         },
         parts: [
-          new Window({
-            windowForm: WindowForm.hexagon,
-            floor: Floor.top,
-            rotate: -90,
-            width: 1,
-            onUpdate: function (this: Window, house: House) {
-              const wall = this.parent;
-              this.origin = wall.getPosition(
-                WallSide.in,
-                1 / 2,
-                -this.width / 2
-              );
-            },
-          }),
         ],
       }),
       // SouthRight
@@ -370,18 +361,24 @@ export const lindeLundUpstairs = [
     name: 'bathroom',
     floor: Floor.top,
     onUpdate: function (this: Room, house: House) {
+      const mainBedroomSetBack = 1;
+      const towerSetBack = 0.5;
+      const towerSetBackWidth = 2;
       const northWall =
         house.stramien.in.ns.b -
-        house.tower.houseIncrement -
-        house.wallOuterThickness * 2 +
-        house.wallInnerThickness;
+        house.stramien.in.ns.a -
+        house.tower.houseIncrement +
+        house.wallInnerThickness +
+        house.wallInnerThickness -
+        mainBedroomSetBack;
       const hallWall =
         house.stair.stairOrigin[0] +
         house.stair.totalWidth +
         1.0001 +
         house.wallInnerThickness;
-      const stairWall = house.stramien.in.ns.b - 0.5;
-      const stairWallShort = house.tower.innerCoords[3][0] - 1;
+      const stairWall =
+        house.stramien.in.ns.b - towerSetBack ;
+      const stairWallShort = house.tower.innerCoords[3][0] - towerSetBackWidth;
       this.northWestCorner = [hallWall, northWall];
       this.coords = [
         this.northWestCorner,
@@ -986,18 +983,26 @@ export const lindeLundUpstairs = [
     name: 'balcony',
     floor: Floor.top,
     onUpdate: function (this: Room, house: House) {
+      const mainBedroomSetBack = 1;
+      const towerSetBack = 0.5;
+      const towerSetBackWidth = 2;
       const stramien = house.stramien;
       const stair = house.stair;
       const northWall =
         house.stramien.in.ns.b -
-        house.tower.houseIncrement -
-        house.wallOuterThickness * 2 +
-        house.wallInnerThickness;
+        house.stramien.in.ns.a -
+        house.tower.houseIncrement +
+        house.wallInnerThickness +
+        house.wallInnerThickness -
+        mainBedroomSetBack;
       const hallWall =
         house.stair.stairOrigin[0] + house.stair.totalWidth + 1.0001;
-      const stairWall = house.stramien.in.ns.b - 0.5 + house.wallInnerThickness;
+      const stairWall =
+        house.stramien.in.ns.b - towerSetBack + house.wallInnerThickness;
       const stairWallShort =
-        house.tower.innerCoords[3][0] - 1 + house.wallInnerThickness;
+        house.tower.innerCoords[3][0] -
+        towerSetBackWidth +
+        house.wallInnerThickness;
       const stairPoint = offset(stair.stairOrigin, [
         stair.totalWidth,
         stair.totalHeight,
@@ -1031,24 +1036,50 @@ export const lindeLundUpstairs = [
     parts: [],
   }),
 
-  // // Void
-  // new Room({
-  //   name: 'void',
-  //   floor: Floor.top,
-  //   hole: true,
-  //   onUpdate: function (this: AppPolygon, house: House) {
-  //     const northWestCorner: [number, number] = [
-  //       house.stramien.in.we.b,
-  //       house.stramien.in.ns.b + house.balconyWidth + house.balconyEdge,
-  //     ];
-  //     const height = house.stramien.in.ns.d - northWestCorner[1];
-  //     const width = house.stramien.in.we.c - house.stramien.in.we.b;
-  //     this.coords = [
-  //       northWestCorner,
-  //       offset(northWestCorner, [width * 1, height * 0]),
-  //       offset(northWestCorner, [width * 1, height * 1]),
-  //       offset(northWestCorner, [width * 0, height * 1]),
-  //     ];
-  //   },
-  // }),
+  // Void
+  new Room({
+    name: 'void',
+    floor: Floor.top,
+    hole: true,
+    onUpdate: function (this: AppPolygon, house: House) {
+      const northWestCorner: [number, number] = [
+        house.stramien.in.we.b,
+        house.stramien.in.ns.b + house.balconyWidth + house.balconyEdge,
+      ];
+      const height = house.stramien.in.ns.d - northWestCorner[1];
+      const width = house.stramien.in.we.c - house.stramien.in.we.b;
+      this.coords = [
+        northWestCorner,
+        offset(northWestCorner, [width * 1, height * 0]),
+        offset(northWestCorner, [width * 1, height * 1]),
+        offset(northWestCorner, [width * 0, height * 1]),
+      ];
+    },
+  }),
+
+  // Void
+  new Room({
+    name: 'voidStairs',
+    floor: Floor.top,
+    hole: true,
+    onUpdate: function (this: AppPolygon, house: House) {
+      const s = house.stair;
+      const northWestCorner: xy = s.stairOrigin;
+      const height =
+        house.stramien.in.ns.b -
+        s.stairOrigin[1] -
+        2 -
+        house.wallInnerThickness * 3;
+      const width = s.totalWidth;
+      this.coords = [
+        northWestCorner,
+        offset(northWestCorner, [width - s.walkWidth, 0]),
+        offset(northWestCorner, [width - s.walkWidth, height]),
+        // offset(northWestCorner, [width, s.totalHeight]),
+        // offset(northWestCorner, [width-s.walkWidth, s.totalHeight]),
+        // offset(northWestCorner, [width-s.walkWidth, height]),
+        offset(northWestCorner, [0, height]),
+      ];
+    },
+  }),
 ];

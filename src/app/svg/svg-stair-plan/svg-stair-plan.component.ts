@@ -8,6 +8,7 @@ import { BasicSVG } from '../base-svg.component';
 import { BehaviorSubject } from 'rxjs';
 import { Floor, Graphic, Section } from 'src/app/components/enum.data';
 import { TooltipService } from 'src/app/components/tooltip/tooltip.service';
+import { D3Service } from '../d3.service';
 
 @Component({
   selector: 'app-svg-stair-plan',
@@ -26,9 +27,10 @@ export class SvgStairPlanComponent extends BasicSVG implements AfterViewInit {
     public houseService: HouseService,
     public appService: AppService,
     public tooltipService: TooltipService,
-    public host: ElementRef
+    public host: ElementRef,
+    public d3Service: D3Service,
   ) {
-    super(houseService, appService, tooltipService, host);
+    super(houseService, appService, tooltipService, host, d3Service);
   }
 
   ngAfterViewInit(): void {

@@ -53,9 +53,9 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
     public tooltipService: TooltipService,
     public host: ElementRef,
     private httpClient: HttpClient,
-    private d3Service: D3Service
+    public d3Service: D3Service
   ) {
-    super(houseService, appService, tooltipService, host);
+    super(houseService, appService, tooltipService, host, d3Service);
   }
 
   ngAfterViewInit(): void {
@@ -91,7 +91,7 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
     this.sun.update();
     this.gridSizeX$.next(this.house.gridSizeX);
     this.gridSizeY$.next(this.house.gridSizeY);
-    const margin = this.house.studDistance * 2;
+    const margin = this.house.studDistance * 3;
     this.marginInMeters = [margin, margin, margin, margin];
     this.drawingSize = [
       [0, -this.house.extensionToSouth],
@@ -104,7 +104,6 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
   setStairs() {
     const svg = document.querySelector('.svg-plan-stair-plan')
       .firstChild as SVGElement;
-    console.log(svg);
 
     const g = this.svg.select('.plan-stair-plan');
 

@@ -28,6 +28,8 @@ import { House } from '../house/house.model';
 import * as d3 from 'd3';
 import { Cross } from '../house/cross.model';
 import { Stair } from '../house/stairs.model';
+import { D3Service } from './d3.service';
+import { ZoomTransform } from 'd3';
 
 @Component({
   selector: 'app-svg-base',
@@ -103,11 +105,15 @@ export class BasicSVG {
     [0, 0],
     [200, 100],
   ];
+
+  loaded = false;
+
   constructor(
     public houseService: HouseService,
     public appService: AppService,
     public tooltipService: TooltipService,
-    public host: ElementRef
+    public host: ElementRef,
+    public d3Service: D3Service
   ) {}
 
   //// LifeCicle ////
@@ -144,6 +150,16 @@ export class BasicSVG {
           })
         ),
         this.appService.update$,
+        this.appService.svgTransform$.pipe(
+          tap((svgTransform) => {
+            if (this.loaded) return;
+            if (this.graphic in svgTransform) {
+              const zoom: { k: number; x: number; y: number } =
+                svgTransform[this.graphic];
+              this.setTransform(new ZoomTransform(zoom.k, zoom.x, zoom.y));
+            }
+          })
+        ),
         this.appService.fullscreen$.pipe(
           tap((fullscreen) => {
             if (fullscreen) {
@@ -179,9 +195,15 @@ export class BasicSVG {
           this.updateSVG();
         })
     );
+
+    this.loaded = true;
   }
 
-  setTransform(transform = 'translate(0,0) scale(1)', duration = 100) {
+  setTransform(transform: any = 'translate(0,0) scale(1)', duration = 100) {
+    if (this.loaded) {
+      this.appService.setTransformCookie(transform, this.graphic);
+    }
+    // console.log('set ', transform);
     this.g
       .transition()
       .duration(duration)

@@ -82,7 +82,9 @@ export enum Section {
 }
 
 export enum State {
+  doors = 'doors',
   stats = 'stats',
+  theoreticalWalls = 'theoreticalWalls',
   grey = 'grey',
   measure = 'measure',
   decoration = 'decoration',

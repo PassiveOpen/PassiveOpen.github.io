@@ -3,7 +3,7 @@
   <section [id]="Section.welcome">
     <h1>Welcome to {{house.name}}</h1>
     <p class="mat-caption">
-      A passiv-haus but in Dutch (neo)-renaissance style, but above all open-source.
+      A passiv-haus but in country style, and above all open-source.
       We love to share our plans as a community. See it as free building plans for your own house or give it to your
       constructor. Its truly free.
     </p>
@@ -64,8 +64,8 @@
       The house is based on parametric design. So play with all the sliders, its interactive. Lets start at the very
       basics. And why does it look like a church from above?
     </p>
-    <h3>Threefold or Trinity</h3>
-    <p>The main house, seen from the south (up here) has three equal parts, we call them the
+    <h3>Two axis</h3>
+    <p>The main house, seen from the south (up here) has two axis with a certain
       <tag [tag]="tags.baseDimension" [overlayTemplate]="baseDimension" cdkOverlayOrigin>base
         dimension</tag>. A design seen often in classical buildings. It comes often with great <tag
         [tag]="tags.viewlines">viewlines</tag>.
@@ -169,34 +169,56 @@
       </span>
 
       <table>
+
         <tr>
-          <td>{{house.studAmountSouth}}</td>
-          <td> South studs</td>
-        </tr>
-        <tr>
-          <td>{{house.studAmountNorth}}</td>
-          <td> studs makes a wall</td>
+          <th></th>
+          <th>Amount</th>
         </tr>
 
         <tr>
-          <td>{{ house.stats.wall.innerLength }}m</td>
-          <td> Inside wall Length</td>
+          <td> Wall</td>
+          <td>inside</td>
+          <td>length</td>
+          <td>{{ house.stats.wall.innerLength }} m</td>
         </tr>
         <tr>
-          <td>{{ house.stats.wall.innerArea }}m2</td>
-          <td> Inside wall Area</td>
+          <td></td>
+          <td></td>
+          <td>area</td>
+          <td>{{ house.stats.wall.innerArea }} m2</td>
         </tr>
         <tr>
-          <td>{{ house.stats.wall.outerLength }}m</td>
-          <td> Outside wall Length</td>
+          <td></td>
+          <td>outside</td>
+          <td>length</td>
+          <td>{{ house.stats.wall.outerLength }} m</td>
         </tr>
         <tr>
-          <td>{{ house.stats.wall.outerArea }}m2</td>
-          <td> Outside wall Area</td>
+          <td></td>
+          <td></td>
+          <td>area</td>
+          <td>{{ house.stats.wall.outerArea }} m2</td>
+        </tr>
+
+
+        <tr>
+          <td>Floor</td>
+          <td>area</td>
+          <td>ground</td>
+          <td>{{ house.stats.floor.ground.area}} m2</td>
         </tr>
         <tr>
-          <td>{{ house.stats.floor.total | json }}m2</td>
-          <td> floor </td>
+          <td></td>
+          <td></td>
+          <td>top</td>
+          <td>{{ house.stats.floor.top.area}} m2</td>
+        </tr>
+
+        <tr>
+          <td></td>
+          <td></td>
+          <td>total</td>
+          <td>{{ house.stats.floor.all?.area }} m2</td>
         </tr>
       </table>
 
@@ -208,7 +230,7 @@
 
   <section [id]="Section.tower" style="padding-bottom: 80px;">
     <h3>Tower</h3>
-    <p>This tower is a practical backdoor and allows you to walk from the kitch to the rest of the house. It creates
+    <p>This tower is a practical backdoor and allows you to walk from the kitchen to the rest of the house. It creates
       also a viewpoint from the roof! We like the tower. </p>
     <mat-slide-toggle [ngModel]="house.showTower" (ngModelChange)="update('house','showTower',$event)">With a
       practical

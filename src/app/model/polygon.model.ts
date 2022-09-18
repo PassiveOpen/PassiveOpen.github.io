@@ -14,12 +14,16 @@ export class AppPolygon extends BaseSVG {
 
   async draw(floor: Floor) {
     if (this.svg === undefined) {
-      if (!this.show(floor)) return;
       this.svg = d3.select(`#${this.selector}`);
     }
 
+    if (!this.show(floor)) {
+      this.svg.attr('points', '');
+      return;
+    }
+
     this.svg
-      .attr('points', this.show(floor) ? this.coords.join(' ') : '')
+      .attr('points', this.coords.join(' '))
       .attr('stroke-width', this.meterPerPixel * this.lineThickness)
       .attr('transform', this.transform);
     this.setClass(this.svg);

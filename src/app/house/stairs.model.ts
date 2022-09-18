@@ -55,6 +55,7 @@ export class Stair {
   stepsRight = 12;
 
   leftFlightSteps = 5;
+
   midFlightSteps = 4; // even!
   totalWidth = 2.7;
   totalHeight = -1;
@@ -93,7 +94,7 @@ export class Stair {
     this.totalRise = this.topFloorTop - this.groundFloorTop;
     this.stairOrigin = [
       this.house.stramien.in.we.b,
-      this.house.extensionToNorth - 5,
+      this.house.stramien.in.ns.b - 5,
     ];
 
     this.angle = round(
@@ -400,6 +401,57 @@ export class Stair {
         })
       );
     }
+
+    this.parts.push(
+      new AppPolygon({
+        selector: 'clip-roof-ref',
+        onUpdate: function (this: AppPolygon, stair: Stair) {
+          const [x, y] = stair.stairOrigin;
+          const dx1 = x + stair.walkWidth;
+          const dx2 = x + stair.totalWidth - stair.walkWidth;
+          const dy1 = Math.max(stair.alongWalkLine(1)[1], y + stair.walkWidth);
+          const dy2 = Math.max(
+            stair.alongWalkLine(stair.steps)[1],
+            y + stair.walkWidth
+          );
+          this.coords = [
+            [x, y],
+            [x + stair.totalWidth, y],
+            [x + stair.totalWidth, dy2],
+            [dx2, dy2],
+            [dx2, y + stair.walkWidth],
+            [dx1, y + stair.walkWidth],
+            [dx1, dy1],
+            [x, dy1],
+          ];
+        },
+      })
+    );
+
+    this.parts.push(
+      new AppPolygon({
+        selector: 'clip-ground-floor-ref',
+        floor: Floor.ground,
+        onUpdate: function (this: AppPolygon, stair: Stair) {
+          const [x, y] = stair.stairOrigin;
+          const dx1 = x + stair.walkWidth;
+          const dx2 = x + stair.totalWidth - stair.walkWidth;
+          const dy1 = Math.max(stair.alongWalkLine(1)[1], y + stair.walkWidth);
+          const dy2 = Math.max(
+            stair.alongWalkLine(stair.steps)[1],
+            y + stair.walkWidth
+          );
+          this.coords = [
+            [x, y],
+            [dx2, y],
+            [dx2, y + stair.walkWidth],
+            [dx1, y + stair.walkWidth],
+            [dx1, dy1],
+            [x, dy1],
+          ];
+        },
+      })
+    );
 
     this.parts.push(
       new AppPolygon({

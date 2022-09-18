@@ -16,15 +16,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   year = new Date().getFullYear();
   title = this.appService.title;
 
-  constructor(
-    private appService: AppService,
-  ) {}
+  constructor(private appService: AppService) {}
 
   ngOnInit(): void {
-    this.appService.setDarkMode(
-      window.matchMedia &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-    );
   }
 
   ngAfterViewInit(): void {}

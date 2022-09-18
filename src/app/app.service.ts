@@ -29,6 +29,7 @@ export class AppService {
   states$ = new BehaviorSubject<State[]>([]);
   popupActive$ = new BehaviorSubject(false);
   fullscreen$ = new BehaviorSubject(true);
+  svgTransform$ = new BehaviorSubject(undefined);
 
   floor$ = new BehaviorSubject(Floor.ground);
 
@@ -44,7 +45,7 @@ export class AppService {
     this.getCookies();
   }
 
-  setStates(state: State, overrule?: boolean) {
+  setStates(state: State, overrule?: boolean, checkCoockie?: boolean) {
     const old = this.states$.value;
     let arr;
     const exists = () => old.includes(state);
@@ -59,6 +60,13 @@ export class AppService {
       arr = old.filter((x) => x !== state);
     };
 
+    if (checkCoockie) {
+      const allStates = this.cookieService.get('states');
+      if (allStates.includes(state)) {
+        return;
+        console.log(allStates, state);
+      }
+    }
     if (overrule === true) {
       add();
     } else if (overrule === false) {
@@ -71,14 +79,29 @@ export class AppService {
       }
     }
     this.states$.next(arr);
+
+    this.cookieService.set('states', arr);
+  }
+
+  setTransformCookie(e, graphic) {
+    this.svgTransform$.next({
+      [graphic]: e,
+    });
+    this.cookieService.set(
+      'svgTransform',
+      JSON.stringify(this.svgTransform$.value)
+    );
   }
 
   getCookies() {
+    // ======= floor =======
     let floor = this.cookieService.get('floor');
     if (floor === '') {
       floor = Floor.ground;
     }
     this.floor$.next(floor as Floor);
+
+    // ======= fullscreen =======
     let fullscreen: boolean | string = this.cookieService.get('fullscreen');
     if (fullscreen === '') {
       fullscreen = false;
@@ -86,6 +109,29 @@ export class AppService {
       fullscreen = fullscreen === 'true' ? true : false;
     }
     this.fullscreen$.next(fullscreen as boolean);
+
+    // ======= zoomLevel =======
+    let svgTransform = this.cookieService.get('svgTransform');
+    if (svgTransform === '' || fullscreen === false) {
+      svgTransform = '{}';
+    }
+    this.svgTransform$.next(JSON.parse(svgTransform));
+
+    // ======= darkmode =======
+    let darkMode: boolean | string = this.cookieService.get('darkMode');
+    if (darkMode === '') {
+      this.setDarkMode(
+        window.matchMedia &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches
+      );
+    } else {
+      this.setDarkMode(darkMode === 'true');
+    }
+
+    // ======= States =======
+    let statesString: string = this.cookieService.get('states');
+    const states = statesString.split(',');
+    this.states$.next(states as State[]);
   }
 
   setFloor(floor: Floor = undefined) {
@@ -110,7 +156,7 @@ export class AppService {
     this.update$.next();
   }
 
-  setDarkMode(state: boolean = undefined) {
+  setDarkMode(state: boolean = undefined, save = false) {
     document.body.classList.remove('light');
     document.body.classList.remove('dark');
     if (state !== undefined) {
@@ -123,5 +169,6 @@ export class AppService {
     } else {
       document.body.classList.add('light');
     }
+    if (save) this.cookieService.set('darkMode', `${this.darkMode}`, 0.1);
   }
 }

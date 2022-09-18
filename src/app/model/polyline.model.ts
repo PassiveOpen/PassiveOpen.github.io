@@ -1,11 +1,12 @@
 import { Cross } from '../house/cross.model';
-import { House } from '../house/house.model';
+import { House, xy } from '../house/house.model';
 import * as d3 from 'd3';
 import { BaseSVG } from './base.model';
 import { Floor } from '../components/enum.data';
 
 export class AppPolyline extends BaseSVG {
-  points: [number, number][] = [];
+  points: xy[] = [];
+  dash: number[] = [];
 
   constructor(data: Partial<AppPolyline>) {
     super();
@@ -26,6 +27,16 @@ export class AppPolyline extends BaseSVG {
       .attr('points', this.points.join(' '))
       .attr('stroke-width', this.meterPerPixel * this.lineThickness)
       .attr('transform', this.transform);
+
+    this.svg.attr(
+      'stroke-dasharray',
+      this.dash
+        .map((x) => x * this.meterPerPixel * this.lineThickness)
+        .join(' ')
+      // `${this.meterPerPixel * this.lineThickness * 10 * 0.5} ${
+      //   this.meterPerPixel * this.lineThickness * 10
+      // }`
+    );
     this.setClass(this.svg);
   }
 }

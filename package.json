@@ -5,9 +5,9 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "deploy": "npm run build && npm run push",
+    "deploy": "npm run build && npm run copy",
     "push": "push-dir --dir=dist/spa --branch=gh-pages",
-    "subtree": "git subtree push --prefix dist origin gh-pages",
+    "copy": "robocopy ./dist ../PassiveOpenGPPages /mir  /XX ",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

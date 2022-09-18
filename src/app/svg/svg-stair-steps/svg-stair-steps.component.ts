@@ -11,6 +11,7 @@ import { Measure } from 'src/app/model/specific/measure.model';
 import { BasicSVG } from 'src/app/svg/base-svg.component';
 import { Floor, Graphic, Section } from 'src/app/components/enum.data';
 import { TooltipService } from 'src/app/components/tooltip/tooltip.service';
+import { D3Service } from '../d3.service';
 
 @Component({
   selector: 'app-svg-stair-steps',
@@ -30,9 +31,10 @@ export class SvgStairsComponent extends BasicSVG implements AfterViewInit {
     public appService: AppService,
     public tooltipService: TooltipService,
     public host: ElementRef,
-    private httpClient: HttpClient
+    private httpClient: HttpClient,
+    public d3Service: D3Service,
   ) {
-    super(houseService, appService, tooltipService, host);
+    super(houseService, appService, tooltipService, host, d3Service);
   }
 
   ngAfterViewInit(): void {

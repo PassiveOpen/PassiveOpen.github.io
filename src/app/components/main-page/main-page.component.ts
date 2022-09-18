@@ -44,6 +44,8 @@ export class AppMainPageComponent implements AfterViewInit {
     map((tags) => tags.map((tag) => `state-${tag}`).join(' '))
   );
 
+  loaded = false;
+
   @HostListener('window:scroll', ['$event'])
   isScrolledIntoView() {
     this.calcSection();
@@ -84,6 +86,7 @@ export class AppMainPageComponent implements AfterViewInit {
     const params = this.activatedRoute.snapshot.params;
     const tag = params['tag'];
     if (tag) this.tag$.next(tag);
+    this.loaded = true;
   }
 
   calcSection() {
@@ -144,9 +147,6 @@ export class AppMainPageComponent implements AfterViewInit {
       ].includes(section)
     ) {
       graphic = Graphic.plan;
-      // this.appService.setStates(State.stramien, true); // DEV
-      this.appService.setStates(State.grid, true); // DEV
-      // this.appService.setStates(State.towerFootprint, true); // DEV
     }
     if (
       [
@@ -220,11 +220,24 @@ export class AppMainPageComponent implements AfterViewInit {
   }
 
   updateStateBasedOnSection(section: Section) {
-    this.appService.setStates(State.grey, [Section.roofEdge].includes(section));
+    this.appService.setStates(
+      State.grey,
+      [Section.roofEdge].includes(section),
+      !this.loaded
+    );
 
     this.appService.setStates(
       State.measure,
-      [Section.basics, Section.roof70, Section.roofCircle].includes(section)
+      [Section.roofBasics, Section.roof70, Section.roofCircle].includes(
+        section
+      ),
+      !this.loaded
+    );
+
+    this.appService.setStates(
+      State.doors,
+      ![Section.passiv, Section.welcome].includes(section),
+      !this.loaded
     );
   }
 

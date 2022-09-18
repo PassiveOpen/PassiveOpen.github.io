@@ -1,6 +1,12 @@
 $sensor-smoke: rgb(168, 0, 0);
 $sun-color: rgb(253, 200, 101);
 ::ng-deep {
+  .floor-top .included-stairs-plan .floor-clip {
+    clip-path: inherit;
+  }
+  .included-stairs-plan {
+    pointer-events: none;
+  }
   .sensor-pir,
   .sensor-vent-out,
   .sensor-ethernet,
@@ -71,9 +77,17 @@ $sun-color: rgb(253, 200, 101);
     height: 100%;
     width: 100%;
     position: relative;
-    // background: darkcyan;
-    .all {
-      transition: 0.4s;
+
+    g.all {
+      transition: 1s ease-in-out; // overruled to 0 in fullscreen
+    }
+
+    
+
+    polyline[id^="roof-line-"] {
+      fill: none;
+      stroke: var(--primary-color);
+
     }
     .g-sun {
       transition: 0.4s;
@@ -103,11 +117,9 @@ $sun-color: rgb(253, 200, 101);
       );
     }
 
-    .house-wind-rose,
-    .g-sensor,
-    .g-grid,
-    .g-wall,
-    .g-room {
+    .house-wind-rose
+    // .g-room
+    {
       fill: none;
       transition: 0.4s, stroke-width 1ms;
       stroke: black;
@@ -124,9 +136,9 @@ $sun-color: rgb(253, 200, 101);
 
     .house-stramien {
       transition: 0.4s, stroke-width 1ms;
-      stroke: red;
+      stroke: var(--first-color);
       .house-stramien-out {
-        stroke: orange;
+        stroke: var(--second-color);
       }
       stroke-linecap: square;
     }
@@ -144,13 +156,13 @@ $sun-color: rgb(253, 200, 101);
 
     .g-grid {
       .grid-main {
-        stroke: rgb(101, 101, 101);
+        stroke: var(--color-50);
       }
       .grid-sub {
-        stroke: rgb(229, 229, 229);
+        stroke: var(--color-10);
       }
       .grid-subsub {
-        stroke: rgb(190, 190, 190);
+        stroke: var(--color-30);
       }
     }
 
@@ -179,15 +191,11 @@ $sun-color: rgb(253, 200, 101);
     }
 
     .g-room {
-      #L0-House {
-        fill: var(--accent-color) !important;
-        opacity: 0.7;
-      }
       polygon {
         stroke: none !important;
         transition: 0.4s;
-        fill: var(--primary-color) !important;
-        opacity: 0.8;
+        // fill: var(--primary-color) !important;
+        fill: var(--color-0);
         &:hover {
           fill: var(--primary-lighter-color);
         }
@@ -220,21 +228,22 @@ $sun-color: rgb(253, 200, 101);
         fill-rule: nonzero;
       }
       circle {
-        fill: red;
-        stroke: var(--color-100);
-        // opacity: 0;
+        stroke: none;
+        fill: var(--color-50);
+        opacity: 0;
       }
       .type-outer {
-        stroke: rgb(86, 86, 86);
+        fill: var(--color-30);
+        stroke: var(--color-60);
         .side-out {
-          stroke: rgb(14, 3, 167);
+          stroke: var(--color-60);
         }
       }
       .side-out {
         transition: 0.6s;
       }
       .type-inner {
-        opacity: 0.5;
+        fill: var(--color-20);
         stroke: rgb(86, 86, 86);
       }
       .type-theoretic {
@@ -253,10 +262,12 @@ $sun-color: rgb(253, 200, 101);
       }
       polygon {
         transition: 0.5s;
+        fill: var(--color-0);
+        stroke: none;
       }
       path {
         fill: none;
-        stroke: rgb(86, 86, 86);
+        stroke: var(--color-70);
         stroke-linecap: square;
       }
     }
@@ -264,12 +275,12 @@ $sun-color: rgb(253, 200, 101);
     .g-window {
       polygon {
         transition: 0.5s;
-        fill: rgba(255, 255, 255, 0.6);
-        stroke: rgb(86, 86, 86);
+        fill: var(--color-20);
+        stroke: var(--color-60);
       }
       path {
         fill: none;
-        stroke: rgb(86, 86, 86);
+        stroke: var(--color-60);
         stroke-linecap: square;
       }
     }
@@ -295,14 +306,7 @@ $sun-color: rgb(253, 200, 101);
       }
     }
   }
-  .section-welcome,
-  .section-passiv {
-    .g-door {
-      g {
-        opacity: 0 !important;
-      }
-    }
-  }
+
 
   .section-basics {
     .house-wind-rose,

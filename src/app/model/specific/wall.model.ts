@@ -1,4 +1,4 @@
-import { House } from '../../house/house.model';
+import { House, xy } from '../../house/house.model';
 import * as d3 from 'd3';
 import { Door } from './door.model';
 import { Room } from './room.model';
@@ -12,6 +12,7 @@ import {
   offset,
   round,
 } from 'src/app/shared/global-functions';
+import { Footprint } from './footprint';
 
 let ids = {};
 
@@ -67,7 +68,7 @@ export class Wall extends BaseSVG {
   }
 
   createSelector() {
-    this.selector = this.parent.selector;
+    this.selector = this.parent.selector.replace('Footprint-1', 'outer');
     const angle = angleBetween(
       this.sides[WallSide.in][0],
       this.sides[WallSide.in][1]
@@ -124,6 +125,8 @@ export class Wall extends BaseSVG {
       this.svgFill.attr('points', '');
       this.svgLeft.attr('points', '');
       this.svgRight.attr('points', '');
+      this.svgOrigin.attr('r', '0');
+
       return;
     }
 
@@ -131,7 +134,7 @@ export class Wall extends BaseSVG {
     this.svgOrigin
       .attr('cx', this.origin[0])
       .attr('cy', this.origin[1])
-      .attr('stroke-width', this.meterPerPixel * this.lineThickness);
+      .attr('r', this.meterPerPixel * this.lineThickness * 3);
 
     if (this.sides.in && this.sides.out) {
       this.svgFill.attr(
@@ -188,7 +191,7 @@ export class Wall extends BaseSVG {
     }
   }
 
-  getPosition(side: WallSide, ratio, offset = 0) {
+  getPosition(side: WallSide, ratio, offset = 0): xy {
     const arr = this.sides[side];
     const distance = this.getLength(side) * ratio;
     const angle = angleBetween(arr[0], arr[1]);
@@ -196,9 +199,11 @@ export class Wall extends BaseSVG {
   }
 
   tooltip = (): SafeHtml => {
-    return `Wall <b>${this.orientation}</b> (of ${this.parent.name} room) 
-    <br>Inside ${this.getLength(WallSide.in, 2)}m2
-    <br>Outside ${(this.outerWallLength = this.getLength(WallSide.out, 2))}m2`;
+    return `Wall <b>${this.orientation}</b> (${
+      this.parent instanceof Footprint ? 'outer wall' : 'of ' + this.parent + ' room'
+    } ) 
+    <br>Inside ${this.getLength(WallSide.in, 2)} m2
+    <br>Outside ${(this.outerWallLength = this.getLength(WallSide.out, 2))} m2`;
   };
 
   drawTheoretic(orientation: 'w' | 'n' | 'e' | 's', house, thickness) {
@@ -224,16 +229,29 @@ export class Wall extends BaseSVG {
     firstCorner: CornerType,
     secondCorner: CornerType
   ) {
+    if (this.visible === false) {
+      this.sides = {
+        [WallSide.in]: [
+          [0, 0],
+          [0, 0],
+        ],
+        [WallSide.out]: [
+          [0, 0],
+          [0, 0],
+        ],
+      };
+      return;
+    }
     if (this.type === WallType.inner) {
       this.thickness = house.wallInnerThickness;
       this.ceiling = house.cross.ceilingHeight;
-    }
-    if (this.type === WallType.outer) {
+    } else if (this.type === WallType.outer) {
       this.thickness = house.wallOuterThickness;
       this.ceiling = house.cross.outerWallHeight;
-    }
-    if (this.type === WallType.theoretic) {
+    } else if (this.type === WallType.theoretic) {
       this.ceiling = house.cross.ceilingHeight;
+    } else {
+      console.error(this);
     }
 
     const getAngle = (ii, type: CornerType, angle) => {

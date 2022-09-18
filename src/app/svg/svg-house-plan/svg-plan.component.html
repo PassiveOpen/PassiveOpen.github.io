@@ -23,7 +23,7 @@
   <g class="all" transform="rotate(0)">
 
     <g class="house-stramien">
-      <g clas="house-stramien" id="house-stramien-in">
+      <g clas="house-stramien" class="house-stramien-in">
         <polyline clas="house-stramien" id="house-stramien-in-we-a"></polyline>
         <polyline clas="house-stramien" id="house-stramien-in-we-b"></polyline>
         <polyline clas="house-stramien" id="house-stramien-in-we-c"></polyline>
@@ -33,7 +33,7 @@
         <polyline clas="house-stramien" id="house-stramien-in-ns-c"></polyline>
         <polyline clas="house-stramien" id="house-stramien-in-ns-d"></polyline>
       </g>
-      <g clas="house-stramien" id="house-stramien-out">
+      <g clas="house-stramien" class="house-stramien-out">
         <polyline clas="house-stramien" id="house-stramien-out-we-a"></polyline>
         <polyline clas="house-stramien" id="house-stramien-out-we-b"></polyline>
         <polyline clas="house-stramien" id="house-stramien-out-we-c"></polyline>
@@ -46,6 +46,7 @@
     </g>
 
     <g class="g-grid">
+      <!-- <circle id="grid-index-circle" r="0.05" cx="0" cy="0" fill="var(--color-50)"></circle> -->
       <polyline class="grid-vertical" id="grid-index-{{i}}" *ngFor="let item of [].constructor(55); let i = index;">
       </polyline>
       <polyline class="grid-horizontal" id="grid-index-{{i}}" *ngFor="let item of [].constructor(55); let i = index;">
@@ -62,8 +63,8 @@
       <polygon [id]="key" *ngFor="let key of roomKeys"></polygon>
     </g>
 
-    <g class="plan-stair-plan">
-      <svg class="plan-stair-plan"></svg>
+    <g class="plan-stair-plan included-stairs-plan">
+      <svg class="plan-stair-plan "></svg>
     </g>
 
     <g class="g-wall">
@@ -71,7 +72,7 @@
         <polyline class="wall-left"></polyline>
         <polyline class="wall-right"></polyline>
         <polygon class="wall-fill"></polygon>
-        <circle class="wall-origin" r="0.1" stroke-width="1"></circle>
+        <circle class="wall-origin"></circle>
       </g>
     </g>
 
@@ -93,6 +94,12 @@
       <polyline id="view-lines"></polyline>
       <polygon id="central-void" filter="url(#inset-shadow)"></polygon>
       <polygon id="tower-walls"></polygon>
+
+      <polyline id="roof-line-1"></polyline>
+      <polyline id="roof-line-2"></polyline>
+      <polyline id="roof-line-3"></polyline>
+      <polyline id="roof-line-4"></polyline>
+      <polyline id="roof-line-5"></polyline>
     </g>
 
     <g class="house-measure">

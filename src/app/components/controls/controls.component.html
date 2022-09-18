@@ -8,6 +8,22 @@ section-{{(scroll$ |async).section }}" *ngIf="(states$ | async) as states" fxLay
 
     <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end" fxLayoutGap="8px">
 
+      <button mat-mini-fab (click)="setStates(States.doors)" [class.active]="states.includes(States.doors)">
+        <label>
+          Doors
+        </label>
+        <mat-icon style="font-family:'Material Icons Outlined';"> door_front</mat-icon>
+      </button>
+
+      <button mat-mini-fab (click)="setStates(States.theoreticalWalls)"
+        [class.active]="states.includes(States.theoreticalWalls)">
+        <label>
+          Theoretic walls
+        </label>
+        <mat-icon style="font-family:'Material Icons Outlined';">density_large</mat-icon>
+      </button>
+
+
       <button mat-mini-fab (click)="setStates(States.grid)" [class.active]="states.includes(States.grid)">
         <label>
           Grid
@@ -20,7 +36,7 @@ section-{{(scroll$ |async).section }}" *ngIf="(states$ | async) as states" fxLay
         <label>
           Stramien
         </label>
-        <mat-icon style="font-family:'Material Icons Outlined';">delete</mat-icon>
+        <mat-icon style="font-family:'Material Icons Outlined';">grid_3x3</mat-icon>
       </button>
 
       <button mat-mini-fab (click)="setStates(States.towerFootprint)"

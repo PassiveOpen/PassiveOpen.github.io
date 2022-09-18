@@ -27,9 +27,9 @@ export class SvgCrossComponent
     public appService: AppService,
     public tooltipService: TooltipService,
     public host: ElementRef,
-    private d3Service: D3Service
+    public d3Service: D3Service
   ) {
-    super(houseService, appService, tooltipService, host);
+    super(houseService, appService, tooltipService, host, d3Service);
   }
 
   ngAfterViewInit(): void {

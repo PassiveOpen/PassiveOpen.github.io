@@ -64,25 +64,18 @@ export const lineIntersect = (line1, line2): xy => {
   return [x1 + ua * (x2 - x1), y1 + ua * (y2 - y1)];
 };
 
-export const getDiagonal = (
-  coord1: number[],
-  coord2: number[],
-  round = 2
-): number => {
+export const getDiagonal = (coord1: xy, coord2: xy, round = 2): number => {
+  if (!coord1 || !coord2) return 0;
   const h = coord2[0] - coord1[0];
   const w = coord2[1] - coord1[1];
   return Math.round(Math.hypot(h, w) * 10 ** round) / 10 ** round;
 };
 
-export const offset = (coords: xy | number[], offset: xy | number[]): xy => {
+export const offset = (coords: xy, offset: xy): xy => {
   return [coords[0] + offset[0], coords[1] + offset[1]];
 };
 
-export const mixPoints = (
-  coords1: xy | number[],
-  coords2: xy | number[],
-  flip = true
-): xy => {
+export const mixPoints = (coords1: xy, coords2: xy, flip = true): xy => {
   if (flip) {
     return [coords1[0], coords2[1]];
   } else {

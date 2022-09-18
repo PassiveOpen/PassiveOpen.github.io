@@ -7,7 +7,7 @@ import { AppService } from 'src/app/app.service';
   styleUrls: ['./sidemenu.component.scss'],
 })
 export class SideMenuComponent implements OnInit {
-  @HostBinding('class.mini') mini = true;
+  @HostBinding('class.mini') mini = false;
   @HostBinding('class.collapsed') collapsed = true;
 
   title = this.appService.title;
@@ -28,6 +28,6 @@ export class SideMenuComponent implements OnInit {
     return this.appService.darkMode;
   }
   set darkMode(x) {
-    this.appService.setDarkMode(x);
+    this.appService.setDarkMode(x, true);
   }
 }

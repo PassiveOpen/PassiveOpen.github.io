@@ -59,7 +59,7 @@ export class HouseService {
     value,
     tag: Tag = undefined
   ) {
-    console.log('updates');
+    // console.log('updates');
 
     const house: House = this.house$.value;
 

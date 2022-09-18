@@ -1,4 +1,4 @@
-import { House, HouseUser } from '../house.model';
+import { House, HouseUser, xy } from '../house.model';
 import { Room } from '../../model/specific/room.model';
 import {
   CornerType,
@@ -14,10 +14,12 @@ import {
   getDiagonal,
   mixPoints,
   offset,
+  round,
 } from '../../shared/global-functions';
 import { Window, WindowForm } from '../../model/specific/window.model';
 import { Sensor } from '../../model/specific/sensor.model';
 import { lindeLundUpstairs } from './lindeLund.upstairs';
+import { Footprint } from 'src/app/model/specific/footprint';
 
 export const lindeLund: HouseUser = {
   studAmount: 10,
@@ -40,9 +42,7 @@ export const lindeLund: HouseUser = {
     rotation: 180,
   },
   parts: [
-    // Footprint
-    new Room({
-      name: 'innerFootprint',
+    new Footprint({
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         const s = house.stramien;
@@ -73,7 +73,7 @@ export const lindeLund: HouseUser = {
         ...[...Array(17).keys()]
           .map((i, index, arr) => {
             const towerCorners = [3, 4, 5, 6, 7];
-            const gables = [1] // todo
+            const gables = [1]; // todo
 
             if ([3, 4, 5, 6, 7].includes(i)) return;
             const innerCorners = [0, 11, 14, 17];
@@ -99,6 +99,253 @@ export const lindeLund: HouseUser = {
                   getCorner(i + 1)
                 );
               },
+              parts: [
+                ...(i === 16 // West-Wing-North-Wall
+                  ? [1, 2].map(
+                      (x) =>
+                        new Window({
+                          rotate: 90,
+                          width: 0.6,
+                          onUpdate: function (this: Window, house: House) {
+                            const wall = this.parent;
+                            this.origin = wall.getPosition(
+                              WallSide.out,
+                              x / 3,
+                              this.width / 2
+                            );
+                          },
+                        })
+                    )
+                  : []),
+
+                ...(i === 15 // West-wing-West-wall
+                  ? [
+                      new Window({
+                        windowForm: WindowForm.hexagon,
+                        floor: Floor.top,
+                        rotate: 0,
+                        width: 1,
+                        onUpdate: function (this: Window, house: House) {
+                          const wall = this.parent;
+                          this.origin = wall.getPosition(
+                            WallSide.out,
+                            1 / 2,
+                            this.width / 2
+                          );
+                        },
+                      }),
+                      ...[1, 2].map(
+                        (x) =>
+                          new Window({
+                            rotate: 0,
+                            width: 0.9,
+                            onUpdate: function (this: Window, house: House) {
+                              const wall = this.parent;
+                              this.origin = wall.getPosition(
+                                WallSide.out,
+                                x / 3,
+                                this.width / 2
+                              );
+                            },
+                          })
+                      ),
+                    ]
+                  : []),
+                ...(i === 14 // West-Wing-South-Wall
+                  ? [1, 2].map(
+                      (x) =>
+                        new Window({
+                          rotate: -90,
+                          onUpdate: function (this: Window, house: House) {
+                            const wall = this.parent;
+
+                            if (wall.innerWallLength < 5) {
+                              this.width = wall.innerWallLength / 3 - 0.2;
+                            } else {
+                              this.width = 1.4;
+                            }
+                            this.origin = wall.getPosition(
+                              WallSide.out,
+                              x / 3,
+                              this.width / 2
+                            );
+                          },
+                        })
+                    )
+                  : []),
+
+                ...(i === 12 // South-glass-facade-South-Wall
+                  ? [1].map(
+                      (x) =>
+                        new Window({
+                          rotate: -90,
+                          floor: Floor.all,
+                          onUpdate: function (this: Window, house: House) {
+                            const wall = this.parent;
+                            (this.width = wall.innerWallLength),
+                              (this.origin = wall.getPosition(
+                                WallSide.out,
+                                x / 2,
+                                this.width / 2
+                              ));
+                          },
+                        })
+                    )
+                  : []),
+                ...(i === 10 // East-Wing-South-Wall
+                  ? [1].map(
+                      (x) =>
+                        new Window({
+                          rotate: -90,
+                          width: 1.4,
+                          onUpdate: function (this: Window, house: House) {
+                            const wall = this.parent;
+                            this.origin = wall.getPosition(
+                              WallSide.out,
+                              x / 2,
+                              this.width / 2
+                            );
+                          },
+                        })
+                    )
+                  : []),
+                ...(i === 9 // East-Wing-East-Wall
+                  ? [
+                      new Window({
+                        windowForm: WindowForm.hexagon,
+                        floor: Floor.top,
+                        rotate: 180,
+                        width: 1,
+                        onUpdate: function (this: Window, house: House) {
+                          const wall = this.parent;
+                          this.origin = wall.getPosition(
+                            WallSide.out,
+                            1 / 2,
+                            this.width / 2
+                          );
+                        },
+                      }),
+                      ...[0, 1].map(
+                        (x) =>
+                          new Window({
+                            rotate: 180,
+                            width: 0.8,
+                            onUpdate: function (this: Window, house: House) {
+                              const wall = this.parent;
+                              this.origin = wall.getPosition(
+                                WallSide.out,
+                                x,
+                                this.width / 2 +
+                                  (this.width + 0.8) * (x === 0 ? 1 : -1)
+                              );
+                            },
+                          })
+                      ),
+                    ]
+                  : []),
+                ...(i === 8 // East-Wing-North-Wall
+                  ? [1].map(
+                      (x) =>
+                        new Window({
+                          rotate: 90,
+                          width: 0.6,
+                          onUpdate: function (this: Window, house: House) {
+                            const wall = this.parent;
+                            this.origin = wall.getPosition(
+                              WallSide.out,
+                              1 / 2,
+                              this.width / 2 - house.wallOuterThickness / 2
+                            );
+                          },
+                        })
+                    )
+                  : []),
+
+                ...(i === 2 // North-East-west-wall
+                  ? [1, 2.5].map(
+                      (x) =>
+                        new Window({
+                          rotate: 180,
+                          width: 0.9,
+                          onUpdate: function (this: Window, house: House) {
+                            const wall = this.parent;
+                            this.origin = wall.getPosition(
+                              WallSide.out,
+                              x / 3,
+                              this.width / 2
+                            );
+                          },
+                        })
+                    )
+                  : []),
+                ...(i === 1 // North-wing-North-wall
+                  ? [
+                      new Window({
+                        windowForm: WindowForm.hexagon,
+                        floor: Floor.top,
+                        rotate: 90,
+                        width: 1,
+                        onUpdate: function (this: Window, house: House) {
+                          const wall = this.parent;
+                          this.origin = wall.getPosition(
+                            WallSide.out,
+                            1 / 2,
+                            this.width / 2
+                          );
+                        },
+                      }),
+                      ...[1, 2].map(
+                        (x) =>
+                          new Window({
+                            rotate: 90,
+                            width: 0.9,
+                            onUpdate: function (this: Window, house: House) {
+                              const wall = this.parent;
+                              this.origin = wall.getPosition(
+                                WallSide.out,
+                                x / 3,
+                                this.width / 2
+                              );
+                            },
+                          })
+                      ),
+                    ]
+                  : []),
+                ...(i === 0 // North-wing-west-wall
+                  ? [
+                      new Door({
+                        outside: true,
+                        rotate: 0,
+                        scale: [1, 1],
+                        onUpdate: function (this: Door, house: House) {
+                          this.origin = offset(
+                            this.parent.getPosition(
+                              WallSide.in,
+                              0,
+                              1.2 + house.wallInnerThickness
+                            ),
+                            [-house.wallOuterThickness, 0]
+                          );
+                        },
+                      }),
+                      ...[2, 5].map(
+                        (x) =>
+                          new Window({
+                            rotate: 0,
+                            width: 0.9,
+                            onUpdate: function (this: Window, house: House) {
+                              const wall = this.parent;
+                              this.origin = wall.getPosition(
+                                WallSide.out,
+                                (x + 1) / 8,
+                                this.width / 2
+                              );
+                            },
+                          })
+                      ),
+                    ]
+                  : []),
+              ],
             });
           })
           .filter((x) => x),
@@ -109,11 +356,9 @@ export const lindeLund: HouseUser = {
           floor: Floor.all,
           onUpdate: function (this: Wall, house: House) {
             this.ceiling = house.cross.ceilingHeight;
-            if (!house.showTower) {
-              this.sides = { [WallSide.in]: [], [WallSide.in]: [] };
-              return;
-            }
-            const room = this.parent;
+            this.outOfDesign = !house.showTower;
+            if (this.outOfDesign) return;
+
             const wallDiff =
               house.wallOuterThickness - house.wallInnerThickness;
 
@@ -140,13 +385,11 @@ export const lindeLund: HouseUser = {
           floor: Floor.all,
           onUpdate: function (this: Wall, house: House) {
             this.ceiling = house.cross.ceilingHeight;
-            if (!house.showTower) {
-              this.sides = { [WallSide.in]: [], [WallSide.in]: [] };
-              return;
-            }
+            this.outOfDesign = !house.showTower;
+            if (this.outOfDesign) return;
 
             const room = this.parent;
-            this.origin = room.coords[2];
+            this.origin = house.tower.innerCoords[1];
 
             this.sides = {
               [WallSide.out]: [
@@ -159,6 +402,21 @@ export const lindeLund: HouseUser = {
               ],
             };
           },
+          parts: [
+            new Door({
+              outside: true,
+              rotate: 45 + 90,
+              scale: [1, 1],
+              floor: Floor.ground,
+              onUpdate: function (this: Door, house: House) {
+                this.outOfDesign = !house.showTower;
+                if (this.outOfDesign) return;
+                const side = WallSide.out;
+                const wall = this.parent;
+                this.origin = wall.getPosition(side, 1 / 2, -this.width / 2);
+              },
+            }),
+          ],
         }),
         // East
         new Wall({
@@ -166,13 +424,11 @@ export const lindeLund: HouseUser = {
           floor: Floor.all,
           onUpdate: function (this: Wall, house: House) {
             this.ceiling = house.cross.ceilingHeight;
-            if (!house.showTower) {
-              this.sides = { [WallSide.in]: [], [WallSide.in]: [] };
-              return;
-            }
+            this.outOfDesign = !house.showTower;
+            if (this.outOfDesign) return;
 
             const room = this.parent;
-            this.origin = room.coords[3];
+            this.origin = house.tower.innerCoords[2];
             this.sides = {
               [WallSide.out]: [
                 house.tower.outerCoords[2],
@@ -205,7 +461,7 @@ export const lindeLund: HouseUser = {
         // North
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic('n', house, house.wallOuterThickness);
           },
@@ -234,30 +490,6 @@ export const lindeLund: HouseUser = {
                   mixPoints(techRoom, point, false),
                   techRoom,
                 ];
-              },
-            }),
-            new Window({
-              rotate: -90,
-              width: 0.9,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  1 / 3,
-                  -this.width / 2
-                );
-              },
-            }),
-            new Window({
-              rotate: -90,
-              width: 1,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  2 / 3,
-                  -this.width / 2
-                );
               },
             }),
             new Sensor({
@@ -380,36 +612,11 @@ export const lindeLund: HouseUser = {
         // South
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic('s', house, house.wallOuterThickness);
           },
           parts: [
-            new Window({
-              rotate: 90,
-              width: 1.2,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  1 / 3,
-                  -this.width / 2
-                );
-              },
-            }),
-            new Window({
-              rotate: 90,
-              width: 1.2,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  2 / 3,
-                  -this.width / 2
-                );
-              },
-            }),
-
             new Sensor({
               group: 2,
               sensorType: SensorType.socket,
@@ -455,7 +662,7 @@ export const lindeLund: HouseUser = {
         // West
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic('w', house, house.wallOuterThickness);
           },
@@ -483,30 +690,6 @@ export const lindeLund: HouseUser = {
                   [0, -1]
                 );
                 this.points = [point];
-              },
-            }),
-            new Window({
-              rotate: 180,
-              width: 0.9,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  1 / 3,
-                  -this.width / 2
-                );
-              },
-            }),
-            new Window({
-              rotate: 180,
-              width: 0.9,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  2 / 3,
-                  -this.width / 2
-                );
               },
             }),
           ],
@@ -669,23 +852,11 @@ export const lindeLund: HouseUser = {
         // North
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic('n', house, house.wallOuterThickness);
           },
           parts: [
-            new Window({
-              rotate: 90,
-              width: 0.9,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  1 / 2,
-                  this.width / 2
-                );
-              },
-            }),
             new Sensor<Wall>({
               sensorType: SensorType.dimmer,
               onUpdate: function (this: Sensor<Wall>, house: House) {
@@ -732,7 +903,7 @@ export const lindeLund: HouseUser = {
         // East
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic('e', house, house.wallOuterThickness);
           },
@@ -765,35 +936,14 @@ export const lindeLund: HouseUser = {
                 ];
               },
             }),
-            new Window({
-              width: 0.9,
-              rotate: 0,
-              onUpdate: function (this: Window, house: House) {
-                const side = WallSide.in;
-                this.origin = offset(this.parent.sides[side][0], [0, 0.5]);
-              },
-            }),
-            new Window({
-              width: 0.9,
-              rotate: 0,
-              onUpdate: function (this: Window, house: House) {
-                const side = WallSide.in;
-                this.origin = offset(this.parent.sides[side][1], [
-                  0,
-                  -(0.5 + 0.9),
-                ]);
-              },
-            }),
             new Door({
               scale: [-1, -1],
-              outside: true,
+              // outside: true,
               onUpdate: function (this: Door, house: House) {
                 const side = WallSide.in;
-                const wallMid = this.parent.parent.height / 2;
-                this.origin = offset(this.parent.sides[side][0], [
-                  0,
-                  wallMid - this.width,
-                ]);
+                const wall = this.parent;
+                const wallMid = wall.innerWallLength / 2;
+                this.origin = offset(wall.origin, [0, wallMid - this.width]);
               },
             }),
             new Door({
@@ -801,11 +951,9 @@ export const lindeLund: HouseUser = {
               outside: true,
               onUpdate: function (this: Door, house: House) {
                 const side = WallSide.in;
-                const wallMid = this.parent.parent.height / 2;
-                this.origin = offset(this.parent.sides[side][0], [
-                  0,
-                  wallMid + this.width,
-                ]);
+                const wall = this.parent;
+                const wallMid = wall.innerWallLength / 2;
+                this.origin = offset(wall.origin, [0, wallMid + this.width]);
               },
             }),
           ],
@@ -813,23 +961,11 @@ export const lindeLund: HouseUser = {
         // south
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic('s', house, house.wallOuterThickness);
           },
           parts: [
-            new Window({
-              width: 1.2,
-              rotate: -90,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  1 / 2,
-                  this.width / 2
-                );
-              },
-            }),
             new Sensor<Wall>({
               group: 3,
               amount: 2,
@@ -892,8 +1028,8 @@ export const lindeLund: HouseUser = {
               },
             }),
             new Door({
-              scale: [-1, -1],
-              outside: true,
+              scale: [1, 1],
+              rotate: 180,
               onUpdate: function (this: Door, house: House) {
                 const side = WallSide.in;
                 const wallMid = this.parent.parent.height / 2;
@@ -904,8 +1040,8 @@ export const lindeLund: HouseUser = {
               },
             }),
             new Door({
-              scale: [-1, 1],
-              outside: true,
+              scale: [1, -1],
+              rotate: 180,
               onUpdate: function (this: Door, house: House) {
                 const side = WallSide.in;
                 const wallMid = this.parent.parent.height / 2;
@@ -1012,7 +1148,7 @@ export const lindeLund: HouseUser = {
         // east Short
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.ceiling = house.cross.ceilingHeight;
             this.innerWallLength =
@@ -1060,7 +1196,7 @@ export const lindeLund: HouseUser = {
         // East theoretic
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic('e', house, house.wallOuterThickness);
           },
@@ -1081,27 +1217,16 @@ export const lindeLund: HouseUser = {
         // South
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic('s', house, house.wallOuterThickness);
           },
-          parts: [
-            new Window({
-              floor: Floor.all,
-              windowForm: WindowForm.windowWall,
-              rotate: 90,
-              onUpdate: function (this: Window, house: House) {
-                const side = WallSide.in;
-                this.width = this.parent.parent.width;
-                this.origin = this.parent.sides[side][0];
-              },
-            }),
-          ],
+          parts: [],
         }),
         // West short
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.ceiling = house.cross.ceilingHeight;
             this.innerWallLength =
@@ -1150,7 +1275,7 @@ export const lindeLund: HouseUser = {
         // West theoretic
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic('w', house, house.wallOuterThickness);
           },
@@ -1172,7 +1297,7 @@ export const lindeLund: HouseUser = {
         // North
         new Wall({
           type: WallType.inner,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawByRoom(
               0,
@@ -1182,7 +1307,15 @@ export const lindeLund: HouseUser = {
               CornerType.straight
             );
           },
-          parts: [],
+          parts: [
+            new Door({
+              rotate: 90,
+              scale: [-1, 1],
+              onUpdate: function (this: Door, house: House) {
+                this.origin = this.parent.getPosition(WallSide.in, 0, 0);
+              },
+            }),
+          ],
         }),
         new Sensor<Room>({
           group: 7,
@@ -1427,7 +1560,7 @@ export const lindeLund: HouseUser = {
                 this.origin = this.parent.getPosition(
                   WallSide.in,
                   1,
-                  -1.2 - house.wallInnerThickness
+                  -(1.2 + house.wallInnerThickness)
                 );
               },
             }),
@@ -1448,7 +1581,7 @@ export const lindeLund: HouseUser = {
         // West
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic('w', house, house.wallOuterThickness);
           },
@@ -1475,16 +1608,20 @@ export const lindeLund: HouseUser = {
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         this.northWestCorner = [house.stramien.in.we.b, house.stramien.in.ns.a];
+        const hallLength = house.stramien.in.ns.b - house.stair.stairOrigin[1];
         this.squaredRoom(
           house.stramien.in.we.c - house.stramien.in.we.b,
-          Math.abs(house.stair.stairOrigin[1] - house.wallInnerThickness)
+          house.stramien.in.ns.b -
+            house.stramien.in.ns.a -
+            hallLength -
+            house.wallInnerThickness
         );
       },
       parts: [
         // west theoretic
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic('w', house, house.wallOuterThickness);
           },
@@ -1544,11 +1681,27 @@ export const lindeLund: HouseUser = {
         // east theoretic
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic('e', house, house.wallOuterThickness);
           },
           parts: [
+            ...[SensorType.camera, SensorType.poe].map(
+              (sensorType) =>
+                new Sensor<Wall>({
+                  sensorType,
+                  cableType: CableType.OutsidePOE,
+                  offsetWall: -0.3,
+                  onUpdate: function (this: Sensor<Wall>, house: House) {
+                    const point = this.parent.getPosition(WallSide.in, 0, 0);
+                    this.points = [
+                      point,
+                      offset(point, [-1, 1]),
+                      house.serverRoom,
+                    ];
+                  },
+                })
+            ),
             ...[2 / 6, 4 / 6].map(
               (distance) =>
                 new Sensor<Wall>({
@@ -1574,11 +1727,32 @@ export const lindeLund: HouseUser = {
         // north theoretic
         new Wall({
           type: WallType.theoretic,
-          floor: Floor.all,
+          floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic('n', house, house.wallOuterThickness);
           },
-          parts: [],
+          parts: [
+            ...[1 / 6, 5 / 6].map(
+              (distance) =>
+                new Sensor<Wall>({
+                  offset: [0, 0.3],
+                  sensorType: SensorType.ethernet,
+                  onUpdate: function (this: Sensor<Wall>) {
+                    const techRoom = this.parent.parent.parent.serverRoom;
+                    const point = this.parent.getPosition(
+                      WallSide.in,
+                      distance,
+                      0
+                    );
+                    this.points = [
+                      point,
+                      mixPoints(techRoom, point, false),
+                      techRoom,
+                    ];
+                  },
+                })
+            ),
+          ],
         }),
 
         new Sensor<Room>({
@@ -1798,7 +1972,7 @@ export const lindeLund: HouseUser = {
       name: 'Server',
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
-        const height = 0.5;
+        const height = 1.0;
         const toiletOffset =
           house.stramien.in.we.b +
           house.stair.totalWidth -
@@ -1884,16 +2058,14 @@ export const lindeLund: HouseUser = {
       name: 'Tower',
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
+        this.outOfDesign = !house.showTower;
+        if (this.outOfDesign) return;
         const wallDiff = house.wallOuterThickness - house.wallInnerThickness;
         this.northWestCorner = [
           house.stramien.out.we.c - wallDiff,
           house.tower.innerCoords[0][1],
         ];
 
-        if (!house.showTower) {
-          this.coords = [];
-          return;
-        }
         this.center = offset(this.northWestCorner, [1, 1]);
         this.centralElectricity = this.center;
         this.coords = [
@@ -1918,6 +2090,8 @@ export const lindeLund: HouseUser = {
           type: WallType.inner,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
+            this.outOfDesign = !house.showTower;
+            if (this.outOfDesign) return;
             this.drawByRoom(
               6,
               0,
@@ -1928,12 +2102,14 @@ export const lindeLund: HouseUser = {
           },
           parts: [
             new Door({
-              scale: [1, -1],
-              rotate: 90,
+              scale: [1, 1],
+              rotate: 180,
               floor: Floor.ground,
               onUpdate: function (this: Door, house: House) {
+                this.outOfDesign = !house.showTower;
+                if (this.outOfDesign) return;
                 this.floor = Floor.ground;
-                this.origin = this.parent.getPosition(WallSide.in, 0, 0);
+                this.origin = this.parent.getPosition(WallSide.in, 1, 0);
               },
             }),
           ],
@@ -1943,6 +2119,8 @@ export const lindeLund: HouseUser = {
           type: WallType.inner,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
+            this.outOfDesign = !house.showTower;
+            if (this.outOfDesign) return;
             this.drawByRoom(
               5,
               6,
@@ -1953,12 +2131,18 @@ export const lindeLund: HouseUser = {
           },
           parts: [
             new Door({
-              scale: [-1, -1],
-              rotate: 0,
+              scale: [-1, 1],
+              rotate: -90,
               floor: Floor.ground,
               onUpdate: function (this: Door, house: House) {
+                this.outOfDesign = !house.showTower;
+                if (this.outOfDesign) return;
                 this.floor = Floor.ground;
-                this.origin = this.parent.getPosition(WallSide.in, 1, 0);
+                this.origin = this.parent.getPosition(
+                  WallSide.in,
+                  0,
+                  house.wallInnerThickness
+                );
               },
             }),
           ],
@@ -2010,7 +2194,27 @@ export const lindeLund: HouseUser = {
           house.wallInnerThickness;
 
         this.northWestCorner = [stairsOffset, house.stair.stairOrigin[1]];
-        this.squaredRoom(house.stramien.in.we.c - stairsOffset, height);
+
+        const toiletServer: xy = [
+          stairsOffset + 1.2 - house.wallInnerThickness,
+          house.stramien.in.ns.b - 1 - house.wallInnerThickness * 2,
+        ];
+
+        this.width = round(3, house.stramien.in.we.c - stairsOffset);
+        const width = this.width;
+        this.height = round(3, height);
+        this.coords = [
+          this.northWestCorner,
+          offset(this.northWestCorner, [width, 0]),
+          offset(this.northWestCorner, [width, height]),
+          [this.northWestCorner[0] + width, toiletServer[1]],
+          toiletServer,
+          [toiletServer[0], this.northWestCorner[1] + height],
+          offset(this.northWestCorner, [0, height]),
+        ];
+
+        this.center = offset(this.northWestCorner, [width / 2, height / 2]);
+        this.centralElectricity = this.center;
       },
       parts: [
         new Sensor<Room>({
@@ -2037,320 +2241,6 @@ export const lindeLund: HouseUser = {
             ]);
             this.points = [point, mixPoints(techRoom, point, false), techRoom];
           },
-        }),
-      ],
-    }),
-  ],
-  a: [
-    // North / Upper
-    new Room({
-      name: 'North',
-      theoretic: true,
-      floor: Floor.ground,
-      onUpdate: function (this: Room, house: House) {
-        this.northWestCorner = [house.stramien.in.we.b, house.stramien.in.ns.a];
-        this.squaredRoom(
-          house.stramien.in.we.c - house.stramien.in.we.b,
-          house.stramien.in.ns.b - house.stramien.in.ns.a
-        );
-      },
-      parts: [
-        // North
-        new Wall({
-          type: WallType.theoretic,
-          floor: Floor.all,
-          onUpdate: function (this: Wall, house: House) {
-            this.ceiling = house.cross.ceilingHeight;
-            this.origin = offset(this.parent.northWestCorner, [0, 0]);
-            this.sides = {
-              [WallSide.in]: [
-                offset(this.origin, [
-                  -house.wallOuterThickness,
-                  -house.wallOuterThickness,
-                ]),
-                offset(this.origin, [
-                  this.parent.width + house.wallOuterThickness,
-                  -house.wallOuterThickness,
-                ]),
-              ],
-              [WallSide.in]: [
-                offset(this.origin, [0, 0]),
-                offset(this.origin, [this.parent.width, 0]),
-              ],
-            };
-          },
-          parts: [
-            ...[1 / 6, 5 / 6].map(
-              (distance) =>
-                new Sensor<Wall>({
-                  offset: [0, 0.3],
-                  sensorType: SensorType.ethernet,
-                  onUpdate: function (this: Sensor<Wall>) {
-                    const techRoom = this.parent.parent.parent.serverRoom;
-                    const point = this.parent.getPosition(
-                      WallSide.in,
-                      distance,
-                      0
-                    );
-                    this.points = [
-                      point,
-                      mixPoints(techRoom, point, false),
-                      techRoom,
-                    ];
-                  },
-                })
-            ),
-            new Window({
-              rotate: 90,
-              width: 0.9,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  1 / 3,
-                  this.width / 2
-                );
-              },
-            }),
-            new Window({
-              rotate: 90,
-              width: 0.9,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  2 / 3,
-                  this.width / 2
-                );
-              },
-            }),
-          ],
-        }),
-        // East
-        new Wall({
-          type: WallType.theoretic,
-          floor: Floor.all,
-          onUpdate: function (this: Wall, house: House) {
-            this.ceiling = house.cross.ceilingHeight;
-            this.origin = offset(this.parent.northWestCorner, [
-              this.parent.width,
-              0,
-            ]);
-
-            this.sides = {
-              [WallSide.in]: [
-                offset(this.origin, [
-                  house.wallOuterThickness,
-                  -house.wallOuterThickness,
-                ]),
-                house.tower.outerCoords[0],
-              ],
-              [WallSide.in]: [
-                offset(this.origin, [0, 0]),
-                house.tower.intersectionWest,
-              ],
-            };
-          },
-          parts: [
-            ...[SensorType.camera, SensorType.poe].map(
-              (sensorType) =>
-                new Sensor<Wall>({
-                  sensorType,
-                  cableType: CableType.OutsidePOE,
-                  offsetWall: -0.3,
-                  onUpdate: function (this: Sensor<Wall>, house: House) {
-                    const point = this.parent.getPosition(WallSide.in, 0, 0);
-                    this.points = [
-                      point,
-                      offset(point, [-1, 1]),
-                      house.serverRoom,
-                    ];
-                  },
-                })
-            ),
-
-            new Window({
-              rotate: 0,
-              width: 0.9,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  1 / 3,
-                  -this.width / 2
-                );
-              },
-            }),
-            new Window({
-              rotate: 0,
-              width: 0.9,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  2 / 3,
-                  -this.width / 2
-                );
-              },
-            }),
-          ],
-        }),
-        // East theoretic
-        new Wall({
-          type: WallType.theoretic,
-          floor: Floor.all,
-          onUpdate: function (this: Wall, house: House) {
-            this.ceiling = house.cross.ceilingHeight;
-            this.thickness = house.wallInnerThickness;
-            this.origin = offset(this.parent.northWestCorner, [
-              this.parent.width,
-              0,
-            ]);
-            this.innerWallLength = this.parent.height;
-
-            this.sides = {
-              [WallSide.in]: [
-                offset(this.origin, [0, 0]),
-                offset(this.origin, [0, this.innerWallLength]),
-              ],
-            };
-          },
-          parts: [],
-        }),
-        // South
-        new Wall({
-          type: WallType.inner,
-          floor: Floor.ground,
-          onUpdate: function (this: Wall, house: House) {
-            this.ceiling = house.cross.ceilingHeight;
-            this.origin = offset(this.parent.northWestCorner, [
-              this.parent.width,
-              this.parent.height,
-            ]);
-            this.sides = {
-              [WallSide.in]: [
-                offset(this.origin, [0, -house.wallInnerThickness]),
-                offset(this.origin, [
-                  -this.parent.width,
-                  -house.wallInnerThickness,
-                ]),
-              ],
-              [WallSide.in]: [
-                offset(this.origin, [0, 0]),
-                offset(this.origin, [-this.parent.width, 0]),
-              ],
-            };
-          },
-          parts: [
-            new Door({
-              rotate: -90,
-              scale: [1, -1],
-              onUpdate: function (this: Door, house: House) {
-                const side = WallSide.in;
-                this.origin = offset(this.parent.sides[side][1], [0.5, 0]);
-              },
-            }),
-          ],
-        }),
-        // West
-        new Wall({
-          type: WallType.theoretic,
-          floor: Floor.all,
-          onUpdate: function (this: Wall, house: House) {
-            this.ceiling = house.cross.ceilingHeight;
-            this.origin = offset(this.parent.northWestCorner, [
-              0,
-              this.parent.height,
-            ]);
-            this.sides = {
-              [WallSide.in]: [
-                offset(this.origin, [
-                  -house.wallOuterThickness,
-                  -house.wallOuterThickness,
-                ]),
-                offset(this.origin, [
-                  -house.wallOuterThickness,
-                  -this.parent.height - house.wallOuterThickness,
-                ]),
-              ],
-              [WallSide.in]: [
-                offset(this.origin, [0, 0]),
-                offset(this.origin, [0, -this.parent.height]),
-              ],
-            };
-          },
-          parts: [
-            new Door({
-              floor: Floor.ground,
-              rotate: 0,
-              scale: [1, -1],
-              onUpdate: function (this: Door, house: House) {
-                this.origin = this.parent.getPosition(
-                  WallSide.in,
-                  0,
-                  house.tower.houseIncrement
-                );
-              },
-            }),
-            new Sensor<Wall>({
-              sensorType: SensorType.ethernet,
-              onUpdate: function (this: Sensor<Wall>, house: House) {
-                this.offsetWall = -house.wallOuterThickness;
-                const techRoom = house.serverRoom;
-                const point = this.parent.getPosition(
-                  WallSide.in,
-                  0,
-                  house.tower.houseIncrement - 0.8
-                );
-                this.points = [
-                  point,
-                  mixPoints(techRoom, point, false),
-                  techRoom,
-                ];
-              },
-            }),
-            new Sensor<Wall>({
-              sensorType: SensorType.ethernet,
-              offset: [0.3, 0],
-              onUpdate: function (this: Sensor<Wall>, house: House) {
-                const techRoom = house.serverRoom;
-                const point = this.parent.getPosition(
-                  WallSide.in,
-                  0,
-                  house.tower.houseIncrement - 0.8
-                );
-                this.points = [
-                  point,
-                  mixPoints(techRoom, point, false),
-                  techRoom,
-                ];
-              },
-            }),
-            new Window({
-              rotate: 180,
-              width: 0.9,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  1 / 3,
-                  this.width / 2
-                );
-              },
-            }),
-            new Window({
-              rotate: 180,
-              width: 0.9,
-              onUpdate: function (this: Window, house: House) {
-                const wall = this.parent;
-                this.origin = wall.getPosition(
-                  WallSide.in,
-                  2 / 3,
-                  this.width / 2
-                );
-              },
-            }),
-          ],
         }),
       ],
     }),
