@@ -1,8 +1,8 @@
 @use "@angular/material" as mat;
 @use "sass:map";
-@import "~@angular/material/theming";
+@use "@angular/material/theming";
+// @use "ol/ol.css";
 @import "theme";
-@import "~ol/ol.css";
 @include mat.core();
 
 html,
