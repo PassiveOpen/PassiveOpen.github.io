@@ -214,10 +214,9 @@ export const lindeLundUpstairs = [
     floor: Floor.top,
     onUpdate: function (this: Room, house: House) {
       const mainBedroomSetBack = 1;
-      this.width = round(2, house.stramien.in.we.c - house.stramien.in.we.b);
+      this.width = round( house.stramien.in.we.c - house.stramien.in.we.b);
       this.northWestCorner = [house.stramien.in.we.b, house.stramien.in.ns.a];
       this.height = round(
-        3,
         house.stramien.in.ns.b -
           this.northWestCorner[1] -
           house.tower.houseIncrement -

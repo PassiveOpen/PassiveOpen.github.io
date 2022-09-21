@@ -21,6 +21,10 @@
     </filter>
   </defs>
   <g class="all" transform="rotate(0)">
+    <g class="icons" style="display: none;">
+      <g id="icon-{{SensorType}}" *ngFor="let SensorType of SensorTypes; let i = index">
+      </g>
+    </g>
 
     <g class="house-stramien">
       <g clas="house-stramien" class="house-stramien-in">
@@ -116,16 +120,13 @@
 
 
     <g class="g-sensor">
-      <g class="g-sensor-{{SensorType}}" *ngFor="let SensorType of SensorTypes">
-        <ng-container *ngFor="let key of sensorKeys">
-          <polyline id="{{key}}" class="sensor-cable {{key}}" *ngIf="key.includes(SensorType)"></polyline>
-        </ng-container>
+
+
+      <polyline *ngFor="let key of sensorKeys" id="{{key}}" class="sensor-cable"></polyline>
+      <g id="{{key}}" *ngFor="let key of sensorKeys" class="sensor-g">
+        <use id="{{key}}" class="sensor-icon" />
       </g>
-      <g class="g-sensor-{{SensorType}}" *ngFor="let SensorType of SensorTypes">
-        <ng-container *ngFor="let key of sensorKeys">
-          <g id="{{key}}" class="sensor-icon scale-icon {{key}}" *ngIf="key.includes(SensorType)"></g>
-        </ng-container>
-      </g>
+
     </g>
 
 

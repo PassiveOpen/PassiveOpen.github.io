@@ -4,17 +4,17 @@ import {
   QueryList,
   ViewChildren,
   Input,
-} from '@angular/core';
-import { BehaviorSubject, map } from 'rxjs';
-import { HouseService } from 'src/app/house/house.service';
+} from "@angular/core";
+import { BehaviorSubject, map } from "rxjs";
+import { HouseService } from "src/app/house/house.service";
 import {
   Cost,
   CostTable,
   GroupRow,
   Prop,
   TotalRow,
-} from 'src/app/house/cost.model';
-import { round } from 'src/app/shared/global-functions';
+} from "src/app/house/cost.model";
+import { round } from "src/app/shared/global-functions";
 
 export type column = {
   id: keyof Cost | keyof GroupRow | keyof TotalRow;
@@ -25,9 +25,9 @@ export type column = {
 };
 
 @Component({
-  selector: 'app-table',
-  templateUrl: './table.component.html',
-  styleUrls: ['./table.component.scss'],
+  selector: "app-table",
+  templateUrl: "./table.component.html",
+  styleUrls: ["./table.component.scss"],
 })
 export class AppTableComponent {
   dataSource;
@@ -49,28 +49,28 @@ export class AppTableComponent {
   }
 
   columns: column[] = [
-    { id: 'folded', name: '', def: (x) => `${x}` },
-    { id: Prop.name, name: 'Name', def: (x) => `${x}` },
-    { id: 'calcAmount', name: '#', def: (x, y = 'x') => `${x}${y}` },
+    { id: "folded", name: "", def: (x) => `${x}` },
+    { id: Prop.name, name: "Name", def: (x) => `${x}` },
+    { id: "calcAmount", name: "#", def: (x, y = "x") => `${x}${y}` },
     {
-      id: 'price',
-      name: 'Piece price',
+      id: "price",
+      name: "Piece price",
       def: (x) => `€${this.readableNumbers(x)}`,
     },
     {
-      id: 'calcPrice',
-      name: 'Sum price',
+      id: "calcPrice",
+      name: "Sum price",
       def: (x) => `€${this.readableNumbers(x)}`,
     },
     {
       id: Prop.sizeOrVersion,
-      name: 'Size or Version',
+      name: "Size or Version",
       def: (x) => `${x}`,
     },
-    { id: Prop.remarks, name: 'remarks', def: (x) => `${x}` },
+    { id: Prop.remarks, name: "remarks", def: (x) => `${x}` },
   ];
 
-  @ViewChildren('tableRows', { read: ElementRef })
+  @ViewChildren("tableRows", { read: ElementRef })
   rowContainers: QueryList<ElementRef<HTMLTableRowElement>>;
 
   groupRow = {};
@@ -82,7 +82,7 @@ export class AppTableComponent {
 
   readableNumbers(x: string): string {
     if (Number(x) > 1000) {
-      return `${round(-2, x).toLocaleString()}`;
+      return `${round(Number(x), -2).toLocaleString()}`;
     }
     return x;
   }

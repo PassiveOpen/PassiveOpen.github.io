@@ -28,7 +28,6 @@ export class Cable extends BaseSVG {
 
     this.svg
       .attr('points', this.points.join(' '))
-      .attr('stroke-width', this.meterPerPixel * this.lineThickness)
       .attr('transform', this.transform);
   }
 
@@ -39,6 +38,15 @@ export class Cable extends BaseSVG {
       if (i + 1 === this.points.length) return;
       length += dist(p, arr[i + 1]);
     });
-    return round(2, length);
+    return round(length,0);
+  }
+  
+  redraw(floor: Floor) {
+    if (this.svg) {
+      this.svg.attr(
+        "stroke-width",
+        this.meterPerPixel * this.lineThickness
+      );
+    }
   }
 }

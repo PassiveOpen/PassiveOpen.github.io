@@ -5,7 +5,7 @@ import { BaseSVG } from './base.model';
 export class AppPolygon extends BaseSVG {
   name = '';
   coords: [number, number][] = [];
-  lineThickness = 0.2;
+  lineThickness = 1;
 
   constructor(data: Partial<AppPolygon>) {
     super();

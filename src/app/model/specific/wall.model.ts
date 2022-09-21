@@ -1,38 +1,38 @@
-import { House, xy } from '../../house/house.model';
-import * as d3 from 'd3';
-import { Door } from './door.model';
-import { Room } from './room.model';
-import { BaseSVG } from '../base.model';
-import { Floor } from '../../components/enum.data';
-import { SafeHtml } from '@angular/platform-browser';
+import { House, xy } from "../../house/house.model";
+import * as d3 from "d3";
+import { Door } from "./door.model";
+import { Room } from "./room.model";
+import { BaseSVG } from "../base.model";
+import { Floor } from "../../components/enum.data";
+import { SafeHtml } from "@angular/platform-browser";
 import {
   angleBetween,
   angleXY,
   getDiagonal,
   offset,
   round,
-} from 'src/app/shared/global-functions';
-import { Footprint } from './footprint';
+} from "src/app/shared/global-functions";
+import { Footprint } from "./footprint";
 
 let ids = {};
 
 export enum WallType {
-  outer = 'outer',
-  inner = 'inner',
-  theoretic = 'theoretic',
+  outer = "outer",
+  inner = "inner",
+  theoretic = "theoretic",
 }
 export enum WallSide {
-  in = 'in',
-  out = 'out',
-  left = 'left',
-  right = 'right',
+  in = "in",
+  out = "out",
+  left = "left",
+  right = "right",
 }
 
 export enum CornerType {
-  inside = 'inside',
-  outside = 'outside',
-  tower = 'tower',
-  straight = 'straight',
+  inside = "inside",
+  outside = "outside",
+  tower = "tower",
+  straight = "straight",
 }
 type Sides = {
   [key in WallSide]?: [number, number][];
@@ -58,7 +58,7 @@ export class Wall extends BaseSVG {
   origin: [number, number] = [0, 0];
   innerWallLength: number;
   outerWallLength: number;
-  orientation = '';
+  orientation = "";
   ceiling: number = -1;
   gable = false;
 
@@ -68,7 +68,7 @@ export class Wall extends BaseSVG {
   }
 
   createSelector() {
-    this.selector = this.parent.selector.replace('Footprint-1', 'outer');
+    this.selector = this.parent.selector.replace("Footprint-1", "outer");
     const angle = angleBetween(
       this.sides[WallSide.in][0],
       this.sides[WallSide.in][1]
@@ -87,7 +87,7 @@ export class Wall extends BaseSVG {
     } else if (angle === 90 * 3 || angle === -90) {
       this.orientation = `West`;
     } else {
-      this.orientation = `${angle}`.split('.')[0];
+      this.orientation = `${angle}`.split(".")[0];
     }
     this.selector += `-${this.orientation}Wall`;
 
@@ -105,10 +105,10 @@ export class Wall extends BaseSVG {
       this.svg = d3.select(`#${this.selector}`);
       // if (this.type === WallType.theoretic) this.theoretic = true;
 
-      this.svgOrigin = this.svg.select<SVGCircleElement>('.wall-origin');
-      this.svgLeft = this.svg.select<SVGPolylineElement>('.wall-left');
-      this.svgRight = this.svg.select<SVGPolylineElement>('.wall-right');
-      this.svgFill = this.svg.select<SVGPolygonElement>('.wall-fill');
+      this.svgOrigin = this.svg.select<SVGCircleElement>(".wall-origin");
+      this.svgLeft = this.svg.select<SVGPolylineElement>(".wall-left");
+      this.svgRight = this.svg.select<SVGPolylineElement>(".wall-right");
+      this.svgFill = this.svg.select<SVGPolygonElement>(".wall-fill");
 
       if (this.type === WallType.outer) {
         this.thickness = this.parent.parent.wallOuterThickness;
@@ -122,24 +122,21 @@ export class Wall extends BaseSVG {
       }
     }
     if (!this.show(floor)) {
-      this.svgFill.attr('points', '');
-      this.svgLeft.attr('points', '');
-      this.svgRight.attr('points', '');
-      this.svgOrigin.attr('r', '0');
+      this.svgFill.attr("points", "");
+      this.svgLeft.attr("points", "");
+      this.svgRight.attr("points", "");
+      this.svgOrigin.attr("r", "0");
 
       return;
     }
 
     // Extr's
-    this.svgOrigin
-      .attr('cx', this.origin[0])
-      .attr('cy', this.origin[1])
-      .attr('r', this.meterPerPixel * this.lineThickness * 3);
+    this.svgOrigin.attr("cx", this.origin[0]).attr("cy", this.origin[1]);
 
     if (this.sides.in && this.sides.out) {
       this.svgFill.attr(
-        'points',
-        [...this.sides.in, ...[...this.sides.out].reverse()].join(' ')
+        "points",
+        [...this.sides.in, ...[...this.sides.out].reverse()].join(" ")
       );
     }
 
@@ -155,14 +152,7 @@ export class Wall extends BaseSVG {
         lineSVG = this.svgRight;
       }
 
-      lineSVG
-        .attr(
-          'stroke-width',
-          this.meterPerPixel *
-            this.lineThickness *
-            (this.type === WallType.theoretic ? 4 : 1) // DEV
-        )
-        .attr('points', this.sides[side].join(' '));
+      lineSVG.attr("points", this.sides[side].join(" "));
       if (lineSVG.node()) {
         lineSVG.node().classList.add(`side-${side}`);
       }
@@ -171,12 +161,33 @@ export class Wall extends BaseSVG {
     this.outerWallLength = this.getLength(WallSide.out);
   }
 
+  redraw(floor: Floor) {
+    if (this.svgOrigin) {
+      this.svgOrigin.attr("r", this.meterPerPixel * this.lineThickness * 3);
+    }
+    if (this.svgLeft) {
+      this.svgLeft.attr(
+        "stroke-width",
+        this.meterPerPixel *
+          this.lineThickness *
+          (this.type === WallType.theoretic ? 4 : 1) // DEV
+      );
+    }
+    if (this.svgRight) {
+      this.svgRight.attr(
+        "stroke-width",
+        this.meterPerPixel *
+          this.lineThickness *
+          (this.type === WallType.theoretic ? 4 : 1) // DEV
+      );
+    }
+  }
   getLength(side: WallSide, decimals = 2) {
     const arr = this.sides[side];
     if (!arr || !arr[0] || !arr[1]) return 0;
     return round(
-      decimals,
-      getDiagonal(...(arr as [[number, number], [number, number]]))
+      getDiagonal(...(arr as [[number, number], [number, number]])),
+      decimals
     );
   }
 
@@ -185,9 +196,9 @@ export class Wall extends BaseSVG {
     if (l === 0) return 0;
     if (this.gable) {
       // todo, calc gables
-      return round(decimals, l * this.ceiling);
+      return round(l * this.ceiling, decimals);
     } else {
-      return round(decimals, l * this.ceiling);
+      return round(l * this.ceiling, decimals);
     }
   }
 
@@ -200,24 +211,26 @@ export class Wall extends BaseSVG {
 
   tooltip = (): SafeHtml => {
     return `Wall <b>${this.orientation}</b> (${
-      this.parent instanceof Footprint ? 'outer wall' : 'of ' + this.parent + ' room'
+      this.parent instanceof Footprint
+        ? "outer wall"
+        : "of " + this.parent + " room"
     } ) 
     <br>Inside ${this.getLength(WallSide.in, 2)} m2
     <br>Outside ${(this.outerWallLength = this.getLength(WallSide.out, 2))} m2`;
   };
 
-  drawTheoretic(orientation: 'w' | 'n' | 'e' | 's', house, thickness) {
+  drawTheoretic(orientation: "w" | "n" | "e" | "s", house, thickness) {
     this.thickness = thickness;
-    if (orientation === 'n') {
+    if (orientation === "n") {
       this.drawByRoom(0, 1, house, CornerType.straight, CornerType.straight);
     }
-    if (orientation === 'e') {
+    if (orientation === "e") {
       this.drawByRoom(1, 2, house, CornerType.straight, CornerType.straight);
     }
-    if (orientation === 's') {
+    if (orientation === "s") {
       this.drawByRoom(2, 3, house, CornerType.straight, CornerType.straight);
     }
-    if (orientation === 'w') {
+    if (orientation === "w") {
       this.drawByRoom(3, 0, house, CornerType.straight, CornerType.straight);
     }
   }

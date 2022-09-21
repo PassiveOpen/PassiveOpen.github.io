@@ -1,13 +1,13 @@
-import { House, HouseUser, xy } from '../house.model';
-import { Room } from '../../model/specific/room.model';
+import { House, HouseUser, xy } from "../house.model";
+import { Room } from "../../model/specific/room.model";
 import {
   CornerType,
   Wall,
   WallSide,
   WallType,
-} from '../../model/specific/wall.model';
-import { Door } from 'src/app/model/specific/door.model';
-import { CableType, Floor, SensorType } from '../../components/enum.data';
+} from "../../model/specific/wall.model";
+import { Door } from "src/app/model/specific/door.model";
+import { CableType, Floor, SensorType } from "../../components/enum.data";
 import {
   angleBetween,
   angleXY,
@@ -15,11 +15,11 @@ import {
   mixPoints,
   offset,
   round,
-} from '../../shared/global-functions';
-import { Window, WindowForm } from '../../model/specific/window.model';
-import { Sensor } from '../../model/specific/sensor.model';
-import { lindeLundUpstairs } from './lindeLund.upstairs';
-import { Footprint } from 'src/app/model/specific/footprint';
+} from "../../shared/global-functions";
+import { Window, WindowForm } from "../../model/specific/window.model";
+import { Sensor } from "../../model/specific/sensor.model";
+import { lindeLundUpstairs } from "./lindeLund.upstairs";
+import { Footprint } from "src/app/model/specific/footprint";
 
 export const lindeLund: HouseUser = {
   studAmount: 10,
@@ -34,7 +34,7 @@ export const lindeLund: HouseUser = {
   studAmountEast: 6,
   showTower: true,
   balconyWidth: 1.2,
-  name: 'Lindelund',
+  name: "Lindelund",
 
   orientation: {
     lat: 52,
@@ -447,7 +447,7 @@ export const lindeLund: HouseUser = {
 
     // West / Left
     new Room({
-      name: 'West',
+      name: "West",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         const s = house.stramien;
@@ -463,7 +463,7 @@ export const lindeLund: HouseUser = {
           type: WallType.theoretic,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
-            this.drawTheoretic('n', house, house.wallOuterThickness);
+            this.drawTheoretic("n", house, house.wallOuterThickness);
           },
           parts: [
             new Sensor<Wall>({
@@ -614,7 +614,7 @@ export const lindeLund: HouseUser = {
           type: WallType.theoretic,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
-            this.drawTheoretic('s', house, house.wallOuterThickness);
+            this.drawTheoretic("s", house, house.wallOuterThickness);
           },
           parts: [
             new Sensor({
@@ -622,12 +622,9 @@ export const lindeLund: HouseUser = {
               sensorType: SensorType.socket,
               amount: 2,
               offset: [0, -0.3], // No included in cable length
-              onUpdate: function (this: Sensor<Wall>) {
-                const group = this.parent.parent.centralElectricity;
-                const point = offset(
-                  this.parent.sides[WallSide.in][0],
-                  [-1, 0]
-                );
+              onUpdate: function (this: Sensor<Wall>, house: House) {
+                const wall = this.parent;
+                const point = offset(wall.sides[WallSide.in][0], [-1, 0]);
                 this.points = [point];
               },
             }),
@@ -637,7 +634,6 @@ export const lindeLund: HouseUser = {
               amount: 2,
               offset: [0, -0.3], // No included in cable length
               onUpdate: function (this: Sensor<Wall>) {
-                const group = this.parent.parent.centralElectricity;
                 const dist = this.parent.parent.width / 2;
                 const point = offset(this.parent.sides[WallSide.in][0], [
                   -dist,
@@ -664,7 +660,7 @@ export const lindeLund: HouseUser = {
           type: WallType.theoretic,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
-            this.drawTheoretic('w', house, house.wallOuterThickness);
+            this.drawTheoretic("w", house, house.wallOuterThickness);
           },
           parts: [
             new Sensor<Wall>({
@@ -720,14 +716,8 @@ export const lindeLund: HouseUser = {
           onUpdate: function (this: Sensor<Room>, house: House) {
             const room = this.parent;
             this.points = [
-              offset(room.northWestCorner, [
-                room.width - room.parent.wallInnerThickness,
-                room.height / 2 - 1,
-              ]),
-              offset(room.northWestCorner, [
-                room.width - room.parent.wallInnerThickness,
-                0,
-              ]),
+              offset(room.northWestCorner, [room.width, room.height / 2 - 1]),
+              offset(room.northWestCorner, [room.width, 0]),
               offset(room.northWestCorner, [0, 0]),
               offset(room.northWestCorner, [0, room.height / 2 - 1]),
             ];
@@ -743,14 +733,8 @@ export const lindeLund: HouseUser = {
             this.points = [
               offset(room.northWestCorner, [0, room.height / 2 + 1]),
               offset(room.northWestCorner, [0, room.height]),
-              offset(room.northWestCorner, [
-                room.width - room.parent.wallInnerThickness,
-                room.height,
-              ]),
-              offset(room.northWestCorner, [
-                room.width - room.parent.wallInnerThickness,
-                room.height / 2 + 1,
-              ]),
+              offset(room.northWestCorner, [room.width, room.height]),
+              offset(room.northWestCorner, [room.width, room.height / 2 + 1]),
             ];
           },
         }),
@@ -759,7 +743,7 @@ export const lindeLund: HouseUser = {
           sensorType: SensorType.socket,
           amount: 2,
           cableOnly: true,
-          classes: ['cable-connection'],
+          classes: ["cable-connection"],
           onUpdate: function (this: Sensor<Room>, house: House) {
             const room = this.parent;
             const point = offset(room.northWestCorner, [
@@ -779,7 +763,7 @@ export const lindeLund: HouseUser = {
           sensorType: SensorType.socket,
           amount: 2,
           cableOnly: true,
-          classes: ['cable-connection'],
+          classes: ["cable-connection"],
           onUpdate: function (this: Sensor<Room>, house: House) {
             const room = this.parent;
             const point = offset(room.northWestCorner, [
@@ -835,7 +819,7 @@ export const lindeLund: HouseUser = {
     }),
     // East / Right
     new Room({
-      name: 'East',
+      name: "East",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         const s = house.stramien;
@@ -854,7 +838,7 @@ export const lindeLund: HouseUser = {
           type: WallType.theoretic,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
-            this.drawTheoretic('n', house, house.wallOuterThickness);
+            this.drawTheoretic("n", house, house.wallOuterThickness);
           },
           parts: [
             new Sensor<Wall>({
@@ -905,7 +889,7 @@ export const lindeLund: HouseUser = {
           type: WallType.theoretic,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
-            this.drawTheoretic('e', house, house.wallOuterThickness);
+            this.drawTheoretic("e", house, house.wallOuterThickness);
           },
           parts: [
             ...[SensorType.camera, SensorType.poe].map(
@@ -963,7 +947,7 @@ export const lindeLund: HouseUser = {
           type: WallType.theoretic,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
-            this.drawTheoretic('s', house, house.wallOuterThickness);
+            this.drawTheoretic("s", house, house.wallOuterThickness);
           },
           parts: [
             new Sensor<Wall>({
@@ -1088,7 +1072,7 @@ export const lindeLund: HouseUser = {
           sensorType: SensorType.socket,
           amount: 2,
           cableOnly: true,
-          classes: ['cable-connection'],
+          classes: ["cable-connection"],
           onUpdate: function (this: Sensor<Room>, house: House) {
             const room = this.parent;
             const point = offset(room.northWestCorner, [0, 0]);
@@ -1104,7 +1088,7 @@ export const lindeLund: HouseUser = {
           sensorType: SensorType.socket,
           amount: 2,
           cableOnly: true,
-          classes: ['cable-connection'],
+          classes: ["cable-connection"],
           onUpdate: function (this: Sensor<Room>, house: House) {
             const room = this.parent;
             const point = offset(room.northWestCorner, [
@@ -1120,7 +1104,7 @@ export const lindeLund: HouseUser = {
           },
         }),
         new Sensor<Room>({
-          sensorType: SensorType.light,
+          sensorType: SensorType.lightBulb,
           onUpdate: function (this: Sensor<Room>, house: House) {
             const room = this.parent;
             const point = offset(room.center, [0, 0]);
@@ -1135,7 +1119,7 @@ export const lindeLund: HouseUser = {
     }),
     // South / center / Down
     new Room({
-      name: 'Central',
+      name: "Central",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         this.northWestCorner = [house.stramien.in.we.b, house.stramien.in.ns.b];
@@ -1198,7 +1182,7 @@ export const lindeLund: HouseUser = {
           type: WallType.theoretic,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
-            this.drawTheoretic('e', house, house.wallOuterThickness);
+            this.drawTheoretic("e", house, house.wallOuterThickness);
           },
           parts: [
             new Sensor<Wall>({
@@ -1219,7 +1203,7 @@ export const lindeLund: HouseUser = {
           type: WallType.theoretic,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
-            this.drawTheoretic('s', house, house.wallOuterThickness);
+            this.drawTheoretic("s", house, house.wallOuterThickness);
           },
           parts: [],
         }),
@@ -1277,7 +1261,7 @@ export const lindeLund: HouseUser = {
           type: WallType.theoretic,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
-            this.drawTheoretic('w', house, house.wallOuterThickness);
+            this.drawTheoretic("w", house, house.wallOuterThickness);
           },
           parts: [
             new Sensor<Wall>({
@@ -1510,7 +1494,7 @@ export const lindeLund: HouseUser = {
 
     // Hall
     new Room({
-      name: 'Hall',
+      name: "Hall",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         this.northWestCorner = house.stair.stairOrigin;
@@ -1583,7 +1567,7 @@ export const lindeLund: HouseUser = {
           type: WallType.theoretic,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
-            this.drawTheoretic('w', house, house.wallOuterThickness);
+            this.drawTheoretic("w", house, house.wallOuterThickness);
           },
           parts: [
             new Sensor<Wall>({
@@ -1604,7 +1588,7 @@ export const lindeLund: HouseUser = {
 
     // Office
     new Room({
-      name: 'Office',
+      name: "Office",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         this.northWestCorner = [house.stramien.in.we.b, house.stramien.in.ns.a];
@@ -1623,7 +1607,7 @@ export const lindeLund: HouseUser = {
           type: WallType.theoretic,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
-            this.drawTheoretic('w', house, house.wallOuterThickness);
+            this.drawTheoretic("w", house, house.wallOuterThickness);
           },
           parts: [
             ...[2 / 6, 4 / 6].map(
@@ -1683,7 +1667,7 @@ export const lindeLund: HouseUser = {
           type: WallType.theoretic,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
-            this.drawTheoretic('e', house, house.wallOuterThickness);
+            this.drawTheoretic("e", house, house.wallOuterThickness);
           },
           parts: [
             ...[SensorType.camera, SensorType.poe].map(
@@ -1729,7 +1713,7 @@ export const lindeLund: HouseUser = {
           type: WallType.theoretic,
           floor: Floor.ground,
           onUpdate: function (this: Wall, house: House) {
-            this.drawTheoretic('n', house, house.wallOuterThickness);
+            this.drawTheoretic("n", house, house.wallOuterThickness);
           },
           parts: [
             ...[1 / 6, 5 / 6].map(
@@ -1875,7 +1859,7 @@ export const lindeLund: HouseUser = {
     }),
     // toilet
     new Room({
-      name: 'Toilet',
+      name: "Toilet",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         const height = 1.2;
@@ -1969,7 +1953,7 @@ export const lindeLund: HouseUser = {
 
     // Server / Tech / Boiler Room
     new Room({
-      name: 'Server',
+      name: "Server",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         const height = 1.0;
@@ -2055,7 +2039,7 @@ export const lindeLund: HouseUser = {
 
     // Tower
     new Room({
-      name: 'Tower',
+      name: "Tower",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         this.outOfDesign = !house.showTower;
@@ -2179,7 +2163,7 @@ export const lindeLund: HouseUser = {
 
     // Laundry
     new Room({
-      name: 'Laundry',
+      name: "Laundry",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         const height =
@@ -2200,9 +2184,9 @@ export const lindeLund: HouseUser = {
           house.stramien.in.ns.b - 1 - house.wallInnerThickness * 2,
         ];
 
-        this.width = round(3, house.stramien.in.we.c - stairsOffset);
+        this.width = round(house.stramien.in.we.c - stairsOffset);
         const width = this.width;
-        this.height = round(3, height);
+        this.height = round(height);
         this.coords = [
           this.northWestCorner,
           offset(this.northWestCorner, [width, 0]),

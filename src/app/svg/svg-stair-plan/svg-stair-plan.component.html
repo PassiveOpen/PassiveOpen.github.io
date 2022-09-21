@@ -12,8 +12,9 @@
 
   <g *ngIf="(house$ | async) as house" class="floor-clip" clip-path="url(#clip-ground-floor)">
     <g class="g-walk-line">
-      <path class="walk-line"></path>
-      <circle id="walk-line-dot walk-line-{{i}}" *ngFor="let item of [].constructor(25); let i = index;"> </circle>
+      <path id="walk-line"></path>
+      <circle class="walk-line-dot" id="walk-line-{{i}}" *ngFor="let item of [].constructor(25); let i = index;">
+      </circle>
     </g>
     <polygon id="outline" class="outline"></polygon>
     <!-- <polyline class="middleLine"></polyline>
@@ -22,13 +23,14 @@
 
     <!-- <g class="g-step-plan"> -->
     <g class="g-step-plan">
-      <g clip-path="url(#clip-roof)">
-        <g id="step-plan-{{i}}" *ngFor="let item of [].constructor(25); let i = index;">
-          <polygon class="step-plan-lines"></polygon>
-          <polyline class="step-plan-rise"></polyline>
-          <text class="step-plan-text"></text>
-        </g>
-        <!-- <circle class="step-stinger step-stinger-{{i}}" *ngFor="let item of [].constructor(25); let i = index;"> </circle> -->
+      <!-- <g clip-path="url(#clip-roof)"> -->
+      <g id="step-plan-{{i}}" *ngFor="let item of [].constructor(25); let i = index;">
+        <polygon class="step-plan-lines"></polygon>
+        <polyline class="step-plan-rise"></polyline>
+        <text class="step-plan-text"></text>
+        <!-- </g> -->
+        <circle class="step-stinger" id="step-stinger-{{i}}">
+        </circle>
       </g>
     </g>
 

@@ -1,7 +1,7 @@
-import * as d3 from 'd3';
-import { Floor } from 'src/app/components/enum.data';
-import { Stair } from 'src/app/house/stairs.model';
-import { BaseSVG } from '../base.model';
+import * as d3 from "d3";
+import { Floor } from "src/app/components/enum.data";
+import { Stair } from "src/app/house/stairs.model";
+import { BaseSVG } from "../base.model";
 
 export class AppStair extends BaseSVG {
   svgRun: d3.Selection<SVGPolygonElement, unknown, HTMLElement, any>;
@@ -21,22 +21,23 @@ export class AppStair extends BaseSVG {
     if (this.svg === undefined) {
       this.svg = d3.select(`#${this.selector}`);
 
-      this.svgRun = this.svg.select<SVGPolylineElement>('.step-run');
-      this.svgRise = this.svg.select<SVGPolylineElement>('.step-rise');
-      this.svgText = this.svg.select<SVGTextElement>('.step-text');
+      this.svgRun = this.svg.select<SVGPolylineElement>(".step-run");
+      this.svgRise = this.svg.select<SVGPolylineElement>(".step-rise");
+      this.svgText = this.svg.select<SVGTextElement>(".step-text");
       if (this.last) {
-        this.classes.push('last');
+        this.classes.push("last");
       }
     }
 
-    if (this.show) {
-      this.svg.style('display', '');
+    if (!this.show(floor)) {
+      this.svg.style("display", "none");
+      return;
     } else {
-      this.svg.style('display', 'none');
+      this.svg.style("display", "");
     }
 
     this.svg.attr(
-      'transform',
+      "transform",
       `translate(${this.index * this.parent.run}, ${
         -this.index * this.parent.rise
       })`
@@ -44,9 +45,9 @@ export class AppStair extends BaseSVG {
     this.setClass(this.svg);
 
     this.svgRun
-      .attr('stroke-width', this.meterPerPixel * this.lineThickness)
+      .attr("stroke-width", this.meterPerPixel * this.lineThickness)
       .attr(
-        'points',
+        "points",
         [
           [0, 0],
           [0, this.parent.runThickness],
@@ -62,12 +63,12 @@ export class AppStair extends BaseSVG {
               : this.parent.run + this.parent.riseThickness + this.parent.nose,
             0,
           ],
-        ].join(' ')
+        ].join(" ")
       );
     this.svgRise
-      .attr('stroke-width', this.meterPerPixel * this.lineThickness)
+      .attr("stroke-width", this.meterPerPixel * this.lineThickness)
       .attr(
-        'points',
+        "points",
         [
           [this.parent.nose, this.parent.runThickness],
           [this.parent.nose, this.parent.rise],
@@ -76,16 +77,16 @@ export class AppStair extends BaseSVG {
             this.parent.nose + this.parent.riseThickness,
             this.parent.runThickness,
           ],
-        ].join(' ')
+        ].join(" ")
       );
 
     this.svgText
-      .attr('font-size', this.fontSize * this.meterPerPixel)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('stroke-width', 6 * this.meterPerPixel)
+      .attr("font-size", this.fontSize * this.meterPerPixel)
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "middle")
+      .attr("stroke-width", 6 * this.meterPerPixel)
       .attr(
-        'transform',
+        "transform",
         `
         translate(${this.parent.run / 2} ${-this.meterPerPixel * 16}) 
         `

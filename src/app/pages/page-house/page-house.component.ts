@@ -4,6 +4,7 @@ import { Section, Tag } from 'src/app/components/enum.data';
 import { RoofStyle } from 'src/app/house/cross.model';
 import { House } from 'src/app/house/house.model';
 import { HouseService } from 'src/app/house/house.service';
+import { round } from 'src/app/shared/global-functions';
 
 @Component({
   selector: 'app-page-house',
@@ -15,7 +16,9 @@ export class PageHouseComponent implements AfterViewInit {
   Section = Section;
   tags = Tag;
   RoofStyle = RoofStyle;
+  round= round
 
+  discord = this.appService.discord
   update = this.houseService.update;
   constructor(
     private houseService: HouseService,
@@ -35,4 +38,5 @@ export class PageHouseComponent implements AfterViewInit {
   choosenRoofstyle(roofStyle) {
     this.houseService.update('cross', 'roofStyle', roofStyle);
   }
+
 }

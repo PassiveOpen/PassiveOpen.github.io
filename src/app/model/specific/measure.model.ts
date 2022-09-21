@@ -1,11 +1,11 @@
-import { SafeHtml } from '@angular/platform-browser';
-import * as d3 from 'd3';
-import { House } from '../../house/house.model';
-import { Cross } from '../../house/cross.model';
-import { Wall } from './wall.model';
-import { BaseSVG } from '../base.model';
-import { angleXY, round } from '../../shared/global-functions';
-import { Floor } from '../../components/enum.data';
+import { SafeHtml } from "@angular/platform-browser";
+import * as d3 from "d3";
+import { House, xy } from "../../house/house.model";
+import { Cross } from "../../house/cross.model";
+import { Wall } from "./wall.model";
+import { BaseSVG } from "../base.model";
+import { angleXY, round } from "../../shared/global-functions";
+import { Floor } from "../../components/enum.data";
 
 export class Measure extends BaseSVG {
   svgLine: d3.Selection<SVGPolylineElement, unknown, HTMLElement, any>;
@@ -15,16 +15,15 @@ export class Measure extends BaseSVG {
 
   textRotate = 0;
   fontSize = 14;
-  a = [0, 0];
-  b = [4, 4];
+  a: xy = [0, 0];
+  b: xy = [4, 4];
   offsetPixels = 0;
   offsetMeters = 0;
   direction = 90;
   lineThickness = 0.6;
 
   decimals = 1;
-  classes = ['measure'];
-  visible = false;
+  classes = ["measure"];
 
   constructor(data: Partial<Measure>) {
     super();
@@ -36,25 +35,23 @@ export class Measure extends BaseSVG {
   }
   async draw(floor: Floor) {
     if (this.svg === undefined) {
-      if (!this.show(floor)) return;
       this.svg = d3.select(`#${this.selector}`);
-
       this.setClass(this.svg);
-      this.svgLine = this.svg.append('polyline');
-      this.svgArrow1 = this.svg.append('text');
-      this.svgArrow2 = this.svg.append('text');
-      this.svgText = this.svg.append('text');
+      this.svgLine = this.svg.append("polyline");
+      this.svgArrow1 = this.svg.append("text");
+      this.svgArrow2 = this.svg.append("text");
+      this.svgText = this.svg.append("text");
     }
 
     if (!this.show(floor)) {
-      this.svgLine.attr('points', '');
-      this.svgText.text('');
-      this.svgArrow1.text('');
-      this.svgArrow2.text('');
+      this.svgLine.attr("points", "");
+      this.svgText.text("");
+      this.svgArrow1.text("");
+      this.svgArrow2.text("");
       return;
     }
-    let a = [...this.a];
-    let b = [...this.b];
+    let a: xy = [...this.a];
+    let b: xy = [...this.b];
     let textOffset = [0, 0];
     if (this.direction === 90) {
       a = [a[0], Math.max(a[1], b[1])];
@@ -80,25 +77,22 @@ export class Measure extends BaseSVG {
     const textOrigin = this.between(aX, bX);
     var aa = bX[0] - aX[0];
     var bb = bX[1] - aX[1];
-    var lengthMeters = round(this.decimals, Math.sqrt(aa * aa + bb * bb));
+    var lengthMeters = round(Math.sqrt(aa * aa + bb * bb), this.decimals);
 
     if (lengthMeters === 0) {
-      this.svg.style('visibility', 'hidden');
+      this.svg.style("visibility", "hidden");
     } else {
-      this.svg.style('visibility', '');
+      this.svg.style("visibility", "");
     }
 
     this.svgLine
-      .attr('points', [this.a, a, aX, bX, b, this.b].join(' '))
-      .attr('stroke-width', this.meterPerPixel * this.lineThickness);
+      .attr("points", [this.a, a, aX, bX, b, this.b].join(" "))
 
     this.svgText
-      .attr('font-size', this.meterPerPixel * this.fontSize)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('stroke-width', this.meterPerPixel * 6)
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "middle")
       .attr(
-        'transform',
+        "transform",
         `
         translate(${textOrigin[0] + textOffset[0]} ${
           textOrigin[1] + textOffset[1]
@@ -114,30 +108,46 @@ export class Measure extends BaseSVG {
     }
 
     this.svgArrow1
-      .attr('font-size', this.meterPerPixel * 16)
-      .attr('text-anchor', 'start')
-      .attr('dominant-baseline', 'central')
-      .attr('stroke-width', 0)
+      .attr("text-anchor", "start")
+      .attr("dominant-baseline", "central")
+      .attr("stroke-width", 0)
       .attr(
-        'transform',
+        "transform",
         `
         translate(${aX[0]} ${aX[1]}) 
         rotate(${this.direction + arrowCorrection})
         `
       )
-      .text('<');
+      .text("<");
     this.svgArrow2
-      .attr('font-size', this.meterPerPixel * 16)
-      .attr('text-anchor', 'start')
-      .attr('dominant-baseline', 'central')
-      .attr('stroke-width', 0)
+      .attr("text-anchor", "start")
+      .attr("dominant-baseline", "central")
+      .attr("stroke-width", 0)
       .attr(
-        'transform',
+        "transform",
         `
           translate(${bX[0]} ${bX[1]}) 
           rotate(${this.direction + arrowCorrection + 180})
           `
       )
-      .text('<');
+      .text("<");
+  }
+
+  redraw(floor: Floor) {
+    if (this.svgArrow2) {
+      this.svgArrow2.attr("font-size", this.meterPerPixel * 16);
+      this.svgArrow1.attr("font-size", this.meterPerPixel * 16);
+    }
+    if (this.svgText) {
+      this.svgText
+        .attr("font-size", this.meterPerPixel * this.fontSize)
+        .attr("stroke-width", this.meterPerPixel * 6);
+    }
+    if (this.svgLine) {
+      this.svgLine.attr(
+        "stroke-width",
+        this.meterPerPixel * this.lineThickness
+      );
+    }
   }
 }

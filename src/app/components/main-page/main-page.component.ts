@@ -4,21 +4,30 @@ import {
   ElementRef,
   HostListener,
   Renderer2,
-} from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Params, Router } from '@angular/router';
-import { tap, filter, map } from 'rxjs';
-import { AppService } from 'src/app/app.service';
-import { RoofStyle } from 'src/app/house/cross.model';
-import { HouseService } from 'src/app/house/house.service';
-import { VisibleService } from 'src/app/house/visible.service';
-import { animationFallInOut, animationSlideInOut } from '../animations';
-import { Graphic, GraphicSide, State, Section, Tag } from '../enum.data';
-import { TooltipService } from '../tooltip/tooltip.service';
+} from "@angular/core";
+import { ActivatedRoute, NavigationEnd, Params, Router } from "@angular/router";
+import {
+  tap,
+  filter,
+  map,
+  startWith,
+  fromEvent,
+  throttle,
+  throttleTime,
+} from "rxjs";
+import { AppService } from "src/app/app.service";
+import { RoofStyle } from "src/app/house/cross.model";
+import { HouseService } from "src/app/house/house.service";
+import { VisibleService } from "src/app/house/visible.service";
+import { round } from "src/app/shared/global-functions";
+import { animationFallInOut, animationSlideInOut } from "../animations";
+import { Graphic, GraphicSide, State, Section, Tag } from "../enum.data";
+import { TooltipService } from "../tooltip/tooltip.service";
 
 @Component({
-  selector: 'app-main-page',
-  styleUrls: ['./main-page.component.scss'],
-  templateUrl: './main-page.component.html',
+  selector: "app-main-page",
+  styleUrls: ["./main-page.component.scss"],
+  templateUrl: "./main-page.component.html",
   animations: [animationSlideInOut, animationFallInOut],
 })
 export class AppMainPageComponent implements AfterViewInit {
@@ -40,16 +49,18 @@ export class AppMainPageComponent implements AfterViewInit {
   floor$ = this.appService.floor$;
   tag$ = this.appService.tag$;
   states$ = this.appService.states$;
+  page$ = this.appService.page$;
+
   cssStates$ = this.states$.pipe(
-    map((tags) => tags.map((tag) => `state-${tag}`).join(' '))
+    map((stateObj) =>
+      Object.entries(stateObj)
+        .filter((state, bool) => bool)
+        .map((state, bool) => `state-${state}`)
+        .join(" ")
+    )
   );
 
   loaded = false;
-
-  @HostListener('window:scroll', ['$event'])
-  isScrolledIntoView() {
-    this.calcSection();
-  }
 
   constructor(
     private appService: AppService,
@@ -58,7 +69,13 @@ export class AppMainPageComponent implements AfterViewInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private visibleService: VisibleService // creates a instance of this service
-  ) {}
+  ) {
+    fromEvent(window, "scroll")
+      // .pipe(throttleTime(600))
+      .subscribe((event) => {
+        this.calcSection();
+      });
+  }
 
   ngAfterViewInit(): void {
     this.router.events
@@ -72,7 +89,9 @@ export class AppMainPageComponent implements AfterViewInit {
   }
 
   setup() {
-    this.sectionEls = document.querySelectorAll<HTMLElement>('section');
+    // console.log("setup");
+
+    this.sectionEls = document.querySelectorAll<HTMLElement>("section");
     this.sectionScroll = {};
     this.sectionEls.forEach((el) => {
       const id = el.id;
@@ -84,7 +103,7 @@ export class AppMainPageComponent implements AfterViewInit {
     this.calcSection();
 
     const params = this.activatedRoute.snapshot.params;
-    const tag = params['tag'];
+    const tag = params["tag"];
     if (tag) this.tag$.next(tag);
     this.loaded = true;
   }
@@ -94,14 +113,14 @@ export class AppMainPageComponent implements AfterViewInit {
     if (this.section === undefined) return;
     this.graphic = this.setGraphic(this.section);
     this.graphicSide = this.getSide();
-    this.updateStateBasedOnSection(this.section);
+    this.visibleService.updateStateBasedOnSection(this.section, this.loaded);
 
     document
       .querySelector(`section#${this.section}`)
-      .classList.add('section-active');
+      .classList.add("section-active");
 
     this.appService.scroll$.next({
-      scroll: Math.round(window.pageYOffset),
+      scroll: round(window.pageYOffset, 0),
       percentage: this.getVerticalScrollPercentage(document.body),
       section: this.section,
       graphicSide: this.graphicSide,
@@ -110,23 +129,23 @@ export class AppMainPageComponent implements AfterViewInit {
 
     const queryParams: Params = {
       section: this.section,
-      // states: this.states$.value,
+      // states: Object.keys(this.states$.value)
+      //   .filter((k, v) => v)
+      //   .map((k, v) => k)
+      //   .join(","),
     };
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
       queryParams: queryParams,
       replaceUrl: true,
-      queryParamsHandling: 'merge', // remove to replace all query params by provided
+      queryParamsHandling: "merge", // remove to replace all query params by provided
     });
   }
 
   getVerticalScrollPercentage(elm) {
     var p = elm.parentNode;
-    return (
-      Math.round(
-        ((elm.scrollTop || p.scrollTop) / (p.scrollHeight - p.clientHeight)) *
-          1e3
-      ) / 1e3
+    return round(
+      (elm.scrollTop || p.scrollTop) / (p.scrollHeight - p.clientHeight)
     );
   }
 
@@ -160,12 +179,12 @@ export class AppMainPageComponent implements AfterViewInit {
     ) {
       graphic = Graphic.cross;
       if ([Section.roof70].includes(section)) {
-        this.houseService.update('cross', 'viewedRoofStyle', RoofStyle.roof70);
+        this.houseService.update("cross", "viewedRoofStyle", RoofStyle.roof70);
       }
       if ([Section.roofBasics, Section.roofCircle].includes(section)) {
         this.houseService.update(
-          'cross',
-          'viewedRoofStyle',
+          "cross",
+          "viewedRoofStyle",
           RoofStyle.roofCircle
         );
       }
@@ -178,7 +197,10 @@ export class AppMainPageComponent implements AfterViewInit {
         Section.stairPlan,
       ].includes(section)
     ) {
-      graphic = Graphic.stair;
+      graphic = Graphic.stairCross;
+    }
+    if ([Section.stairPlan].includes(section)) {
+      graphic = Graphic.stairPlan;
     }
     if (
       [Section.facadeStart, Section.facadeWindow, Section.facadeDoor].includes(
@@ -212,43 +234,21 @@ export class AppMainPageComponent implements AfterViewInit {
       graphic = Graphic.none;
     }
     if (this.graphic !== graphic) {
-      console.log('Swap side!');
+      console.log("Swap side!");
       this.tooltipService.detachOverlay();
     }
     this.graphic = graphic;
     return graphic;
   }
 
-  updateStateBasedOnSection(section: Section) {
-    this.appService.setStates(
-      State.grey,
-      [Section.roofEdge].includes(section),
-      !this.loaded
-    );
-
-    this.appService.setStates(
-      State.measure,
-      [Section.roofBasics, Section.roof70, Section.roofCircle].includes(
-        section
-      ),
-      !this.loaded
-    );
-
-    this.appService.setStates(
-      State.doors,
-      ![Section.passiv, Section.welcome].includes(section),
-      !this.loaded
-    );
-  }
-
   getSection(): Section {
-    var windowHalf = Math.round(window.innerHeight * this.goalLine);
-    var windowTop = Math.round(window.pageYOffset);
+    var windowHalf = round(window.innerHeight * this.goalLine, 0);
+    var windowTop = round(window.pageYOffset, 0);
     var goalLine = windowTop + windowHalf;
     this.sectionEls.forEach((el) => {
       const id = el.id;
       this.sectionScroll[id].past = this.sectionScroll[id].top < goalLine;
-      el.classList.remove('section-active');
+      el.classList.remove("section-active");
     });
     const next = Object.values(this.sectionScroll)
       .filter((x) => x.past)

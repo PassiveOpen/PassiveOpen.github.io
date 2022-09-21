@@ -5,9 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "deploy": "npm run build && npm run copy",
-    "push": "push-dir --dir=dist/spa --branch=gh-pages",
-    "copy": "robocopy ./dist ../PassiveOpenGPPages /mir  /XX ",
+    "deploy": "ng deploy --cname=passiveopen.com",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -24,6 +22,11 @@
     "@angular/platform-browser": "~13.3.0",
     "@angular/platform-browser-dynamic": "~13.3.0",
     "@angular/router": "~13.3.0",
+    "@fortawesome/angular-fontawesome": "^0.11.0",
+    "@fortawesome/fontawesome-svg-core": "^6.1.1",
+    "@fortawesome/free-brands-svg-icons": "^6.1.1",
+    "@fortawesome/free-regular-svg-icons": "^6.1.1",
+    "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@types/three": "^0.139.0",
     "d3": "^7.4.2",
     "gsap": "^3.10.4",
@@ -43,13 +46,13 @@
     "@types/jasmine": "~3.10.0",
     "@types/node": "^12.11.1",
     "angular-cli-ghpages": "^1.0.3",
-    "push-dir": "^0.4.1",
     "jasmine-core": "~4.0.0",
     "karma": "~6.3.0",
     "karma-chrome-launcher": "~3.1.0",
     "karma-coverage": "~2.1.0",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "~1.7.0",
+    "push-dir": "^0.4.1",
     "typescript": "~4.6.2"
   }
 }

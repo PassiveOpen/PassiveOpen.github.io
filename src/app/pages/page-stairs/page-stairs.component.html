@@ -1,5 +1,5 @@
 <ng-container *ngIf="(house$|async) as house">
-  <section [id]="Section.stairStart">
+  <section [id]="Section.stairStart" #Section.stairStart>
 
     <h1>Stairs</h1>
     <p class="mat-caption">
@@ -42,6 +42,9 @@
         tickInterval="1">
       </mat-slider>
     </label>
+    <ol start="4">
+      <li>The angle now is: {{house.stair.angle}}&deg;</li>
+    </ol>
     <!-- <div class="matrix">
 
       <ng-container *ngFor="let steps of [].constructor(rangeSteps); let step = index;">
@@ -67,7 +70,7 @@
     </div> -->
 
   </section>
-  <section [id]="Section.stairCheck">
+  <section [id]="Section.stairCheck" #Section.stairCheck>
     <h2>The good, bad and perfect stairs</h2>
     <label>
       <span>Checks</span>
@@ -79,7 +82,7 @@
     </label>
   </section>
 
-  <section [id]="Section.stairPlan">
+  <section [id]="Section.stairPlan" #Section.stairPlan>
     <h2>Stair layout</h2>
     <p>
       Stairs can be straight, but we like to have two bends. This makes the stairs relative more compact. It prevents to

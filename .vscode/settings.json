@@ -3,9 +3,11 @@
     "choosen",
     "Haus",
     "Passiv",
+    "passiveopen",
     "perilex",
     "roofstyle",
     "stramien",
-    "verdraai"
+    "verdraai",
+    "viewlines"
   ]
 }

@@ -8,10 +8,11 @@ main {
 
 footer {
   .mat-toolbar {
-    padding: 48px 0 48px;
+    padding: 26px 0 80px;
     font-size: 0.8rem;
     opacity: 0.8;
     font-weight: 400;
+    height: initial;
   }
 }
 .mat-drawer-content {

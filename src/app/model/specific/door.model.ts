@@ -1,10 +1,10 @@
-import { SafeHtml } from '@angular/platform-browser';
-import * as d3 from 'd3';
-import { House } from '../../house/house.model';
-import { Cross } from '../../house/cross.model';
-import { Wall } from './wall.model';
-import { BaseSVG } from '../base.model';
-import { Floor } from '../../components/enum.data';
+import { SafeHtml } from "@angular/platform-browser";
+import * as d3 from "d3";
+import { House } from "../../house/house.model";
+import { Cross } from "../../house/cross.model";
+import { Wall } from "./wall.model";
+import { BaseSVG } from "../base.model";
+import { Floor } from "../../components/enum.data";
 
 export class Door extends BaseSVG {
   parent: Wall;
@@ -25,12 +25,12 @@ export class Door extends BaseSVG {
     if (this.svg === undefined) {
       this.svg = d3.select(`#${this.selector}`);
 
-      this.svgOpening = this.svg.select('.door-wall-opening');
-      this.svgSwing = this.svg.select('.door-swing');
+      this.svgOpening = this.svg.select(".door-wall-opening");
+      this.svgSwing = this.svg.select(".door-swing");
     }
     if (!this.show(floor)) {
-      this.svgOpening.attr('points', '');
-      this.svgSwing.attr('d', '');
+      this.svgOpening.attr("points", "");
+      this.svgSwing.attr("d", "");
       return;
     }
     let extra;
@@ -41,7 +41,7 @@ export class Door extends BaseSVG {
     }
 
     this.svg.style(
-      'transform',
+      "transform",
       ` 
       translate(${this.origin[0] + extra[0]}px, ${this.origin[1] + extra[1]}px) 
       rotate(${this.rotate}deg) 
@@ -51,27 +51,36 @@ export class Door extends BaseSVG {
 
     this.svgOpening
       .attr(
-        'points',
+        "points",
 
         [
           [0, -this.width],
           [this.parent.thickness, -this.width],
           [this.parent.thickness, 0],
           [0, 0],
-        ].join(' ')
+        ].join(" ")
       )
-      .attr('class', 'bg-fill')
-      .attr('stroke-width', this.meterPerPixel * this.lineThickness);
-    this.svgSwing
-      .attr(
-        'd',
-        `M${this.parent.thickness},0 
+      .attr("class", "bg-fill");
+    this.svgSwing.attr(
+      "d",
+      `M${this.parent.thickness},0 
         L0,0  
         L${-this.width},0  
         A${this.width},${this.width} 0 0,1  
         ${0},${-this.width}
-        L${this.parent.thickness},${-this.width}  `
-      )
-      .attr('stroke-width', this.meterPerPixel * 1);
+        L${this.parent.thickness},${-this.width}`
+    );
+  }
+
+  redraw(floor: Floor) {
+    if (this.svgOpening) {
+      this.svgOpening.attr(
+        "stroke-width",
+        this.meterPerPixel * this.lineThickness
+      );
+    }
+    if (this.svgSwing) {
+      this.svgSwing.attr("stroke-width", this.meterPerPixel * 1);
+    }
   }
 }

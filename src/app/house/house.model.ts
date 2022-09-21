@@ -1,22 +1,22 @@
-import { Cross } from './cross.model';
-import { lindeLund } from './lindelund/lindeLund';
-import { Room } from '../model/specific/room.model';
-import { Wall, WallSide, WallType } from '../model/specific/wall.model';
-import { AppPolyline } from 'src/app/model/polyline.model';
+import { Cross } from "./cross.model";
+import { lindeLund } from "./lindelund/lindeLund";
+import { Room } from "../model/specific/room.model";
+import { Wall, WallSide, WallType } from "../model/specific/wall.model";
+import { AppPolyline } from "src/app/model/polyline.model";
 import {
   angleXY,
   getDiagonal,
   offset,
   round,
   sum,
-} from 'src/app/shared/global-functions';
-import * as d3 from 'd3';
-import { Floor, Graphic } from '../components/enum.data';
-import { BaseSVG } from 'src/app/model/base.model';
-import { Stair } from './stairs.model';
-import { Measure } from '../model/specific/measure.model';
-import { Windrose } from '../model/specific/windrose.model';
-import { AppPolygon } from '../model/polygon.model';
+} from "src/app/shared/global-functions";
+import * as d3 from "d3";
+import { Floor, Graphic } from "../components/enum.data";
+import { BaseSVG } from "src/app/model/base.model";
+import { Stair } from "./stairs.model";
+import { Measure } from "../model/specific/measure.model";
+import { Windrose } from "../model/specific/windrose.model";
+import { AppPolygon } from "../model/polygon.model";
 export type xy = [number, number];
 export interface Stramien {
   we: {
@@ -137,7 +137,7 @@ export class House extends HouseUser {
 
   createExtra() {
     const part = new AppPolyline({
-      selector: 'view-lines',
+      selector: "view-lines",
       floor: Floor.ground,
       lineThickness: 3,
       onUpdate: function (this: AppPolyline, house: House) {
@@ -157,7 +157,7 @@ export class House extends HouseUser {
 
     this.parts.push(part);
     const part2 = new AppPolygon({
-      selector: 'tower-walls',
+      selector: "tower-walls",
       floor: Floor.all,
       onUpdate: function (this: AppPolygon, house: House) {
         this.visible = house.tower.footprintVisible;
@@ -173,7 +173,7 @@ export class House extends HouseUser {
 
     this.parts.push(
       new AppPolyline({
-        selector: 'roof-line-1',
+        selector: "roof-line-1",
         floor: Floor.top,
         lineThickness: 1,
         dash: [10, 10],
@@ -195,7 +195,7 @@ export class House extends HouseUser {
     );
     this.parts.push(
       new AppPolyline({
-        selector: 'roof-line-2',
+        selector: "roof-line-2",
         floor: Floor.top,
         lineThickness: 1,
         dash: [10, 10],
@@ -222,18 +222,26 @@ export class House extends HouseUser {
     );
     this.parts.push(
       new AppPolyline({
-        selector: 'roof-line-3',
+        selector: "roof-line-3",
         floor: Floor.top,
         lineThickness: 1,
         dash: [10, 10],
         onUpdate: function (this: AppPolyline, house: House) {
           const s = house.stramien.in;
           const point1: xy = house.tower.show
-            ? [s.we.c + house.tower.houseIncrement+house.cross.minimumHeightWidth, s.ns.b]
+            ? [
+                s.we.c +
+                  house.tower.houseIncrement +
+                  house.cross.minimumHeightWidth,
+                s.ns.b,
+              ]
             : [s.we.c, s.ns.b];
           const point2: xy = [s.we.d, s.ns.b];
           this.points = [
-            offset(point1, [-house.cross.minimumHeightWidth, house.cross.minimumHeightWidth]),
+            offset(point1, [
+              -house.cross.minimumHeightWidth,
+              house.cross.minimumHeightWidth,
+            ]),
             offset(point2, [0, house.cross.minimumHeightWidth]),
           ];
         },
@@ -241,7 +249,7 @@ export class House extends HouseUser {
     );
     this.parts.push(
       new AppPolyline({
-        selector: 'roof-line-4',
+        selector: "roof-line-4",
         floor: Floor.top,
         lineThickness: 1,
         dash: [10, 10],
@@ -258,7 +266,7 @@ export class House extends HouseUser {
     );
     this.parts.push(
       new AppPolyline({
-        selector: 'roof-line-5',
+        selector: "roof-line-5",
         floor: Floor.top,
         lineThickness: 1,
         dash: [10, 10],
@@ -280,7 +288,7 @@ export class House extends HouseUser {
   createMeasures() {
     this.parts.push(
       new Measure({
-        selector: 'house-total-width',
+        selector: "house-total-width",
         floor: Floor.all,
         direction: 90,
         textRotate: 0,
@@ -294,11 +302,11 @@ export class House extends HouseUser {
     );
 
     for (let i = 0; i < 3; i++) {
-      const letters = ['a', 'b', 'c', 'd'];
+      const letters = ["a", "b", "c", "d"];
       const letter = letters[i];
       this.parts.push(
         new Measure({
-          selector: 'house-width-' + (i + 1),
+          selector: "house-width-" + (i + 1),
           floor: Floor.all,
           direction: 90,
           textRotate: 0,
@@ -314,7 +322,7 @@ export class House extends HouseUser {
 
     this.parts.push(
       new Measure({
-        selector: 'house-height-1',
+        selector: "house-height-1",
         floor: Floor.all,
         direction: 0,
         textRotate: 0,
@@ -329,7 +337,7 @@ export class House extends HouseUser {
     );
     this.parts.push(
       new Measure({
-        selector: 'house-height-inner',
+        selector: "house-height-inner",
         floor: Floor.all,
         direction: 180,
         textRotate: 0,
@@ -345,7 +353,7 @@ export class House extends HouseUser {
 
     this.parts.push(
       new Measure({
-        selector: 'house-height-2',
+        selector: "house-height-2",
         floor: Floor.all,
         direction: 0,
         textRotate: 0,
@@ -360,7 +368,7 @@ export class House extends HouseUser {
     );
     this.parts.push(
       new Measure({
-        selector: 'house-height-3',
+        selector: "house-height-3",
         floor: Floor.all,
         direction: 0,
         textRotate: 0,
@@ -375,7 +383,7 @@ export class House extends HouseUser {
     );
     this.parts.push(
       new Measure({
-        selector: 'house-total-height',
+        selector: "house-total-height",
         floor: Floor.all,
         direction: 0,
         textRotate: 0,
@@ -391,11 +399,11 @@ export class House extends HouseUser {
   }
   createStramien() {
     const margin = 3 * this.studDistance;
-    for (let side of ['in', 'out']) {
-      for (let d of ['we', 'ns']) {
-        for (let i of ['a', 'b', 'c', 'd']) {
+    for (let side of ["in", "out"]) {
+      for (let d of ["we", "ns"]) {
+        for (let i of ["a", "b", "c", "d"]) {
           const id = `house-stramien-${side}-${d}-${i}`;
-          if (d === 'ns') {
+          if (d === "ns") {
             this.parts.push(
               new AppPolyline({
                 floor: Floor.all,
@@ -459,7 +467,7 @@ export class House extends HouseUser {
                 ]
               : [];
           this.classes = [
-            main ? 'grid-main' : (i - 1) % 5 ? 'grid-sub' : 'grid-subsub',
+            main ? "grid-main" : (i - 1) % 5 ? "grid-sub" : "grid-subsub",
           ];
           // this.main = this.index % house.studAmount === 0;
         },
@@ -498,14 +506,14 @@ export class House extends HouseUser {
                   ]
                 : [];
             this.classes = [
-              main ? 'grid-main' : (i - 1) % 5 ? 'grid-sub' : 'grid-subsub',
+              main ? "grid-main" : (i - 1) % 5 ? "grid-sub" : "grid-subsub",
             ];
           },
         })
       );
     }
 
-    this.parts['.house-wind-rose'] = new Windrose({
+    this.parts[".house-wind-rose"] = new Windrose({
       rotate: 0,
       floor: Floor.all,
       parent: this,
@@ -533,7 +541,6 @@ export class House extends HouseUser {
   calculateTower() {
     this.tower.wallOuterThickness = this.wallOuterThickness;
     this.tower.outerWallOffset = round(
-      4,
       this.tower.wallOuterThickness * Math.tan((22.5 * Math.PI) / 180)
     );
     this.tower.innerWallLength = this.towerWidth;
@@ -542,7 +549,6 @@ export class House extends HouseUser {
     this.tower.show = this.showTower;
     this.tower.width = this.towerWidth; // no use
     this.tower.houseIncrement = round(
-      5,
       this.tower.outerWallLength / Math.sqrt(2) + this.tower.outerWallLength
     );
   }
@@ -614,11 +620,8 @@ export class House extends HouseUser {
       this.stramien.in.we.c - 1,
       this.stramien.in.ns.b - this.wallInnerThickness,
     ];
-    this.houseWidth = round(4, this.stramien.out.we.d - this.stramien.out.we.a);
-    this.houseLength = round(
-      4,
-      this.stramien.out.ns.d - this.stramien.out.ns.a
-    );
+    this.houseWidth = round(this.stramien.out.we.d - this.stramien.out.we.a);
+    this.houseLength = round(this.stramien.out.ns.d - this.stramien.out.ns.a);
 
     this.calculateTowerCoords();
 
@@ -692,7 +695,7 @@ export class House extends HouseUser {
 
     this.partsFlatten
       .filter((x) => x instanceof Room)
-      .filter((x: Room) => x.name !== 'innerFootprint')
+      .filter((x: Room) => x.name !== "innerFootprint")
       .filter((x: Room) => !x.hole)
       .forEach((room: Room) => {
         total[room.floor].area += room.area();
@@ -703,8 +706,8 @@ export class House extends HouseUser {
 
     Object.keys(Floor).map((f) => {
       total[f] = {
-        area: round(0, total[f].area),
-        volume: round(0, total[f].volume),
+        area: round(total[f].area, 0),
+        volume: round(total[f].volume, 0),
       };
     });
     this.stats.floor = total;
@@ -792,13 +795,18 @@ export class House extends HouseUser {
   }
 
   /* Main draw function, which loops through parts */
-  redrawHouse(floor: Floor, graphic: Graphic, meterPerPixel: number) {
-    // console.log('redrawHouse');
+  redrawHouse(
+    floor: Floor,
+    graphic: Graphic,
+    meterPerPixel: number,
+    redrawAll
+  ) {
+    console.log("redrawHouse:", redrawAll);
 
     const loop = (theme, parent) => {
       parent.parts.forEach(async (part: BaseSVG) => {
         if (part === undefined) return;
-        await part.redraw(theme, floor, meterPerPixel);
+        await part.update(theme, floor, meterPerPixel, redrawAll);
         if (part.parts !== undefined) loop(theme, part);
       });
     };
@@ -809,7 +817,7 @@ export class House extends HouseUser {
     if (graphic === Graphic.cross) {
       loop(this.cross, this.cross);
     }
-    if (graphic === Graphic.stair) {
+    if ([Graphic.stairCross, Graphic.stairPlan].includes(graphic)) {
       loop(this.stair, this.stair);
     }
   }

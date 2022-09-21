@@ -1,120 +1,179 @@
-<div class="container
-section-{{(scroll$ |async).section }}" *ngIf="(states$ | async) as states" fxLayout="column" fxLayoutAlign="end"
-  fxLayoutGap="8px">
+<ng-container *ngIf="(scroll$ |async) as scroll">
+  <div class="container
+section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="column" fxLayoutAlign="end"
+    fxLayoutGap="8px">
 
 
 
-  <ng-container *ngIf="(scroll$|async).graphic === Graphic.plan">
+    <ng-container *ngIf="scroll.graphic === Graphic.plan">
 
-    <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end" fxLayoutGap="8px">
+      <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end end" fxLayoutGap="8px">
+        <ng-container *ngIf="(page$| async).startsWith('house')|| (page$| async).startsWith('?')">
 
-      <button mat-mini-fab (click)="setStates(States.doors)" [class.active]="states.includes(States.doors)">
-        <label>
-          Doors
-        </label>
-        <mat-icon style="font-family:'Material Icons Outlined';"> door_front</mat-icon>
+          <button mat-mini-fab (click)="appService.setState(States.doors)" [class.active]="checkState(States.doors)">
+            <label>
+              Doors
+            </label>
+            <mat-icon style="font-family:'Material Icons Outlined';"> door_front</mat-icon>
+          </button>
+
+          <button mat-mini-fab (click)="appService.setState(States.theoreticalWalls)"
+            [class.active]="checkState(States.theoreticalWalls)">
+            <label>
+              Theoretic walls
+            </label>
+            <mat-icon style="font-family:'Material Icons Outlined';">density_large</mat-icon>
+          </button>
+
+
+          <button mat-mini-fab (click)="appService.setState(States.grid)" [class.active]="checkState(States.grid)">
+            <label>
+              Grid
+            </label>
+            <mat-icon style="font-family:'Material Icons Outlined';">grid_on</mat-icon>
+          </button>
+
+
+          <button mat-mini-fab (click)="appService.setState(States.stramien)"
+            [class.active]="checkState(States.stramien)">
+            <label>
+              Stramien
+            </label>
+            <mat-icon style="font-family:'Material Icons Outlined';">grid_3x3</mat-icon>
+          </button>
+
+          <button mat-mini-fab (click)="appService.setState(States.towerFootprint)"
+            [class.active]="checkState(States.towerFootprint)">
+            <label>
+              Tower footprint
+            </label>
+            <mat-icon style="font-family:'Material Icons Outlined';">hexagon</mat-icon>
+          </button>
+
+
+          <button mat-mini-fab (click)="appService.setState(States.measure)"
+            [class.active]="checkState(States.measure)">
+
+            <label>
+              Measurements
+            </label>
+            <mat-icon style="font-family:'Material Icons Outlined';">square_foot</mat-icon>
+          </button>
+
+
+        </ng-container>
+        <ng-container *ngIf="(page$| async).startsWith('wired')">
+          <ng-container *ngFor="let sensor of sensors">
+            <button mat-mini-fab (click)="appService.setState(sensor.state)" [class.active]="checkState(sensor.state)"
+              class="sensor-button" style="height:12px;width:12px;">
+              <label class="sensor-label">
+                {{sensor.title}}
+              </label>
+              <app-svg height="12px" width="12px" class="sensor-{{sensor.state}}" url="assets/svg/{{sensor.state}}.svg">
+              </app-svg>
+            </button>
+
+          </ng-container>
+
+          <button mat-mini-fab (click)="appService.setState(States.measure)"
+            [class.active]="checkState(States.measure)">
+            <label>
+              Measurements
+            </label>
+            <mat-icon style="font-family:'Material Icons Outlined';">square_foot</mat-icon>
+          </button>
+        </ng-container>
+
+      </div>
+
+      <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
+        <mat-icon style.transform="rotate({{extra?20:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
+        </mat-icon>
       </button>
-
-      <button mat-mini-fab (click)="setStates(States.theoreticalWalls)"
-        [class.active]="states.includes(States.theoreticalWalls)">
-        <label>
-          Theoretic walls
-        </label>
-        <mat-icon style="font-family:'Material Icons Outlined';">density_large</mat-icon>
+      <button mat-mini-fab *ngIf="(floor$ |async) as floor" (click)="setFloor()" color="accent">
+        <mat-icon *ngIf="floor === Floor.top">exposure_plus_1</mat-icon>
+        <mat-icon *ngIf="floor === Floor.ground">exposure_zero</mat-icon>
       </button>
+    </ng-container>
 
 
-      <button mat-mini-fab (click)="setStates(States.grid)" [class.active]="states.includes(States.grid)">
-        <label>
-          Grid
-        </label>
-        <mat-icon style="font-family:'Material Icons Outlined';">grid_on</mat-icon>
-      </button>
+    <ng-container *ngIf="scroll.graphic === Graphic.cross">
 
+      <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end" fxLayoutGap="8px">
 
-      <button mat-mini-fab (click)="setStates(States.stramien)" [class.active]="states.includes(States.stramien)">
-        <label>
-          Stramien
-        </label>
-        <mat-icon style="font-family:'Material Icons Outlined';">grid_3x3</mat-icon>
-      </button>
-
-      <button mat-mini-fab (click)="setStates(States.towerFootprint)"
-        [class.active]="states.includes(States.towerFootprint)">
-        <label>
-          Tower footprint
-        </label>
-        <mat-icon style="font-family:'Material Icons Outlined';">hexagon</mat-icon>
-      </button>
-
-
-      <button mat-mini-fab (click)="setStates(States.measure)" [class.active]="states.includes(States.measure)">
-
-        <label>
-          Measurements
-        </label>
-        <mat-icon style="font-family:'Material Icons Outlined';">square_foot</mat-icon>
-      </button>
-
-
-
-    </div>
-
-    <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
-      <mat-icon style.transform="rotate({{extra?20:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
-      </mat-icon>
-    </button>
-    <button mat-mini-fab *ngIf="(floor$ |async) as floor" (click)="setFloor()" color="accent">
-      <mat-icon *ngIf="floor === Floor.top">exposure_plus_1</mat-icon>
-      <mat-icon *ngIf="floor === Floor.ground">exposure_zero</mat-icon>
-    </button>
-  </ng-container>
-
-
-  <ng-container *ngIf="(scroll$|async).graphic === Graphic.cross">
-
-    <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end" fxLayoutGap="8px">
-
-      <!-- <button mat-mini-fab (click)="setStates(States.decoration)" [class.active]="states.includes(States.decoration)">
+        <!-- <button mat-mini-fab (click)="appService.setState(States.decoration)" [class.active]="checkState(States.decoration)">
         <label>
           a/d
         </label>
         <mat-icon>roofing</mat-icon>
       </button> -->
 
-      <button mat-mini-fab (click)="setStates(States.measure)" [class.active]="states.includes(States.measure)">
-        <label>
-          Measurements
-        </label>
-        <mat-icon>square_foot</mat-icon>
+        <button mat-mini-fab (click)="appService.setState(States.measure)" [class.active]="checkState(States.measure)">
+          <label>
+            Measurements
+          </label>
+          <mat-icon>square_foot</mat-icon>
+        </button>
+
+        <button mat-mini-fab (click)="appService.setState(States.silhouette)"
+          [class.active]="checkState(States.silhouette)">
+          <label>
+            Silhouette
+          </label>
+          <mat-icon *ngIf="!checkState(States.silhouette);else elseGrey">home</mat-icon>
+          <ng-template #elseGrey>
+            <mat-icon style="font-family:'Material Icons Outlined';">home_outline</mat-icon>
+          </ng-template>
+        </button>
+
+
+      </div>
+
+
+      <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
+        <mat-icon style.transform="rotate({{extra?-20:-180}}deg)" [style.transition]="'0.4s'">
+          keyboard_double_arrow_down
+        </mat-icon>
       </button>
 
-      <button mat-mini-fab (click)="setStates(States.grey)" [class.active]="states.includes(States.grey)">
-        <label>
-          Silhouette
-        </label>
-        <mat-icon *ngIf="!states.includes(States.grey);else elseGrey">home</mat-icon>
-        <ng-template #elseGrey>
-          <mat-icon style="font-family:'Material Icons Outlined';">home_outline</mat-icon>
-        </ng-template>
+    </ng-container>
+
+    <ng-container *ngIf="[Graphic.stairCross, Graphic.stairPlan].includes(scroll.graphic)">
+
+      <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end" fxLayoutGap="8px">
+
+        <button mat-mini-fab (click)="appService.setState(States.walkLine)"
+          [class.active]="checkState(States.walkLine)">
+          <label>
+            Walk line
+          </label>
+          <mat-icon>directions_walk</mat-icon>
+        </button>
+
+        <button mat-mini-fab (click)="appService.setState(States.measure)" [class.active]="checkState(States.measure)">
+          <label>
+            Measurements
+          </label>
+          <mat-icon>square_foot</mat-icon>
+        </button>
+
+
+      </div>
+
+
+      <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
+        <mat-icon style.transform="rotate({{extra?-20:-180}}deg)" [style.transition]="'0.4s'">
+          keyboard_double_arrow_down
+        </mat-icon>
       </button>
 
-
-    </div>
-
-
-    <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
-      <mat-icon style.transform="rotate({{extra?-20:-180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
-      </mat-icon>
+    </ng-container>
+    <button mat-mini-fab (click)="fullscreen = !fullscreen" color="accent">
+      <mat-icon *ngIf="!fullscreen">fullscreen</mat-icon>
+      <mat-icon *ngIf="fullscreen">fullscreen_exit</mat-icon>
     </button>
 
-  </ng-container>
-
-  <button mat-mini-fab (click)="fullscreen = !fullscreen" color="accent">
-    <mat-icon *ngIf="!fullscreen">fullscreen</mat-icon>
-    <mat-icon *ngIf="fullscreen">fullscreen_exit</mat-icon>
-  </button>
 
 
-
-</div>
+  </div>
+</ng-container>

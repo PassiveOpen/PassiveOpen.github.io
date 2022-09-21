@@ -5,16 +5,23 @@
   <mat-sidenav-content>
     <main>
       <router-outlet></router-outlet>
-      
+
     </main>
     <footer>
       <mat-toolbar fxLayout="column" fxLayoutAlign="center center">
+
         <div>
           {{title}} 2019 - {{year}}
         </div>
-        <div>
-          Everything is free and open source. See <a href="https://github.com/PassiveOpen/PassiveOpen.github.io">github</a>
+        <div style="font-size:1.3em ;">Join us! <a href="{{discord}}"
+            style="background: var(--primary-color); padding: 0 6px; color: white;"><i class="fa-brands fa-discord"></i> Discord
+            channel</a>
         </div>
+        <div>
+          Everything is free and open source. See <a href="{{github}}"
+          style="background: var(--color-30); padding: 0 6px; color: white;"><i class="fa-brands fa-github"></i> GitHub</a>
+        </div>
+
       </mat-toolbar>
     </footer>
   </mat-sidenav-content>

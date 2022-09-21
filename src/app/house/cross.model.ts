@@ -108,9 +108,9 @@ export class Cross {
     this.wallOuterThickness = this.house.wallOuterThickness;
     this.center = [this.house.outerBase / 2, 0];
     this.roofCircleExtra =
-      Math.round(
-        Math.cos((65 * Math.PI) / 180) * this.roofCirclePullDown * 100
-      ) / 100;
+      round(
+        Math.cos((65 * Math.PI) / 180) * this.roofCirclePullDown,3
+      );
 
     // BendPoint
     this.bendPoint = [
@@ -131,18 +131,16 @@ export class Cross {
     this.crawlerHeight = this.crawlerSpace ? 0.9 : 0;
 
     this.roofTop = this.topFloorTop + (this.roof70Walls + 2);
-    this.houseHeight = round(3, this.roofTop - this.groundElevation);
+    this.houseHeight = round(this.roofTop - this.groundElevation);
     this.roofInnerContourLine();
 
     this.gableWallArea = 10; // ToDo
     this.outerWallHeight = Math.abs(this.groundElevation); // ToDo
 
     this.minimumHeightWidth = round(
-      3,
       this.getIntersectionWithRoof(this.minimumHeight)[0]
     );
     this.minimumHeightRoomWidth = round(
-      3,
       this.getIntersectionWithRoof(this.minimumHeightRoom)[0]
     );
   }
@@ -556,7 +554,7 @@ export class Cross {
     this.innerRoofContourLine = [startFloor, roofBend, bendInRoof, roofTop].map(
       (point) => {
         const xy = offset(point, [-this.wallOuterThickness, 0]).map((x) =>
-          Math.abs(round(3, x))
+          Math.abs(round(x))
         );
 
         return xy as xy;

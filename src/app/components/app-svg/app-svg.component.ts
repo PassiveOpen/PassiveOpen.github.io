@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {
   Component,
   ElementRef,
@@ -6,31 +6,31 @@ import {
   HostListener,
   Input,
   OnInit,
-} from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+} from "@angular/core";
+import { DomSanitizer } from "@angular/platform-browser";
 
 @Component({
-  selector: 'app-svg',
-  templateUrl: './app-svg.component.html',
-  styleUrls: ['./app-svg.component.scss'],
+  selector: "app-svg",
+  templateUrl: "./app-svg.component.html",
+  styleUrls: ["./app-svg.component.scss"],
 })
 export class AppSVGComponent implements OnInit {
-  @HostBinding('style.background') background;
-  @HostBinding('style.fill') fillColor;
-  @HostBinding('style.height') height = `32px`;
-  @HostBinding('style.width') width = `32px`;
+  @Input() @HostBinding("style.background") background;
+  @Input() @HostBinding("style.fill") fillColor;
+  @Input() @HostBinding("style.height") height = `32px`;
+  @Input() @HostBinding("style.width") width = `32px`;
 
   @Input() url;
   @Input() set color(x) {
-    if (x === 'primary') {
+    if (x === "primary") {
       this.fillColor = `var(--primary-color)`;
-    } else if (x === 'accent') {
+    } else if (x === "accent") {
       this.fillColor = `var(--accent-color)`;
-    } else if (x === 'first') {
+    } else if (x === "first") {
       this.fillColor = `var(--first-color)`;
-    } else if (x === 'second') {
+    } else if (x === "second") {
       this.fillColor = `var(--second-color)`;
-    } else if (x === 'third') {
+    } else if (x === "third") {
       this.fillColor = `var(--third-color)`;
     } else {
       this.fillColor = `${x}`;
@@ -49,13 +49,13 @@ export class AppSVGComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.httpClient.get(this.url, { responseType: 'text' }).subscribe({
+    this.httpClient.get(this.url, { responseType: "text" }).subscribe({
       next: (x) => {
-        x = x.replace(/height=\"64px\"/gi, '').replace(/width=\"64px\"/gi, '');
+        x = x.replace(/height=\"64px\"/gi, "").replace(/width=\"64px\"/gi, "");
         this.svgData = this.sanitizer.bypassSecurityTrustHtml(x);
       },
       error: (e) => {
-        this.background = '#aaa';
+        this.background = "#aaa";
       },
     });
   }

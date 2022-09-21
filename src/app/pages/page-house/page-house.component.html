@@ -68,13 +68,13 @@
     <p>The main house, seen from the south (up here) has two axis with a certain
       <tag [tag]="tags.baseDimension" [overlayTemplate]="baseDimension" cdkOverlayOrigin>base
         dimension</tag>. A design seen often in classical buildings. It comes often with great <tag
-        [tag]="tags.viewlines">viewlines</tag>.
+        [tag]="tags.viewlines">viewlines</tag>. The higher the base-dimension is, the lower the extensions can be, the
+      more efficient near-cube shape we get.
     </p>
 
     <ng-template #baseDimension>
-      It is not really a thing, more a concept. The house has a west-east-length of 3 * base-dimension (Rule of thirds /
-      Trinity). It
-      helps the already complex roof to look good. And also, very helpfull with calculations.
+      It is not really a thing, more a concept. It helps the already complex roof to look good. And also, very helpful
+      with calculations.
     </ng-template>
 
     <label>
@@ -92,12 +92,12 @@
         cdkOverlayOrigin>base
         dimension</tag> wall has now {{house.studAmount}} studs.
     </label>
-    <label class="technical">
+    <!-- <label class="technical">
       <span>Design</span>
       <ul>
         <li>We follow <a href="https://en.wikipedia.org/wiki/Rule_of_thirds">Rule of thirds</a> </li>
       </ul>
-    </label>
+    </label> -->
 
     <!-- <label>
       <span>
@@ -170,10 +170,28 @@
 
       <table>
 
+
+
         <tr>
-          <th></th>
-          <th>Amount</th>
+          <td>Floor</td>
+          <td>area</td>
+          <td>ground</td>
+          <td>{{ house.stats.floor.ground.area}} m2</td>
         </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td>top</td>
+          <td>{{ house.stats.floor.top.area}} m2</td>
+        </tr>
+
+        <tr>
+          <td></td>
+          <td></td>
+          <td>total</td>
+          <td>{{ house.stats.floor.all?.area }} m2</td>
+        </tr>
+
 
         <tr>
           <td> Wall</td>
@@ -201,25 +219,6 @@
         </tr>
 
 
-        <tr>
-          <td>Floor</td>
-          <td>area</td>
-          <td>ground</td>
-          <td>{{ house.stats.floor.ground.area}} m2</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td>top</td>
-          <td>{{ house.stats.floor.top.area}} m2</td>
-        </tr>
-
-        <tr>
-          <td></td>
-          <td></td>
-          <td>total</td>
-          <td>{{ house.stats.floor.all?.area }} m2</td>
-        </tr>
       </table>
 
     </label>
@@ -373,4 +372,63 @@
   </section>
 
 
+
+
+
+
+
+
 </ng-container>
+
+
+
+<section [id]="Section.EndOfPageHouse" style="padding-bottom:400px ;">
+  <h3>This was the main design</h3>
+  <p>This site has a lot of info, if you are up for more. Feel free to join us at
+    this <a href="{{discord}}"
+      style="background: var(--primary-color); padding: 0 6px; color: white;">dis<span></span>cord
+      channel</a>:
+  </p>
+  <br>
+  <p>Next step is to get the sizes of the stairs.</p>
+  <div fxLayout="column" fxLayoutGap="3px" style="max-width: 180px;">
+    <button mat-flat-button color="accent" routerLink="/stairs">
+      <mat-icon style="font-family:'Material Icons Outlined';">stairs</mat-icon>
+      <span>Stairs</span>
+    </button>
+  </div>
+
+  <p>Its also okay to leave them default and check out other chapters!</p>
+  <br>
+  <div fxLayout="column" fxLayoutGap="3px" style="max-width: 180px;">
+    <!-- <button mat-flat-button color="accent" routerLink="/house">
+      <mat-icon style="font-family:'Material Icons Outlined';">home</mat-icon>
+      <span>The house</span>
+    </button> -->
+    <button mat-flat-button color="accent" routerLink="/facade">
+      <mat-icon>roofing</mat-icon>
+      <span>Façade</span>
+    </button>
+    <button mat-flat-button color="accent" routerLink="/construction">
+      <mat-icon>handyman</mat-icon>
+      <span>Construction</span>
+    </button>
+    <button mat-flat-button color="accent" routerLink="/wired">
+      <mat-icon>bolt</mat-icon>
+      <span>Wired</span>
+    </button>
+    <button mat-flat-button color="accent" routerLink="/costs">
+      <mat-icon style="font-family:'Material Icons Outlined';">savings</mat-icon>
+      <span>Costs</span>
+    </button>
+    <button mat-flat-button color="accent" routerLink="/installations">
+      <mat-icon>solar_power</mat-icon>
+      <span>Installations</span>
+    </button>
+    <button mat-flat-button color="accent" routerLink="/map">
+      <mat-icon>pin_drop</mat-icon>
+      <span>Map</span>
+    </button>
+  </div>
+
+</section>

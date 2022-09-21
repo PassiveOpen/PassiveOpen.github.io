@@ -1,24 +1,24 @@
-import { xy } from '../house/house.model';
+import { xy } from "../house/house.model";
 
-export const round = (decimals, number) => {
+export const round = (number: number, decimals = 4) => {
   return Math.round(number * 10 ** decimals) / 10 ** decimals;
 };
 
-export const sum = (a: any[], decimals = 3) => {
+export const sum = (a: any[], decimals = 4) => {
   return round(
-    decimals,
-    a.reduce((partialSum, v) => partialSum + v, 0)
+    a.reduce((partialSum, v) => partialSum + v, 0),
+    decimals
   );
 };
 
-export const angleXY = (deg, r, offset = [0, 0], rnd = 3): xy => {
+export const angleXY = (deg, r, offset: xy = [0, 0], decimals = 4): xy => {
   const rad = (deg * Math.PI) / 180;
   const x = r * Math.cos(rad);
   const y = r * Math.sin(rad);
-  return [round(rnd, x + offset[0]), round(rnd, y + offset[1])];
+  return [round(x + offset[0], decimals), round(y + offset[1], decimals)];
 };
 
-export const angleBetween = (p1, p2) => {
+export const angleBetween = (p1: xy, p2: xy) => {
   return (Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) * 180) / Math.PI;
 };
 
@@ -49,7 +49,7 @@ export const findCircleLineIntersections = (r, m, n, h = 0, k = 0) => {
   const x = intersections[1];
   return [x, m * x + n];
 };
-export const lineIntersect = (line1, line2): xy => {
+export const lineIntersect = (line1: xy[], line2: xy[]): xy => {
   const [[x1, y1], [x2, y2]] = line1;
   const [[x3, y3], [x4, y4]] = line2;
   var ua,
@@ -64,11 +64,22 @@ export const lineIntersect = (line1, line2): xy => {
   return [x1 + ua * (x2 - x1), y1 + ua * (y2 - y1)];
 };
 
-export const getDiagonal = (coord1: xy, coord2: xy, round = 2): number => {
+export const multiLineIntersect = (multiLine: xy[], line2: xy[]): xy[] => {
+  const intersections: xy[] = [];
+  const j = multiLine.length;
+  for (let i = 0; i < j - 1; i++) {
+    const subLine = [multiLine[i], multiLine[i + 1]];
+    const xy = lineIntersect(subLine, line2);
+    if (xy) intersections.push(lineIntersect(subLine, line2));
+  }
+  return intersections;
+};
+
+export const getDiagonal = (coord1: xy, coord2: xy, decimals = 4): number => {
   if (!coord1 || !coord2) return 0;
   const h = coord2[0] - coord1[0];
   const w = coord2[1] - coord1[1];
-  return Math.round(Math.hypot(h, w) * 10 ** round) / 10 ** round;
+  return round(Math.hypot(h, w), decimals);
 };
 
 export const offset = (coords: xy, offset: xy): xy => {
@@ -86,3 +97,10 @@ export const mixPoints = (coords1: xy, coords2: xy, flip = true): xy => {
 String.prototype.toTitleCase = function (): string {
   return this.replace(/\b\w/g, (first) => first.toLocaleUpperCase());
 };
+
+export function toDegrees(angle) {
+  return angle * (180 / Math.PI);
+}
+export function toRadians(angle) {
+  return angle * (Math.PI / 180);
+}

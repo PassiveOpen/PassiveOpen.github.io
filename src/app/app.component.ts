@@ -4,22 +4,23 @@ import {
   ElementRef,
   OnInit,
   Renderer2,
-} from '@angular/core';
-import { AppService } from './app.service';
+} from "@angular/core";
+import { AppService } from "./app.service";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.scss"],
 })
 export class AppComponent implements OnInit, AfterViewInit {
   year = new Date().getFullYear();
   title = this.appService.title;
+  discord = this.appService.discord;
+  github = this.appService.github;
 
   constructor(private appService: AppService) {}
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   ngAfterViewInit(): void {}
 }

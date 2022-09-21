@@ -16,7 +16,7 @@ import { D3Service } from '../d3.service';
   styleUrls: ['./svg-stair-plan.component.scss'],
 })
 export class SvgStairPlanComponent extends BasicSVG implements AfterViewInit {
-  graphic = Graphic.stair;
+  graphic = Graphic.stairPlan;
   floor = Floor.all;
   marginInMeters = [0, 0, 0, 0];
   marginInPixels = [64, 64, 0, 0];
@@ -56,7 +56,9 @@ export class SvgStairPlanComponent extends BasicSVG implements AfterViewInit {
       )
     ) {
       this.svg.style('opacity', 0);
+      this.svg.style('pointer-events', 'none');
     } else {
+      this.svg.style('pointer-events', '');
       this.svg.style('opacity', 1);
     }
   }

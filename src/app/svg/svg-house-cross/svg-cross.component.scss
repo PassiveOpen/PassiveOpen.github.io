@@ -37,13 +37,9 @@
         // fill: var(--primary-color) !important;
       }
     }
-    // .minimum,
-    // .minimum-room {
-    //   opacity: 0;
-    // }
   }
 
-  ////////////////////// Sections //////////////////////
+  //<============== Sections ===============>//
   .section-roof-basics {
     #building-ground-fill {
       fill: transparent !important;
@@ -63,9 +59,9 @@
 
   .section-roof-edge {
   }
-  ////////////////////// Sections //////////////////////
+  //<============== Sections ===============>//
 
-  ////////////////////// Tags //////////////////////
+  //<============== Tags ===============>//
   .tag-half-circle {
     .g-h-circle-roof {
       opacity: 1 !important;
@@ -77,7 +73,7 @@
     }
   }
 
-  ////////////////////// Tags //////////////////////
+  //<============== Tags ===============>//
   ////////////////////// States //////////////////////
   .state-grey {
     #building-roof-circle-wall1,

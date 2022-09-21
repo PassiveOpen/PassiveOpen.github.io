@@ -1,16 +1,16 @@
-import { sum } from 'd3';
-import { round } from '../shared/global-functions';
+import { sum } from "d3";
+import { round } from "../shared/global-functions";
 
 export enum Prop {
-  amount = 'amount',
-  name = 'name',
-  sizeOrVersion = 'sizeOrVersion',
-  price = 'price',
-  priceAvg = 'priceAvg',
-  priceMax = 'priceMax',
-  priceTotal = 'priceTotal',
-  remarks = 'other',
-  unit = 'unit',
+  amount = "amount",
+  name = "name",
+  sizeOrVersion = "sizeOrVersion",
+  price = "price",
+  priceAvg = "priceAvg",
+  priceMax = "priceMax",
+  priceTotal = "priceTotal",
+  remarks = "other",
+  unit = "unit",
 }
 export type column = {
   id: keyof Cost | keyof GroupRow;
@@ -39,10 +39,10 @@ export class Cost {
   unit: string;
   other: string;
   uuid?: string;
-  type = 'single';
+  type = "single";
 
   get calcPrice() {
-    return round(3, this.amount * this.price);
+    return round(this.amount * this.price, -3);
   }
   get calcAmount() {
     return this.amount;
@@ -52,11 +52,11 @@ export class GroupRow extends Cost {
   costs: Cost[] = [];
   name: string;
   uuid: string;
-  type = 'group';
+  type = "group";
   collapsed = false;
   get folded() {
     return `<span class="material-icons">expand_${
-      !this.collapsed ? 'more' : 'less'
+      !this.collapsed ? "more" : "less"
     }</span>`;
   }
   toggleFold() {
@@ -77,7 +77,7 @@ export class GroupRow extends Cost {
 
 export class TotalRow extends GroupRow {
   costs: (Cost | GroupRow)[] = [];
-  type = 'total';
+  type = "total";
 
   constructor(partial: Partial<GroupRow>) {
     super(partial);

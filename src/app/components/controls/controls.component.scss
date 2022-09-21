@@ -32,6 +32,21 @@
       opacity: 1;
     }
   }
+  ::ng-deep {
+    .sensor-button {
+      right: 0;
+      svg {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+      }
+    }
+    .sensor-label {
+      right: 15px !important;
+      top: 6px;
+      line-height: 0;
+    }
+  }
 }
 .active {
   background-color: var(--accent-50) !important;

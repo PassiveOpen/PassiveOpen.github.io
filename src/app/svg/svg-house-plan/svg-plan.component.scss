@@ -1,7 +1,7 @@
 $sensor-smoke: rgb(168, 0, 0);
 $sun-color: rgb(253, 200, 101);
 ::ng-deep {
-  .floor-top .included-stairs-plan .floor-clip {
+  .floor-ground .included-stairs-plan .floor-clip {
     clip-path: inherit;
   }
   .included-stairs-plan {
@@ -66,7 +66,7 @@ $sun-color: rgb(253, 200, 101);
 
   .selection-active {
     .g-sensor {
-      & > g > *:not(.selected) {
+      & >  *:not(.selected) {
         opacity: 0 !important;
       }
     }
@@ -79,15 +79,12 @@ $sun-color: rgb(253, 200, 101);
     position: relative;
 
     g.all {
-      transition: 1s ease-in-out; // overruled to 0 in fullscreen
+      // transition: 1s ease-in-out; // overruled to 0 in fullscreen
     }
-
-    
 
     polyline[id^="roof-line-"] {
       fill: none;
       stroke: var(--primary-color);
-
     }
     .g-sun {
       transition: 0.4s;
@@ -168,9 +165,9 @@ $sun-color: rgb(253, 200, 101);
 
     .g-sensor {
       & > * {
-        opacity: 0;
-        pointer-events: none;
-        overflow: visible;
+        // opacity: 0;
+        // pointer-events: none;
+        // overflow: visible;
       }
       * {
         transition: 0.2s;
@@ -286,13 +283,14 @@ $sun-color: rgb(253, 200, 101);
     }
 
     .plan-stair-plan {
+      #walk-line,
       .measure-stair {
         display: none;
       }
     }
   }
 
-  ////////////////////// Sections //////////////////////
+  //<============== Sections ===============>//
   .section-welcome:not(.fullscreen) {
     .all {
       transform: scale(0.6) translateX(25%);
@@ -306,7 +304,6 @@ $sun-color: rgb(253, 200, 101);
       }
     }
   }
-
 
   .section-basics {
     .house-wind-rose,
@@ -323,59 +320,59 @@ $sun-color: rgb(253, 200, 101);
     }
   }
 
-  .section-wired-light {
-    .g-sensor *[class*="sensor-light-switch"],
-    .g-sensor *[class*="sensor-dimmer"],
-    .g-sensor *[class*="sensor-light"] {
-      opacity: 1;
-      pointer-events: all;
-    }
-  }
-  .section-wired-power {
-    .g-sensor *[class*="sensor-perilex"],
-    .g-sensor *[class*="sensor-socket"] {
-      opacity: 1;
-      pointer-events: all;
-    }
-  }
-  .section-wired-ethernet {
-    .g-sensor *[class*="sensor-poe"],
-    .g-sensor *[class*="sensor-wifi"],
-    .g-sensor *[class*="sensor-ethernet"] {
-      opacity: 1;
-      pointer-events: all;
-    }
-  }
-  .section-wired-safety {
-    .g-sensor *[class*="sensor-pir"],
-    .g-sensor *[class*="sensor-camera"],
-    .g-sensor *[class*="sensor-smoke"],
-    .g-sensor *[class*="sensor-alarm"] {
-      opacity: 1;
-      pointer-events: all;
-    }
-  }
-  .section-wired-extra {
-    .g-sensor *[class*="sensor-pir"],
-    .g-sensor *[class*="sensor-blinds"],
-    .g-sensor *[class*="sensor-temperature"] {
-      opacity: 1;
-      pointer-events: all;
-    }
-  }
+  // .section-wired-light {
+  //   .g-sensor *[class*="sensor-light-switch"],
+  //   .g-sensor *[class*="sensor-dimmer"],
+  //   .g-sensor *[class*="sensor-light"] {
+  //     opacity: 1;
+  //     pointer-events: all;
+  //   }
+  // }
+  // .section-wired-power {
+  //   .g-sensor *[class*="sensor-perilex"],
+  //   .g-sensor *[class*="sensor-socket"] {
+  //     opacity: 1;
+  //     pointer-events: all;
+  //   }
+  // }
+  // .section-wired-ethernet {
+  //   .g-sensor *[class*="sensor-poe"],
+  //   .g-sensor *[class*="sensor-wifi"],
+  //   .g-sensor *[class*="sensor-ethernet"] {
+  //     opacity: 1;
+  //     pointer-events: all;
+  //   }
+  // }
+  // .section-wired-safety {
+  //   .g-sensor *[class*="sensor-pir"],
+  //   .g-sensor *[class*="sensor-camera"],
+  //   .g-sensor *[class*="sensor-smoke"],
+  //   .g-sensor *[class*="sensor-alarm"] {
+  //     opacity: 1;
+  //     pointer-events: all;
+  //   }
+  // }
+  // .section-wired-extra {
+  //   .g-sensor *[class*="sensor-pir"],
+  //   .g-sensor *[class*="sensor-blinds"],
+  //   .g-sensor *[class*="sensor-temperature"] {
+  //     opacity: 1;
+  //     pointer-events: all;
+  //   }
+  // }
 
-  ////////////////////// Sections //////////////////////
-
-  //<============== States ===============>//
+  //<============== Sections ===============>//
 
   //<============== States ===============>//
 
-  ////////////////////// Tags //////////////////////
+  //<============== States ===============>//
+
+  //<============== Tags ===============>//
   .tag-base-dimension {
-    #L0-West-WestWall,
-    #L0-North-NorthWall,
-    #L0-Central-SouthWall,
-    #L0-East-EastWall {
+    #L0-outer-WestWall-3,
+    #L0-outer-NorthWall,
+    #L0-outer-SouthWall-2,
+    #L0-outer-EastWall-2 {
       .side-out {
         transition: 0.4s;
         stroke-width: 1 !important;
@@ -422,7 +419,7 @@ $sun-color: rgb(253, 200, 101);
       opacity: 0.7 !important;
     }
   }
-  ////////////////////// Tags //////////////////////
+  //<============== Tags ===============>//
 }
 
 @keyframes spin-animation {

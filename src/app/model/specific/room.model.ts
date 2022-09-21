@@ -59,7 +59,7 @@ export class Room extends BaseSVG {
     if (this.coords.length === 0 || this.hole) {
       return 0;
     }
-    return Math.abs(Math.round(d3.polygonArea(this.coords) * 1e1) / 1e1);
+    return Math.abs(round(d3.polygonArea(this.coords),1) );
   };
   volume = () => {
     // todo
@@ -72,8 +72,8 @@ export class Room extends BaseSVG {
   };
 
   squaredRoom = (width, height) => {
-    this.width = round(3, width);
-    this.height = round(3, height);
+    this.width = round(width);
+    this.height = round(height);
     this.coords = [
       this.northWestCorner,
       offset(this.northWestCorner, [width, 0]),

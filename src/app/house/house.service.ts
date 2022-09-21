@@ -1,23 +1,23 @@
-import { Injectable, OnInit } from '@angular/core';
-import { BehaviorSubject, combineLatest, merge, Subject } from 'rxjs';
-import { House } from './house.model';
-import * as d3 from 'd3';
-import { lindeLund } from './lindelund/lindeLund';
-import { Wall, WallSide, WallType } from '../model/specific/wall.model';
-import { SensorType, State, Tag } from '../components/enum.data';
-import { AppService } from '../app.service';
-import { BaseSVG } from '../model/base.model';
-import { Room } from '../model/specific/room.model';
-import { Door } from '../model/specific/door.model';
-import { Sensor } from '../model/specific/sensor.model';
-import { Window } from '../model/specific/window.model';
-import { round, sum } from '../shared/global-functions';
-import { generateUUID } from 'three/src/math/MathUtils';
-import { Cost, GroupRow } from './cost.model';
-import { Measure } from '../model/specific/measure.model';
+import { Injectable, OnInit } from "@angular/core";
+import { BehaviorSubject, combineLatest, merge, Subject } from "rxjs";
+import { House } from "./house.model";
+import * as d3 from "d3";
+import { lindeLund } from "./lindelund/lindeLund";
+import { Wall, WallSide, WallType } from "../model/specific/wall.model";
+import { SensorType, State, Tag } from "../components/enum.data";
+import { AppService } from "../app.service";
+import { BaseSVG } from "../model/base.model";
+import { Room } from "../model/specific/room.model";
+import { Door } from "../model/specific/door.model";
+import { Sensor } from "../model/specific/sensor.model";
+import { Window } from "../model/specific/window.model";
+import { round, sum } from "../shared/global-functions";
+import { generateUUID } from "three/src/math/MathUtils";
+import { Cost, GroupRow } from "./cost.model";
+import { Measure } from "../model/specific/measure.model";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class HouseService {
   house$ = new BehaviorSubject(new House(lindeLund));
@@ -54,7 +54,7 @@ export class HouseService {
    * Updates after a value change.
    */
   update(
-    parent: 'cross' | 'stair' | 'house' = 'house',
+    parent: "cross" | "stair" | "house" = "house",
     key,
     value,
     tag: Tag = undefined
@@ -63,13 +63,13 @@ export class HouseService {
 
     const house: House = this.house$.value;
 
-    if (parent === 'house') {
+    if (parent === "house") {
       house[key] = value;
     }
-    if (parent === 'stair') {
+    if (parent === "stair") {
       house.stair[key] = value;
     }
-    if (parent === 'cross') {
+    if (parent === "cross") {
       house.cross[key] = value;
     }
     house.calculateHouse();
@@ -127,27 +127,24 @@ export class HouseService {
       .sort((a, b) => a - b);
   }
 
-  getOutlets(sensorType: SensorType) {
+  getOutlets(sensorType: SensorType): number {
     const house = this.house$.value;
-    return round(
-      1,
-      Object.values(house.partsFlatten)
+    return  Object.values(house.partsFlatten)
         .filter((x) => x instanceof Sensor)
         .filter((x: Sensor<any>) => x.sensorType === sensorType)
         .map((x: Sensor<any>) => x.amount)
-        .reduce((a, b) => a + b, 0)
-    );
+        .reduce((a, b) => a + b, 0)      
   }
 
   getCable(sensorType: SensorType, decimals = 1) {
     const house = this.house$.value;
     return round(
-      decimals,
       Object.values(house.partsFlatten)
         .filter((x) => x instanceof Sensor)
         .filter((x: Sensor<any>) => x.sensorType === sensorType)
         .map((x: Sensor<any>) => x.cableLength)
-        .reduce((a, b) => a + b, 0)
+        .reduce((a, b) => a + b, 0),
+      decimals
     );
   }
 
@@ -228,7 +225,7 @@ export class HouseService {
         .filter((x) => x instanceof (type as any))
         .filter((x) => filterCallback(x as any))
         .reduce((accumulator, value: BaseSVG) => {
-          const key = keys.map((x) => `${value[x as any]}`).join(',');
+          const key = keys.map((x) => `${value[x as any]}`).join(",");
           if (!(key in accumulator)) {
             accumulator[key] = {
               count: 0,
@@ -245,7 +242,7 @@ export class HouseService {
     ).map((counter: { count: number; part: T }) => {
       const cost = new Cost(callback(counter.part));
 
-      cost.amount = round(1, counter.count);
+      cost.amount = round( counter.count,1);
       cost.uuid = uuid;
       return cost;
     });
