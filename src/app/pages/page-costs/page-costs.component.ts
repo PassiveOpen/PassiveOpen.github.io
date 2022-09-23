@@ -1,100 +1,142 @@
-import { AfterViewInit, Component } from '@angular/core';
-import { Section, SensorType, Tag } from 'src/app/components/enum.data';
-import { HouseService } from 'src/app/house/house.service';
-import { Sensor } from 'src/app/model/specific/sensor.model';
-import { BehaviorSubject } from 'rxjs';
-import { Door } from 'src/app/model/specific/door.model';
-import { Window, WindowForm } from 'src/app/model/specific/window.model';
-import { Cost, CostTable, GroupRow } from 'src/app/house/cost.model';
-import { Wall } from 'src/app/model/specific/wall.model';
-import { sum } from 'src/app/shared/global-functions';
+import { AfterViewInit, Component } from "@angular/core";
+import { Section, SensorType, Tag } from "src/app/components/enum.data";
+import { HouseService } from "src/app/house/house.service";
+import { Sensor } from "src/app/model/specific/sensor.model";
+import { BehaviorSubject } from "rxjs";
+import { Door } from "src/app/model/specific/door.model";
+import { Window, WindowForm } from "src/app/model/specific/window.model";
+import { Cost, CostTable, GroupRow } from "src/app/house/cost.model";
+import { Wall } from "src/app/model/specific/wall.model";
+import { round, sum } from "src/app/shared/global-functions";
+import { SensorLight } from "src/app/model/specific/sensors/sensor.model";
 
 @Component({
-  selector: 'app-page-costs',
-  templateUrl: './page-costs.component.html',
-  styleUrls: ['./page-costs.component.scss'],
+  selector: "app-page-costs",
+  templateUrl: "./page-costs.component.html",
+  styleUrls: ["./page-costs.component.scss"],
 })
 export class PageCostsComponent {
+  Section = Section;
+
   tables = [
+    this.getPreps(),
     this.getConstruction(),
     this.getOpenings(),
     this.getElectra(),
     this.getFinish(),
-    this.getPreps(),
+    this.getOutsideFinish(),
   ];
   hiddenTables = [this.getKitchen(), this.getBathroom()];
 
   totals = this.getTotals();
 
   constructor(private houseService: HouseService) {}
-  getTable(name) {
-    return [...this.tables, ...this.hiddenTables].find((x) => x.name === name);
-  }
+
   getFinish(): CostTable {
     const house = this.houseService.house$.value;
     const { innerLength, outerLength } = this.houseService.getWallLength();
     const { innerArea, outerArea } = this.houseService.getWallArea();
-    return {
-      name: 'finish',
-      alias: 'Finishes',
+    return new CostTable({
+      section: Section.costsFinishes,
+
+      alias: "Finishes",
       // desc: TemplateRef<any>,
       costs: [
         new Cost({
           amount: innerLength,
-          name: 'Crown molding',
+          name: "Crown molding",
           price: 3,
-          unit: 'm',
+          unit: "m",
         }),
         new Cost({
           amount: innerLength,
-          name: 'Baseboard',
+          name: "Baseboard",
           price: 3,
-          unit: 'm',
+          unit: "m",
         }),
         this.houseService.getT<Door>(Door, [], (door) => ({
-          name: 'Door casing',
+          name: "Door casing",
           price: 60,
         })),
         this.houseService.getT<Window>(Window, [], (door) => ({
-          name: 'Window casing',
+          name: "Window casing",
           price: 60,
         })),
         new Cost({
-          amount: innerLength,
-          name: 'Gips boards',
+          amount: innerArea,
+          name: "Drywall / Gips boards",
           price: 10,
-          unit: 'm2',
+          unit: "m2",
         }),
       ],
-    };
+    });
   }
-
+  getOutsideFinish(): CostTable {
+    const house = this.houseService.house$.value;
+    const { innerLength, outerLength } = this.houseService.getWallLength();
+    const { innerArea, outerArea } = this.houseService.getWallArea();
+    return new CostTable({
+      section: Section.costsOuterFinishes,
+      alias: "Outer finishes",
+      // desc: TemplateRef<any>,
+      costs: [
+        new Cost({
+          amount: innerLength,
+          name: "Crown molding",
+          price: 3,
+          unit: "m",
+        }),
+        new Cost({
+          amount: innerLength,
+          name: "Baseboard",
+          price: 3,
+          unit: "m",
+        }),
+        this.houseService.getT<Door>(Door, [], (door) => ({
+          name: "Door casing",
+          price: 60,
+        })),
+        this.houseService.getT<Window>(Window, [], (door) => ({
+          name: "Window casing",
+          price: 60,
+        })),
+        new Cost({
+          amount: innerArea,
+          name: "Drywall / Gips boards",
+          price: 10,
+          unit: "m2",
+        }),
+      ],
+    });
+  }
   getElectra(): CostTable {
     const house = this.houseService.house$.value;
-    return {
-      name: 'electra',
-      alias: 'Electra',
+    return new CostTable({
+      section: Section.costsElectra,
+
+      alias: "Electra",
       costs: [
         new Cost({
           amount: this.houseService.getGroups(SensorType.socket).length,
-          name: 'Circuit breaker',
-          sizeOrVersion: '10A - 240v',
+          name: "Circuit breaker",
+          sizeOrVersion: "10A - 240v",
           price: 10,
         }),
+
         new Cost({
           amount: Math.ceil(
             this.houseService.getGroups(SensorType.socket).length / 4
           ),
-          name: 'Group Circuit breaker',
-          sizeOrVersion: '240v',
+          name: "Circuit breaker Earth Group",
+          sizeOrVersion: "240v",
           price: 80,
         }),
 
         this.houseService.getT<Sensor<any>>(
           Sensor,
-          ['sensorType'],
+          ["sensorType"],
           (x) => ({
-            name: 'Power socket',
+            name: "Electric power socket",
             sizeOrVersion: `230v`,
             price: 20,
           }),
@@ -102,14 +144,15 @@ export class PageCostsComponent {
             return x.sensorType === SensorType.socket;
           }
         ),
+
         this.houseService.getT<Sensor<any>>(
           Sensor,
-          ['sensorType'],
+          ["sensorType"],
           (x) => ({
-            name: 'Electric wires',
-            sizeOrVersion: '2.5mm2 230v',
+            name: "Electric wires",
+            sizeOrVersion: "2.5mm2 230v",
             price: 2.0,
-            unit: 'm',
+            unit: "m",
           }),
           (x) => [SensorType.socket].includes(x.sensorType),
           false
@@ -117,122 +160,191 @@ export class PageCostsComponent {
 
         this.houseService.getT<Sensor<any>>(
           Sensor,
+          ["sensorType"],
+          (x) => ({
+            name: "Perilex socket",
+            price: 60,
+          }),
+          (x) => {
+            return x.sensorType === SensorType.perilex;
+          }
+        ),
+
+        this.houseService.getT<Sensor<any>>(
+          Sensor,
+          ["sensorType"],
+          (x) => ({
+            name: "Perilex wire",
+            sizeOrVersion: "5 sub wires",
+            price: 2.0,
+            unit: "m",
+          }),
+          (x) => [SensorType.perilex].includes(x.sensorType),
+          false
+        ),
+
+        this.houseService.getT<SensorLight<any>>(
+          SensorLight,
+          ["sensorType"],
+          (x) => ({
+            name: "Light socket",
+            price: 20,
+          }),
+          (x) => true
+        ),
+
+        this.houseService.getT<Sensor<any>>(
+          Sensor,
+          ["sensorType"],
+          (x) => ({
+            name: "Switch (light)",
+            sizeOrVersion: "Double pulse",
+            price: 20,
+          }),
+          (x) => {
+            return x.sensorType === SensorType.lightSwitch;
+          }
+        ),
+        this.houseService.getT<Sensor<any>>(
+          Sensor,
+          ["sensorType"],
+          (x) => ({
+            name: "Dimmer",
+            price: 20,
+          }),
+          (x) => {
+            return x.sensorType === SensorType.dimmer;
+          }
+        ),
+        this.houseService.getT<Sensor<any>>(
+          Sensor,
+          ["sensorType"],
+          (x) => ({
+            name: "Wifi AP",
+            price: 100,
+          }),
+          (x) => {
+            return x.sensorType === SensorType.wifi;
+          }
+        ),
+        this.houseService.getT<Sensor<any>>(
+          Sensor,
           [],
           (x) => ({
-            name: 'Ethernet cable',
-            sizeOrVersion: 'CAT6',
+            name: "Ethernet cable",
+            sizeOrVersion: "CAT6",
             price: 0.6,
-            unit: 'm',
+            unit: "m",
           }),
           (x) => [SensorType.ethernet, SensorType.poe].includes(x.sensorType),
           false
         ),
       ],
-    };
+    });
   }
   getPreps(): CostTable {
-    return {
-      name: 'preps',
-      alias: 'Preparations',
+    return new CostTable({
+      section: Section.costsPreparations,
+
+      alias: "Preparations",
       costs: [
         new Cost({
-          name: 'Ground prep',
+          name: "Ground prep",
           price: 9000,
         }),
         new Cost({
-          name: 'Constructions calculations',
+          name: "Constructions calculations",
           price: 3000,
         }),
         new Cost({
-          name: 'PassivHaus Certification',
+          name: "PassivHaus Certification",
           price: 3000,
         }),
         new Cost({
-          name: 'Utilities connections /fees',
+          name: "Utilities connections /fees",
           price: 15000,
         }),
         new Cost({
-          name: 'Tool rental',
+          name: "Tool rental",
           price: 3000,
         }),
       ],
-    };
+    });
   }
-
   getConstruction(): CostTable {
     const house = this.houseService.house$.value;
-    return {
-      name: 'construction',
-      alias: 'Construction',
+    return new CostTable({
+      section: Section.costsConstruction,
+      alias: "Construction",
       costs: [
         new Cost({
-          name: 'foundation',
+          name: "foundation",
           price: 9000,
         }),
         new Cost({
-          name: 'footer',
+          name: "footer",
           price: 9000,
         }),
         new Cost({
-          name: 'Concrete prefab floor',
+          name: "Concrete prefab floor",
           price: 32000,
         }),
         new Cost({
-          name: 'Studs',
+          name: "Studs",
           price: 10000,
         }),
         new Cost({
-          name: 'OSB',
+          name: "OSB",
           price: 10000,
         }),
       ],
-    };
+    });
   }
   getBathroom(): CostTable {
     const house = this.houseService.house$.value;
-    return {
-      name: 'bathroom',
-      alias: 'Bathroom',
+    return new CostTable({
+      section: Section.costsConstruction,
+      alias: "Bathroom",
       costs: [
         new Cost({
-          name: 'Complete kitchen',
+          name: "Complete kitchen",
           price: 9000,
         }),
       ],
-    };
+    });
   }
   getKitchen(): CostTable {
     const house = this.houseService.house$.value;
-    return {
-      name: 'kitchen',
-      alias: 'Kitchen',
+    return new CostTable({
+      section: Section.costsConstruction,
+      alias: "Kitchen",
       costs: [
         new Cost({
-          name: 'Complete kitchen',
+          name: "Complete kitchen",
           price: 9000,
         }),
       ],
-    };
+    });
   }
   getOpenings(): CostTable {
     const house = this.houseService.house$.value;
-    return {
-      name: 'openings',
-      alias: 'Openings',
+    return new CostTable({
+      section: Section.costsOpenings,
+      alias: "Openings",
       costs: [
-        this.houseService.getT<Door>(Door, ['outside'], (door) => ({
-          name: 'Door',
+        this.houseService.getT<Door>(Door, ["outside"], (door) => ({
+          name: "Door",
           sizeOrVersion: `230x${door.width}`,
           price: door.outside ? 600 : 200,
-          unit: '#',
-          other: `${door.outside ? 'Outer door' : 'Inner door'}`,
+          unit: "#",
+          other: `${door.outside ? "Outer door" : "Inner door"}`,
         })),
 
         this.houseService.getT<Window>(
           Window,
-          ['width', 'height', 'windowForm'],
+          ["width", "height", "windowForm"],
           (x) => ({
-            name: 'Window',
+            name: "Window",
             sizeOrVersion: `${x.height}x${x.width}`,
             price: x.width * 800,
             other: `${x.windowForm}`,
@@ -241,9 +353,9 @@ export class PageCostsComponent {
         ),
         this.houseService.getT<Window>(
           Window,
-          ['width', 'height', 'windowForm'],
+          ["width", "height", "windowForm"],
           (x) => ({
-            name: 'Window wall',
+            name: "Window wall",
             sizeOrVersion: `${x.height}x${x.width}`,
             price: 60000,
             other: `main window wall`,
@@ -251,23 +363,33 @@ export class PageCostsComponent {
           (x) => [WindowForm.windowWall].includes(x.windowForm)
         ),
       ],
-    };
+    });
   }
   getTotals(): CostTable {
-    return {
-      name: 'total',
-      alias: 'Total',
-      costs: [...this.tables, ...this.hiddenTables].flatMap(
-        (costTable) =>
-          new Cost({
-            price: sum(
-              costTable.costs
-                .filter((x) => x !== undefined)
-                .map((y) => y.calcPrice)
-            ),
-            name: costTable.alias,
-          })
-      ),
-    };
+    const allCosts = [...this.tables, ...this.hiddenTables].flatMap(
+      (costTable) =>
+        new Cost({
+          price: sum(
+            costTable.costs
+              .filter((x) => x !== undefined)
+              .map((y) => y.calcPrice)
+          ),
+          name: costTable.alias,
+        })
+    );
+    console.log();
+
+    return new CostTable({
+      section: Section.costsTotals,
+      alias: "Total",
+      costs: [
+        ...allCosts,
+        new Cost({
+          price: sum(allCosts.map((x) => x.price)),
+          amount: 0.12,
+          name: "Unexpected costs (12%)",
+        }),
+      ],
+    });
   }
 }

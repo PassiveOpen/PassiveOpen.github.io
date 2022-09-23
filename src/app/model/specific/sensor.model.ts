@@ -15,6 +15,8 @@ export class Sensor<T> extends BaseSVG {
   svgG: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
   svgIcon: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
   svgBadge: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+  svgBadgeCircle: d3.Selection<SVGCircleElement, unknown, HTMLElement, any>;
+  svgBadgeText: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
   offset = [0, 0];
   offsetWall = 0.3;
   elevation = 0.3;
@@ -26,9 +28,9 @@ export class Sensor<T> extends BaseSVG {
   wallSide = WallSide.in;
   cableLength = 0;
   amount = 1;
-  floor: Floor = Floor.ground;
   fontSize = 14;
   visible = false;
+  showBadge = false;
 
   cableType: CableType;
 
@@ -36,11 +38,6 @@ export class Sensor<T> extends BaseSVG {
     super();
     Object.assign(this, data);
   }
-
-  // async getSVG() {
-  //   const r = await fetch(`assets/svg/${this.sensorType}.svg`);
-  //   return (await r.text()).replace(/id=\"\w+-?\w*\"/gi, "");
-  // }
 
   getSensorType = (str: string) => {
     const a = Object.values(SensorType).find((y) => str.includes(y));
@@ -59,7 +56,13 @@ export class Sensor<T> extends BaseSVG {
       if (!this.cableOnly) {
         // So it has a Icon
         this.svgG = d3.select(`#${this.selector}.sensor-g`);
+        this.showBadge = this.amount >= 2 && this.svgG !== undefined;
         this.svgIcon = d3.select(`#${this.selector}.sensor-icon`);
+        if (this.showBadge) {
+          this.svgBadge = this.svgG.append("g");
+          this.svgBadgeCircle = this.svgBadge.append("circle");
+          this.svgBadgeText = this.svgBadge.append("text");
+        }
       } else {
         this.lineThickness = 2;
         this.classes.push("sensor-room-cable");
@@ -70,12 +73,12 @@ export class Sensor<T> extends BaseSVG {
     }
 
     if (!this.show(floor)) {
-      try {
-        this.svgIcon.attr("xlink:href", "");
-      } catch (e) {}
-      try {
-        this.svg.attr("points", "");
-      } catch (e) {}
+      if (this.svgIcon) this.svgIcon.attr("xlink:href", "");
+      if (this.svg) this.svg.attr("points", "");
+      if (this.svgBadgeCircle) this.svgBadgeCircle.attr("r", 0);
+      if (this.svgBadgeText) this.svgBadgeText.attr("font-size", 0);
+
+      this.showBadge = false;
       return;
     }
 
@@ -104,8 +107,13 @@ export class Sensor<T> extends BaseSVG {
       this.setClass(this.svg);
     }
 
-    if (this.svgBadge === undefined) {
+    if (this.showBadge) {
       this.badge(sensorPoint);
+    } else {
+      // if (this.selector === "L0-West-EastWall-light-switch-1")
+      //   console.log(2, this);
+      if (this.svgBadgeCircle) this.svgBadgeCircle.attr("r", 0);
+      if (this.svgBadgeText) this.svgBadgeText.text(``);
     }
 
     if (!this.sensorOnly) {
@@ -118,6 +126,9 @@ export class Sensor<T> extends BaseSVG {
   }
 
   redraw(floor: Floor) {
+    if (!this.show(floor)) {
+      return;
+    }
     if (this.svgBadge) {
       this.svgBadge
         .attr("stroke-width", this.meterPerPixel * this.lineThickness * 1)
@@ -125,14 +136,11 @@ export class Sensor<T> extends BaseSVG {
           "transform",
           `translate(${this.meterPerPixel * 10} ${this.meterPerPixel * -10})`
         );
-      this.svgBadge
-        .select("circle")
-        .attr("r", this.meterPerPixel * 8)
-        .attr("stroke-width", this.meterPerPixel * this.lineThickness * 1);
+      this.svgBadgeCircle.attr("r", this.meterPerPixel * 8);
 
-      this.svgBadge
-        .select("text")
-        .attr("font-size", this.meterPerPixel * this.fontSize);
+      this.svgBadgeText
+        .attr("font-size", this.meterPerPixel * this.fontSize)
+        .text(`${this.amount}`);
     }
     if (this.svg) {
       this.svg.attr(
@@ -165,19 +173,15 @@ export class Sensor<T> extends BaseSVG {
   }
 
   badge(coords: xy) {
-    if (this.amount < 2 || !this.svgG) return;
-    this.svgBadge = this.svgG.append("g");
     this.svgBadge.attr("class", "sensor-badge");
 
-    this.svgBadge
-      .append("circle")
+    this.svgBadgeCircle
       .attr("fill", this.amount === 2 ? "white" : "#333")
       .attr("cx", coords[0])
       .attr("cy", coords[1])
       .attr("stroke", "black");
 
-    this.svgBadge
-      .append("text")
+    this.svgBadgeText
       .attr("fill", this.amount === 2 ? "black" : "white")
       .attr("x", coords[0])
       .attr("y", coords[1])

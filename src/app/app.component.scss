@@ -14,6 +14,9 @@ footer {
     font-weight: 400;
     height: initial;
   }
+
+  z-index: 1000;
+  position: relative;
 }
 .mat-drawer-content {
   overflow-y: hidden;

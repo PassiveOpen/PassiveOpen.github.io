@@ -14,7 +14,6 @@ export class BaseSVG {
   name;
   parts: BaseSVG[];
   svg: d3.Selection<SVGGElement, unknown, HTMLElement, undefined>;
-  lineThickness = 1;
   classes: string[] = [];
   parent;
   center;
@@ -26,6 +25,14 @@ export class BaseSVG {
   outOfDesign = false;
   theoretic = false;
   loaded = false;
+
+  _lineThickness = 1;
+  get lineThickness(): number {
+    return this._lineThickness;
+  }
+  set lineThickness(x: number) {
+    this._lineThickness = x;
+  }
 
   async draw(floor: Floor) {}
   redraw(floor: Floor) {}
@@ -49,6 +56,8 @@ export class BaseSVG {
 
     if (theme.showTower !== undefined) {
       // aka instance of House (House is based on this class! dont use instanceof).
+      // if (this.selector === "L1-Upper-east-NorthWall-ethernet-15")
+      //   console.log(1,this.floor, this);
       if (this.floor === undefined && this.parent && this.parent.floor) {
         this.floor = this.parent.floor;
       }
@@ -57,10 +66,13 @@ export class BaseSVG {
     }
 
     this.meterPerPixel = meterPerPixel;
+
     if (redrawAll) {
       await this.draw(floor); // This draws all for the first time
     }
-    await this.redraw(floor); // this updates all the sizes after a zoom.
+    if (this.show(floor)) {
+      await this.redraw(floor); // this updates all the sizes after a zoom.
+    }
   }
 
   createSelector() {

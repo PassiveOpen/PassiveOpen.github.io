@@ -75,13 +75,6 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
           </ng-container>
 
-          <button mat-mini-fab (click)="appService.setState(States.measure)"
-            [class.active]="checkState(States.measure)">
-            <label>
-              Measurements
-            </label>
-            <mat-icon style="font-family:'Material Icons Outlined';">square_foot</mat-icon>
-          </button>
         </ng-container>
 
       </div>

@@ -51,16 +51,20 @@ export class AppTableComponent {
   columns: column[] = [
     { id: "folded", name: "", def: (x) => `${x}` },
     { id: Prop.name, name: "Name", def: (x) => `${x}` },
-    { id: "calcAmount", name: "#", def: (x, y = "x") => `${x}${y}` },
+    {
+      id: "calcAmount",
+      name: "#",
+      def: (x, y = "x") => `${x}${y}`,
+    },
     {
       id: "price",
       name: "Piece price",
-      def: (x) => `€${this.readableNumbers(x)}`,
+      def: (x) => `${this.readableNumbers(Number(x))}`,
     },
     {
       id: "calcPrice",
       name: "Sum price",
-      def: (x) => `€${this.readableNumbers(x)}`,
+      def: (x) => `${this.readableNumbers(Number(x), -2)}`,
     },
     {
       id: Prop.sizeOrVersion,
@@ -80,11 +84,14 @@ export class AppTableComponent {
 
   constructor(private houseService: HouseService) {}
 
-  readableNumbers(x: string): string {
-    if (Number(x) > 1000) {
-      return `${round(Number(x), -2).toLocaleString()}`;
+  readableNumbers(x: number, decimals?): string {
+    if (decimals !== undefined) {
+      return `€${round(x, 0).toLocaleString()}`;
     }
-    return x;
+    if (x > 1000) {
+      return `€${round(x).toLocaleString()}`;
+    }
+    return `€${x}`;
   }
 
   rowClick(row: Cost | GroupRow) {

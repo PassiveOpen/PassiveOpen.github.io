@@ -5,6 +5,7 @@ import {
   OnInit,
   Renderer2,
 } from "@angular/core";
+import { faDiscord, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { AppService } from "./app.service";
 
 @Component({
@@ -14,9 +15,11 @@ import { AppService } from "./app.service";
 })
 export class AppComponent implements OnInit, AfterViewInit {
   year = new Date().getFullYear();
-  title = this.appService.title;
   discord = this.appService.discord;
   github = this.appService.github;
+
+  faDiscord = faDiscord;
+  faGithub = faGithub;
 
   constructor(private appService: AppService) {}
 

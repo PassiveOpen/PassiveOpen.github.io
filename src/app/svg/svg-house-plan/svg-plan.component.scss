@@ -1,12 +1,14 @@
 $sensor-smoke: rgb(168, 0, 0);
 $sun-color: rgb(253, 200, 101);
 ::ng-deep {
-  .floor-ground .included-stairs-plan .floor-clip {
+  .floor-top .included-stairs-plan .floor-clip {
     clip-path: inherit;
   }
   .included-stairs-plan {
     pointer-events: none;
   }
+  
+  .sensor-dimmer,
   .sensor-pir,
   .sensor-vent-out,
   .sensor-ethernet,
@@ -21,28 +23,33 @@ $sun-color: rgb(253, 200, 101);
   .sensor-camera,
   .sensor-poe,
   .sensor-socket,
-  .sensor-light {
+  .sensor-light-bulb {
     fill: var(--accent-color);
     &.sensor-cable {
       stroke: var(--accent-color) !important;
     }
   }
 
-  .sensor-temperature,
   .sensor-alarm,
-  .sensor-dlc,
   .sensor-light-switch {
     fill: var(--first-color);
     &.sensor-cable {
       stroke: var(--first-color) !important;
     }
   }
+  .sensor-dlc,
   .sensor-wifi,
-  .sensor-blinds,
-  .sensor-dimmer {
+  .sensor-blinds {
     fill: var(--second-color);
     &.sensor-cable {
       stroke: var(--second-color) !important;
+    }
+  }
+
+  .sensor-temperature {
+    fill: var(--third-color);
+    &.sensor-cable {
+      stroke: var(--third-color) !important;
     }
   }
 
@@ -66,7 +73,7 @@ $sun-color: rgb(253, 200, 101);
 
   .selection-active {
     .g-sensor {
-      & >  *:not(.selected) {
+      & > *:not(.selected) {
         opacity: 0 !important;
       }
     }
@@ -164,14 +171,6 @@ $sun-color: rgb(253, 200, 101);
     }
 
     .g-sensor {
-      & > * {
-        // opacity: 0;
-        // pointer-events: none;
-        // overflow: visible;
-      }
-      * {
-        transition: 0.2s;
-      }
       polyline {
         transition: 0.5s;
         fill: none;
@@ -179,11 +178,6 @@ $sun-color: rgb(253, 200, 101);
         &.cable-connection {
           stroke: rgb(7, 147, 114);
         }
-      }
-      & > g {
-        transition: 0.5s;
-        fill: var(--primary-color);
-        stroke: none;
       }
     }
 
@@ -292,9 +286,9 @@ $sun-color: rgb(253, 200, 101);
 
   //<============== Sections ===============>//
   .section-welcome:not(.fullscreen) {
-    .all {
-      transform: scale(0.6) translateX(25%);
-    }
+    // .all {
+    //   transform: scale(0.6) translateX(25%);
+    // }
     .render-img {
       opacity: 1 !important;
     }
@@ -319,47 +313,6 @@ $sun-color: rgb(253, 200, 101);
       fill: var(--primary-color) !important;
     }
   }
-
-  // .section-wired-light {
-  //   .g-sensor *[class*="sensor-light-switch"],
-  //   .g-sensor *[class*="sensor-dimmer"],
-  //   .g-sensor *[class*="sensor-light"] {
-  //     opacity: 1;
-  //     pointer-events: all;
-  //   }
-  // }
-  // .section-wired-power {
-  //   .g-sensor *[class*="sensor-perilex"],
-  //   .g-sensor *[class*="sensor-socket"] {
-  //     opacity: 1;
-  //     pointer-events: all;
-  //   }
-  // }
-  // .section-wired-ethernet {
-  //   .g-sensor *[class*="sensor-poe"],
-  //   .g-sensor *[class*="sensor-wifi"],
-  //   .g-sensor *[class*="sensor-ethernet"] {
-  //     opacity: 1;
-  //     pointer-events: all;
-  //   }
-  // }
-  // .section-wired-safety {
-  //   .g-sensor *[class*="sensor-pir"],
-  //   .g-sensor *[class*="sensor-camera"],
-  //   .g-sensor *[class*="sensor-smoke"],
-  //   .g-sensor *[class*="sensor-alarm"] {
-  //     opacity: 1;
-  //     pointer-events: all;
-  //   }
-  // }
-  // .section-wired-extra {
-  //   .g-sensor *[class*="sensor-pir"],
-  //   .g-sensor *[class*="sensor-blinds"],
-  //   .g-sensor *[class*="sensor-temperature"] {
-  //     opacity: 1;
-  //     pointer-events: all;
-  //   }
-  // }
 
   //<============== Sections ===============>//
 

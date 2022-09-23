@@ -1,4 +1,5 @@
 import { sum } from "d3";
+import { Section } from "../components/enum.data";
 import { round } from "../shared/global-functions";
 
 export enum Prop {
@@ -20,10 +21,15 @@ export type column = {
 };
 
 export class CostTable {
-  name: string;
   alias: string;
   desc?: string;
+  section: Section;
+  sectionFold = false;
   costs: (Cost | GroupRow)[];
+
+  constructor(partial: Partial<CostTable>) {
+    Object.assign(this, partial);
+  }
 }
 
 export class Cost {
@@ -42,7 +48,7 @@ export class Cost {
   type = "single";
 
   get calcPrice() {
-    return round(this.amount * this.price, -3);
+    return round(this.amount * this.price, 2);
   }
   get calcAmount() {
     return this.amount;

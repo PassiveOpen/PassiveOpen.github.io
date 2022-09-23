@@ -26,6 +26,7 @@
     }
     .mat-icon {
       transition: 0.4s;
+      overflow: initial;
     }
     .title {
       cursor: initial;
@@ -49,5 +50,14 @@
   }
   &.mini > .side {
     max-height: 50px;
+  }
+}
+.version {
+  padding: 0 8px 8px;
+  color: var(--color-30);
+  white-space: nowrap;
+  span {
+    width: 20px;
+    display: inline-block;
   }
 }

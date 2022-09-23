@@ -58,28 +58,42 @@ export enum Section {
   facadeBrick = "facade-Brick",
   facadeDoor = "facade-Door",
 
-  // contruction
-  contructionFoundation = "contruction-foundation",
-  contructionCrawlerSpace = "contruction-crawler-space",
-  contructionRoof = "contruction-roof",
-  contructionFloor = "contruction-floor",
-  contructionWall = "contruction-wall",
-  contructionWallFinish = "contruction-wall-finish",
+  // construction
+  constructionWelcome = "construction-welcome",
+  constructionFoundation = "construction-foundation",
+  constructionCrawlerSpace = "construction-crawler-space",
+  constructionRoof = "construction-roof",
+  constructionFloor = "construction-floor",
+  constructionWall = "construction-wall",
+  constructionWallFinish = "construction-wall-finish",
 
-  // instaltions
-  instaltionDrinkWater = "instaltions-drink-water",
-  instaltionGreyWater = "instaltions-grey-water",
-  instaltionHeating = "instaltions-heating",
-  instaltionElectricity = "instaltions-electricity",
-  instaltionVentilation = "instaltions-ventilation",
-  instaltionSmartHome = "instaltions-smartHome",
+  // installations
+  installationWelcome = "installations-welcome",
+  installationDrinkWater = "installations-drink-water",
+  installationGreyWater = "installations-grey-water",
+  installationHeating = "installations-heating",
+  installationElectricity = "installations-electricity",
+  installationVentilation = "installations-ventilation",
+  installationSmartHome = "installations-smartHome",
 
   //wired power
+  wiredWelcome = "wired-welcome",
   wiredPower = "wired-power",
   wiredEthernet = "wired-ethernet",
   wiredSafety = "wired-safety",
   wiredExtra = "wired-extra",
   wiredLight = "wired-light",
+  wiredVent = "wired-vent",
+
+  //costs
+  costsWelcome = "costs-welcome",
+  costsConstruction = "costs-construction",
+  costsPreparations = "costs-preparations",
+  costsOpenings = "costs-openings",
+  costsElectra = "costs-electra",
+  costsFinishes = "costs-finishes",
+  costsOuterFinishes = "costs-outer-finishes",
+  costsTotals = "costs-totals",
 }
 export enum Floor {
   top = "top",
@@ -91,6 +105,7 @@ export enum Floor {
 export enum GraphicSide {
   left = "left",
   right = "right",
+  none = "none",
 }
 
 export enum Graphic {
@@ -133,6 +148,7 @@ export enum State {
   towerFootprint = "towerFootprint",
   grid = "grid",
   walkLine = "walkLine",
+  minimumHeight = "minimumHeight",
 }
 
 export enum CableType {

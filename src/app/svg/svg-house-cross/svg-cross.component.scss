@@ -57,8 +57,6 @@
     }
   }
 
-  .section-roof-edge {
-  }
   //<============== Sections ===============>//
 
   //<============== Tags ===============>//
@@ -75,7 +73,7 @@
 
   //<============== Tags ===============>//
   ////////////////////// States //////////////////////
-  .state-grey {
+  .state-silhouette {
     #building-roof-circle-wall1,
     #building-roof-circle-wall2,
     #building-roof-70-wall1,
@@ -83,8 +81,10 @@
     *[id*="-fill"]:not(#building-ground-fill) {
       fill: var(--color-90) !important;
       opacity: 1 !important;
+      stroke: var(--color-90) !important;
     }
     *[id*="-shadow"] {
+      stroke: var(--color-90) !important;
       fill: var(--color-90) !important;
     }
   }

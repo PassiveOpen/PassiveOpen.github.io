@@ -1,3 +1,8 @@
+:host {
+  ::ng-deep .floor-clip {
+    clip-path: inherit;
+  }
+}
 ::ng-deep {
   svg.stairs-plan {
     width: 100%;
@@ -5,13 +10,10 @@
     position: relative;
     transition: 0.4s;
 
-    .floor-clip {
-      clip-path: inherit;
-    }
     .left-corner-line,
     .right-corner-line,
     .middleLine {
-      stroke: blue;
+      stroke: var(--primary-color);
     }
     .step-plan-rise,
     .outline,

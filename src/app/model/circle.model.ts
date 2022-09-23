@@ -7,7 +7,7 @@ export class AppCircle extends BaseSVG {
   cx = 0;
   cy = 0;
   r = 1;
-  lineThickness = 0.2;
+  _lineThickness = 0.2;
 
   constructor(data: Partial<AppCircle>) {
     super();

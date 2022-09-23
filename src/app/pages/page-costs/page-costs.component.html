@@ -1,7 +1,14 @@
-<h1>Smart home</h1>
+<h1>What does it costs</h1>
+
 <p>
-  something about totals
+  This is a overview of all the prices. Some are fixed but most are dynamic calculated of the other inputs on this website.
+  All these prices are estimations based on on certain area, with a certain deal with a construction store.
 </p>
+
+<h3>
+  This page is still under construction. Not complete!!! Prices are not accurate
+</h3>
+
 
 <ng-container *ngFor="let d of tables">
   <ng-container *ngTemplateOutlet="simple; context: { $implicit: d}">
@@ -9,14 +16,36 @@
 </ng-container>
 
 <ng-template #simple let-data>
-  <h2 [innerHTML]="data.alias"></h2>
-  <span *ngIf="data.name === 'finish'">
-    Nice to discover alot of moldings:
-    https://en.wikipedia.org/wiki/Molding_(decorative)
-  </span>
-  <app-table [data]="data"></app-table>
+  <section [id]="data.section">
+
+    <h2 (click)="data.sectionFold  = ! data.sectionFold">
+      <mat-icon>{{!data.sectionFold?'expand_less':'expand_more'}}
+      </mat-icon>
+      {{data.alias}}
+
+    </h2>
+    <div [class.folded]="data.sectionFold">
+
+
+
+      <span *ngIf="data.section === Section.costsFinishes">
+        Nice to discover a lot of moldings:
+        <a href="https://en.wikipedia.org/wiki/Molding_(decorative)">Wikipedia Moldings</a>
+      </span>
+
+
+      <app-table [data]="data"></app-table>
+
+
+    </div>
+  </section>
 </ng-template>
 
 
-<h2>totals</h2>
-<app-table [data]="totals"></app-table>
+
+
+
+<section [id]="Section.costsTotals" style="margin-bottom: 40px;">
+  <h1>Totals</h1>
+  <app-table [data]="totals"></app-table>
+</section>

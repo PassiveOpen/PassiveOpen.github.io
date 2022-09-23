@@ -1,4 +1,6 @@
-<h1>Smart home</h1>
+<section [id]="Section.wiredWelcome">
+  <h1>Smart home</h1>
+</section>
 
 
 
@@ -216,6 +218,33 @@
 </section>
 
 
+<section [id]="Section.wiredVent">
+  <h2>
+    Ventilation
+  </h2>
 
-<app-svg class="sensor-{{SensorType.ventIn}}" url="assets/svg/{{SensorType.ventIn}}.svg"></app-svg>
-<app-svg class="sensor-{{SensorType.ventOut}}" url="assets/svg/{{SensorType.ventOut}}.svg"></app-svg>
+  <h3>
+    <app-svg class="sensor-{{SensorType.ventIn}}" url="assets/svg/{{SensorType.ventIn}}.svg"></app-svg>
+    <span>Ventilation in</span>
+  </h3>
+  <p>
+    Fresh air is needed in the bedrooms and main living rooms. It flows to the other parts of the house. Mainly because
+    the air-intake in other rooms
+  </p>
+
+  <h3>
+    <app-svg class="sensor-{{SensorType.ventOut}}" url="assets/svg/{{SensorType.ventOut}}.svg"></app-svg>
+    <span>Ventilation out</span>
+  </h3>
+  <p>
+    The air intakes are in the rooms with 'dirty' air. Of course the toilets, but also the bathroom/kitchen due to
+    moisture and smells.
+  </p>
+
+  <p>
+    Read more about ventilation on the installation page!
+  </p>
+
+</section>
+
+<disqus identifier="PassiveOpen-Wired"></disqus>

@@ -6,33 +6,33 @@ import {
   HostListener,
   OnDestroy,
   ViewChild,
-} from '@angular/core';
-import gsap from 'gsap';
-import { BehaviorSubject, Subscription, throttleTime } from 'rxjs';
-import { AppService } from 'src/app/app.service';
-import { Section, Tag } from 'src/app/components/enum.data';
-import { HouseService } from 'src/app/house/house.service';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { ThreeService } from '../../../3d/three-window.service';
+} from "@angular/core";
+import gsap from "gsap";
+import { BehaviorSubject, Subscription, throttleTime } from "rxjs";
+import { AppService } from "src/app/app.service";
+import { Section, Tag } from "src/app/components/enum.data";
+import { HouseService } from "src/app/house/house.service";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { ThreeService } from "../../../3d/three-window.service";
 
 export enum ModelParts {
-  OSB = 'OSB',
-  Insulation = 'Insulation',
-  construction = 'construction',
-  drywall = 'drywall',
-  serviceStuds = 'serviceStuds',
-  tapes = 'tapes',
-  floorBeam = 'floorBeam',
+  OSB = "OSB",
+  Insulation = "Insulation",
+  construction = "construction",
+  drywall = "drywall",
+  serviceStuds = "serviceStuds",
+  tapes = "tapes",
+  floorBeam = "floorBeam",
 }
 
 @Component({
-  selector: 'app-three-window',
-  templateUrl: './three-window.component.html',
-  styleUrls: ['./three-window.component.scss'],
+  selector: "app-three-window",
+  templateUrl: "./three-window.component.html",
+  styleUrls: ["./three-window.component.scss"],
 })
 export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('rendererContainer') rendererContainer: ElementRef;
+  @ViewChild("rendererContainer") rendererContainer: ElementRef;
   resize$ = new BehaviorSubject(undefined);
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -43,7 +43,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
   subscriptions: Subscription[] = [];
   observer: ResizeObserver;
 
-  modelName = 'wallDetail';
+  modelName = "wallDetail";
   model: THREE.Scene;
 
   section: Section;
@@ -146,12 +146,12 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
       (model: THREE.Scene) => {
         this.model = model;
         this.model.children.forEach((mesh: THREE.Mesh) => {
-          mesh.userData['position'] = mesh.position.clone();
+          mesh.userData["position"] = mesh.position.clone();
           (mesh.material as THREE.MeshBasicMaterial).transparent = true;
         });
         this.setSubModels();
         this.sectionShowing(true);
-        console.log('Complete model:', model);
+        console.log("Complete model:", model);
       }
     );
   }
@@ -159,27 +159,27 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
     this.subModels[ModelParts.Insulation] = this.model.children.filter(
       (mesh) => {
         const name = mesh.name.toLocaleLowerCase();
-        return name.includes('iso') || name.includes('iso');
+        return name.includes("iso") || name.includes("iso");
       }
     ) as THREE.Mesh[];
 
     this.subModels[ModelParts.OSB] = this.model.children.filter((mesh) =>
-      mesh.name.toLocaleLowerCase().includes('g-__')
+      mesh.name.toLocaleLowerCase().includes("g-__")
     ) as THREE.Mesh[];
 
     this.subModels[ModelParts.construction] = this.model.children.filter(
       (mesh) => {
         const name = mesh.name.toLocaleLowerCase();
-        return name.includes('joist') || name.includes('stud');
+        return name.includes("joist") || name.includes("stud");
       }
     ) as THREE.Mesh[];
 
     this.subModels[ModelParts.drywall] = this.model.children.filter((mesh) =>
-      mesh.name.toLocaleLowerCase().includes('gips')
+      mesh.name.toLocaleLowerCase().includes("gips")
     ) as THREE.Mesh[];
 
     this.subModels[ModelParts.serviceStuds] = this.model.children.filter(
-      (mesh) => mesh.name.toLocaleLowerCase().includes('service')
+      (mesh) => mesh.name.toLocaleLowerCase().includes("service")
     ) as THREE.Mesh[];
   }
 
@@ -189,7 +189,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
     }
     console.log(this.section, this.subModels);
 
-    if ([Section.contructionFoundation].includes(this.section)) {
+    if ([Section.constructionFoundation].includes(this.section)) {
       this.showingSubModels = {
         [ModelParts.Insulation]: false,
         [ModelParts.OSB]: false,
@@ -201,7 +201,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
       };
     }
 
-    if ([Section.contructionCrawlerSpace].includes(this.section)) {
+    if ([Section.constructionCrawlerSpace].includes(this.section)) {
       this.showingSubModels = {
         [ModelParts.Insulation]: false,
         [ModelParts.OSB]: true,
@@ -227,9 +227,9 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
 
     this.toggleInsulation();
     this.toggleOSB();
-    this.toggleContruction();
+    this.toggleConstruction();
   }
-  toggleContruction() {
+  toggleConstruction() {
     const model = this.subModels[ModelParts.Insulation];
     if (!model) {
       return;
@@ -237,13 +237,13 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
     const show = this.showingSubModels[ModelParts.Insulation];
     model.forEach((mesh: THREE.Mesh) => {
       const mat = mesh.material as THREE.MeshBasicMaterial;
-      const pos = mesh.userData['position'];
+      const pos = mesh.userData["position"];
 
       if (show) {
         gsap.to(mat, {
           opacity: 1,
           duration: 1,
-          ease: 'power1.out',
+          ease: "power1.out",
         });
         console.log(mesh.position.y, pos.y);
 
@@ -256,7 +256,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
             {
               y: pos.y,
               duration: 1,
-              ease: 'power1.out',
+              ease: "power1.out",
             }
           );
         }
@@ -264,7 +264,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
         gsap.to(mat, {
           opacity: 0,
           duration: 0.3,
-          ease: 'power1.out',
+          ease: "power1.out",
         });
       }
     });
@@ -277,13 +277,13 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
     const show = this.showingSubModels[ModelParts.Insulation];
     model.forEach((mesh: THREE.Mesh) => {
       const mat = mesh.material as THREE.MeshBasicMaterial;
-      const pos = mesh.userData['position'];
+      const pos = mesh.userData["position"];
 
       if (show) {
         gsap.to(mat, {
           opacity: 1,
           duration: 1,
-          ease: 'power1.out',
+          ease: "power1.out",
         });
         console.log(mesh.position.y, pos.y);
 
@@ -296,7 +296,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
             {
               y: pos.y,
               duration: 1,
-              ease: 'power1.out',
+              ease: "power1.out",
             }
           );
         }
@@ -304,7 +304,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
         gsap.to(mat, {
           opacity: 0,
           duration: 0.3,
-          ease: 'power1.out',
+          ease: "power1.out",
         });
       }
     });
@@ -317,7 +317,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
     }
     model.forEach((mesh: THREE.Mesh) => {
       const mat = mesh.material as THREE.MeshBasicMaterial;
-      const pos = mesh.userData['position'];
+      const pos = mesh.userData["position"];
       mat.transparent = true;
 
       console.log(mesh);
@@ -330,7 +330,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
           {
             opacity: 0,
             duration: 0.3,
-            ease: 'power1.out',
+            ease: "power1.out",
           }
         );
       } else {
@@ -342,7 +342,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
           {
             opacity: 1,
             duration: 1,
-            ease: 'power1.out',
+            ease: "power1.out",
           }
         );
         gsap.fromTo(
@@ -353,7 +353,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
           {
             y: pos.y,
             duration: 1,
-            ease: 'power1.out',
+            ease: "power1.out",
           }
         );
       }
@@ -367,7 +367,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
     }
     model.forEach((mesh: THREE.Mesh) => {
       const mat = mesh.material as THREE.MeshBasicMaterial;
-      const pos = mesh.userData['position'];
+      const pos = mesh.userData["position"];
       mat.transparent = true;
 
       console.log(mesh);
@@ -380,7 +380,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
           {
             opacity: 0,
             duration: 0.3,
-            ease: 'power1.out',
+            ease: "power1.out",
           }
         );
       } else {
@@ -392,7 +392,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
           {
             opacity: 1,
             duration: 1,
-            ease: 'power1.out',
+            ease: "power1.out",
           }
         );
         gsap.fromTo(
@@ -403,7 +403,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
           {
             y: pos.y,
             duration: 1,
-            ease: 'power1.out',
+            ease: "power1.out",
           }
         );
       }

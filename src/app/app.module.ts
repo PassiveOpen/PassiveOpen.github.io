@@ -35,32 +35,34 @@ import { AppTableComponent } from "./components/table/table.component";
 import { PageCostsComponent } from "./pages/page-costs/page-costs.component";
 import { SafeHtmlPipe } from "./shared/safehtml.pipe";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { PageAboutComponent } from "./pages/page-about/page-about.component";
 
 @NgModule({
   declarations: [
     AppComponent,
-    PageMapComponent,
     SideMenuComponent,
     ThreeWindowComponent,
+    AppSVGComponent,
+    SvgComponent,
+    SvgCrossComponent,
+    SvgStairsComponent,
+    SvgStairPlanComponent,
+    TagComponent,
     PageHouseComponent,
     PageStairsComponent,
-    SvgComponent,
-    AppSVGComponent,
-    SvgCrossComponent,
-    TagComponent,
     PageInstallationsComponent,
+    PageAboutComponent,
     PageConstructionComponent,
     PageWiredComponent,
     PageCostsComponent,
-    SvgStairsComponent,
-    SvgStairPlanComponent,
+    PageMapComponent,
     PageFacadeComponent,
+    PageCostsComponent,
     TooltipComponent,
     OverlayDirective,
     ControlsComponent,
     AppMainPageComponent,
     SafeHtmlPipe,
-    PageCostsComponent,
     AppTableComponent,
   ],
   imports: [
@@ -70,7 +72,7 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
     FlexLayoutModule,
     HttpClientModule,
     FontAwesomeModule,
-    // DisqusModule.forRoot('passiv'),
+    DisqusModule.forRoot('passiv'),
     RouterModule.forRoot(routes, {
       anchorScrolling: "enabled",
       // onSameUrlNavigation: "reload",

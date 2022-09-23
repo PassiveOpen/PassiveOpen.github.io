@@ -58,6 +58,15 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
     super(houseService, appService, tooltipService, host, d3Service);
   }
 
+  override svgSpecificUpdate() {
+    const scroll = this.appService.scroll$.value;
+    if (this.appService.fullscreen$.value === true) return;
+    if (scroll.section === Section.welcome) {
+      this.g.attr("transform", "transform: scale(0.6) translateX(25%)");
+    } else {
+      this.g.attr("transform", "");
+    }
+  }
   ngAfterViewInit(): void {
     this.svgLoaders.push(
       this.d3Service.loadSVG("assets/models/sun.svg", ".g-sun", (selector) => {
@@ -91,7 +100,7 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
     }
 
     this.setUp();
-    // this.setStairs();
+    this.setStairs();
 
     this.renderImg = this.svg
       .select(".render-img")
@@ -109,7 +118,7 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
     const margin = this.house.studDistance * 3;
     this.marginInMeters = [margin, margin, margin, margin];
     this.drawingSize = [
-      [0, -this.house.extensionToSouth],
+      [0, 0],
       [this.house.houseWidth, this.house.houseLength],
     ];
     this.scaleRenderImage();
@@ -123,14 +132,9 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
 
     const g = this.svg.select(".plan-stair-plan");
 
-    this.svg.on("mousedown.drag", null);
+    // this.svg.on("mousedown.drag", null);
     (g.select(".plan-stair-plan").node() as any).replaceWith(svg);
     svg.classList.add("plan-stair-plan");
-    setTimeout(() => {
-      console.log(" updateSVG stairs");
-
-      this.updateSVG();
-    }, 0);
   }
   scaleStairs() {
     this.svg

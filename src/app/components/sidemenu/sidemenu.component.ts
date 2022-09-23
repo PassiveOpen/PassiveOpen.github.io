@@ -1,5 +1,6 @@
 import { Component, HostBinding, OnInit } from '@angular/core';
 import { AppService } from 'src/app/app.service';
+import packageJson from '../../../../package.json';
 
 @Component({
   selector: 'app-sidemenu',
@@ -9,6 +10,8 @@ import { AppService } from 'src/app/app.service';
 export class SideMenuComponent implements OnInit {
   @HostBinding('class.mini') mini = false;
   @HostBinding('class.collapsed') collapsed = true;
+
+  version: string = packageJson.version;
 
   title = this.appService.title;
 

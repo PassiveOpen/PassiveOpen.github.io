@@ -9,9 +9,11 @@ import {
   BehaviorSubject,
   catchError,
   concatAll,
+  distinct,
   filter,
   first,
   from,
+  map,
   merge,
   mergeMap,
   of,
@@ -146,7 +148,6 @@ export class BasicSVG {
           this.appService.fullscreen$.pipe(
             tap((fullscreen) => {
               if (fullscreen) {
-                // ToDo check
                 this.svg.call(
                   d3.zoom().on("zoom", (e) => {
                     this.setTransform(e.transform, 0);
@@ -167,16 +168,20 @@ export class BasicSVG {
         ).subscribe((x) => {
           // console.log("scroll");
         }),
-        merge(
-          this.house$.pipe(
+        merge(this.appService.update$, this.house$)
+          .pipe(
             tap((x) => {
               const house = this.house$.value;
               this.house = house;
               this.cross = house.cross;
               this.stair = house.stair;
             })
-          ),
-          this.appService.update$,
+          )
+          .subscribe((x) => {
+            this.updateSVG(true);
+          }),
+        merge(
+          this.appService.states$,
           this.appService.svgTransform$.pipe(
             tap((svgTransform) => {
               if (this.loaded) return;
@@ -188,15 +193,14 @@ export class BasicSVG {
             })
           ),
           this.resize$.pipe(
-            throttleTime(10),
+            throttleTime(10)
             // tap((x) => console.log("scrollresize"))
           )
         )
           .pipe(
             filter((x) => {
               return this.house !== undefined;
-            }),
-            throttleTime(600)
+            })
           )
           .subscribe((x) => {
             this.updateSVG();
@@ -207,21 +211,20 @@ export class BasicSVG {
     this.loaded = true;
   }
 
-  setTransform(transform: any = "translate(0,0) scale(1)", duration = 100) {
+  setTransform(transform: any = "translate(0,0) scale(1)", duration = 10000) {
     if (this.loaded) {
       this.appService.setTransformCookie(transform, this.graphic);
     }
-    // console.log('set ', transform);
     this.g
-      .transition()
-      .duration(duration)
-      .attr("transform", transform)
-      .on("end", () => {
-        this.updateSVG();
-      });
+      //   // .transition()
+      //   // .duration(duration)
+      .attr("transform", transform);
+    //   .on("end", () => {
+    //     this.updateSVG();
+    //   });
   }
 
-  updateSVG() {
+  updateSVG(forceUpdate = false) {
     this.tooltipService.updateOverlay();
     this.svgUpdateMarginAndSize();
 
@@ -243,7 +246,9 @@ export class BasicSVG {
     );
     const scaleW = round(widthMeter / svgW);
     const scaleH = round(heightMeter / svgH);
-    this.meterPerPixel = Math.max(scaleW, scaleH) / this.getScale();
+    const meterPerPixel = Math.max(scaleW, scaleH) / this.getScale();
+    const zoomed = this.meterPerPixel !== meterPerPixel;
+    this.meterPerPixel = meterPerPixel;
 
     const margin = this.marginInPixels.map((x) =>
       round(x * this.meterPerPixel)
@@ -263,20 +268,30 @@ export class BasicSVG {
         );
     }
 
-    const stringCache = `${this.appService.floor$.value}${this.graphic}${this.meterPerPixel}`;
+    const stringCache = [
+      this.appService.floor$.value,
+      this.appService.scroll$.value.section,
+      Object.entries(this.appService.states$.value)
+        .filter(([k, v]) => v === true)
+        .map(([k, v]) => k),
+      this.graphic,
+    ].join("-");
     const redrawAll =
       this.stringCache !== stringCache || this.stringCache === "";
     this.stringCache = stringCache;
-    console.log(stringCache);
+    if (forceUpdate === false && !(redrawAll || zoomed)) return;
+    // console.log(stringCache, zoomed, forceUpdate);
 
-    if (redrawAll === false) return;
+    this.svgSpecificUpdate();
+
     this.house.redrawHouse(
       this.appService.floor$.value,
       this.graphic,
       this.meterPerPixel,
-      redrawAll
+      redrawAll || forceUpdate
     );
   }
+  svgSpecificUpdate() {}
 
   getScale(): number {
     const r = /scale\(\d+\.?\d*/g.exec(this.g.attr("transform"));

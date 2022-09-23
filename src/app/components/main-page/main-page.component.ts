@@ -18,7 +18,7 @@ import {
 import { AppService } from "src/app/app.service";
 import { RoofStyle } from "src/app/house/cross.model";
 import { HouseService } from "src/app/house/house.service";
-import { VisibleService } from "src/app/house/visible.service";
+import { StateService } from "src/app/house/visible.service";
 import { round } from "src/app/shared/global-functions";
 import { animationFallInOut, animationSlideInOut } from "../animations";
 import { Graphic, GraphicSide, State, Section, Tag } from "../enum.data";
@@ -54,8 +54,8 @@ export class AppMainPageComponent implements AfterViewInit {
   cssStates$ = this.states$.pipe(
     map((stateObj) =>
       Object.entries(stateObj)
-        .filter((state, bool) => bool)
-        .map((state, bool) => `state-${state}`)
+        .filter(([state, bool]) => bool === true)
+        .map(([state, bool]) => `state-${state}`)
         .join(" ")
     )
   );
@@ -68,7 +68,7 @@ export class AppMainPageComponent implements AfterViewInit {
     private houseService: HouseService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private visibleService: VisibleService // creates a instance of this service
+    private stateService: StateService // creates a instance of this service
   ) {
     fromEvent(window, "scroll")
       // .pipe(throttleTime(600))
@@ -110,14 +110,17 @@ export class AppMainPageComponent implements AfterViewInit {
 
   calcSection() {
     this.section = this.getSection();
-    if (this.section === undefined) return;
-    this.graphic = this.setGraphic(this.section);
-    this.graphicSide = this.getSide();
-    this.visibleService.updateStateBasedOnSection(this.section, this.loaded);
+    if (this.section === undefined) {
+      this.graphic = Graphic.none;
+      this.graphicSide = GraphicSide.none
+    } else {
+      this.graphic = this.setGraphic(this.section);
+      this.graphicSide = this.getSide();
 
-    document
-      .querySelector(`section#${this.section}`)
-      .classList.add("section-active");
+      document
+        .querySelector(`section#${this.section}`)
+        .classList.add("section-active");
+    }
 
     this.appService.scroll$.next({
       scroll: round(window.pageYOffset, 0),
@@ -126,6 +129,9 @@ export class AppMainPageComponent implements AfterViewInit {
       graphicSide: this.graphicSide,
       graphic: this.graphic,
     });
+
+    // should be after scroll$.next
+    this.stateService.updateStateBasedOnSection(this.section, this.loaded);
 
     const queryParams: Params = {
       section: this.section,
@@ -150,7 +156,7 @@ export class AppMainPageComponent implements AfterViewInit {
   }
 
   setGraphic(section: Section): Graphic {
-    let graphic;
+    let graphic = Graphic.none;
     if (
       [
         Section.welcome,
@@ -158,11 +164,13 @@ export class AppMainPageComponent implements AfterViewInit {
         Section.basics,
         Section.extensions,
         Section.tower,
+        Section.wiredWelcome,
         Section.wiredPower,
         Section.wiredEthernet,
         Section.wiredExtra,
         Section.wiredLight,
         Section.wiredSafety,
+        Section.wiredVent,
       ].includes(section)
     ) {
       graphic = Graphic.plan;
@@ -211,28 +219,30 @@ export class AppMainPageComponent implements AfterViewInit {
     }
     if (
       [
-        Section.contructionCrawlerSpace,
-        Section.contructionFloor,
-        Section.contructionFoundation,
-        Section.contructionRoof,
-        Section.contructionWall,
-        Section.contructionWallFinish,
+        Section.constructionWelcome,
+        Section.constructionCrawlerSpace,
+        Section.constructionFloor,
+        Section.constructionFoundation,
+        Section.constructionRoof,
+        Section.constructionWall,
+        Section.constructionWallFinish,
       ].includes(section)
     ) {
       graphic = Graphic.window;
     }
     if (
       [
-        Section.instaltionDrinkWater,
-        Section.instaltionElectricity,
-        Section.instaltionGreyWater,
-        Section.instaltionHeating,
-        Section.instaltionSmartHome,
-        Section.instaltionVentilation,
+        Section.installationDrinkWater,
+        Section.installationElectricity,
+        Section.installationGreyWater,
+        Section.installationHeating,
+        Section.installationSmartHome,
+        Section.installationVentilation,
       ].includes(section)
     ) {
       graphic = Graphic.none;
     }
+
     if (this.graphic !== graphic) {
       console.log("Swap side!");
       this.tooltipService.detachOverlay();

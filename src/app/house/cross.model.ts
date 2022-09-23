@@ -102,6 +102,7 @@ export class Cross {
     //   }),
     // ];
   }
+
   calculate(house) {
     this.house = house;
     this.innerWidth = this.house.outerBase;

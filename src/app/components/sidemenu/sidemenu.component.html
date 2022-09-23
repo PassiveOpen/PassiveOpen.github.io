@@ -21,11 +21,11 @@
       <mat-icon style="font-family:'Material Icons Outlined';">stairs</mat-icon>
       <span>Stairs</span>
     </button>
-    <button mat-list-item routerLink="/facade" [disabled]="facade.isActive" #facade="routerLinkActive"
+    <!-- <button mat-list-item routerLink="/facade" [disabled]="facade.isActive" #facade="routerLinkActive"
       routerLinkActive="active" (click)="click()">
       <mat-icon>roofing</mat-icon>
       <span>Façade</span>
-    </button>
+    </button> -->
     <button mat-list-item routerLink="/construction" [disabled]="construction.isActive" #construction="routerLinkActive"
       routerLinkActive="active" (click)="click()">
       <mat-icon>handyman</mat-icon>
@@ -36,7 +36,7 @@
       <mat-icon>bolt</mat-icon>
       <span>Wired</span>
     </button>
-    <button mat-list-item routerLink="/costs" [disabled]="wired.isActive" #wired="routerLinkActive"
+    <button mat-list-item routerLink="/costs" [disabled]="costs.isActive" #costs="routerLinkActive"
       routerLinkActive="active" (click)="click()">
       <mat-icon style="font-family:'Material Icons Outlined';">savings</mat-icon>
       <span>Costs</span>
@@ -46,10 +46,15 @@
       <mat-icon>solar_power</mat-icon>
       <span>Installations</span>
     </button>
-    <button mat-list-item routerLink="/map" [disabled]="map.isActive" #map="routerLinkActive" routerLinkActive="active"
+    <!-- <button mat-list-item routerLink="/map" [disabled]="map.isActive" #map="routerLinkActive" routerLinkActive="active"
       (click)="click()">
       <mat-icon>pin_drop</mat-icon>
       <span>Map</span>
+    </button> -->
+    <button mat-list-item routerLink="/about" [disabled]="about.isActive" #about="routerLinkActive"
+      routerLinkActive="active" (click)="click()">
+      <mat-icon>people_outline</mat-icon>
+      <span>About us</span>
     </button>
 
     <div fxFlex="1 1"></div>
@@ -64,6 +69,8 @@
       </span>
 
     </button>
+
+    <div class="version">{{version}} <span></span> Version</div>
 
     <button mat-list-item (click)="collapsed = !collapsed" style="opacity: 0.7;">
       <mat-icon [ngStyle]="{'transform': 'rotate('+

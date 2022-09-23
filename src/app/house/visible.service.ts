@@ -19,7 +19,7 @@ import { state } from "@angular/animations";
 @Injectable({
   providedIn: "root",
 })
-export class VisibleService {
+export class StateService {
   states: StateObj;
   house: House;
   cross: Cross;
@@ -38,15 +38,12 @@ export class VisibleService {
     });
   }
 
-  buildState(arr, states: StatesExtended[], bool: boolean) {
-    states.forEach((state) => {
-      arr[state] = bool;
-    });
-  }
+  /**
+   * Updates state$ once based on sections
+   */
   updateStateBasedOnSection(section: Section, checkCookie) {
     if (this.section === section) return;
     this.section = section;
-    // console.log("updateStateBasedOnSection");
 
     const arr = this.appService.states$.value;
     this.buildState(arr, [State.grid], [Section.basics].includes(section));
@@ -59,7 +56,7 @@ export class VisibleService {
 
     this.buildState(
       arr,
-      [State.measure],
+      [State.measure,State.minimumHeight],
       [
         Section.stairBasic,
         Section.stairCheck,
@@ -88,6 +85,11 @@ export class VisibleService {
     );
     this.buildState(
       arr,
+      [SensorType.ventIn, SensorType.ventOut],
+      [Section.wiredVent].includes(section)
+    );
+    this.buildState(
+      arr,
       [
         SensorType.dimmer,
         SensorType.dlc,
@@ -113,9 +115,14 @@ export class VisibleService {
     );
     this.appService.commitState(arr);
   }
+
+  /**
+   * Filter all baseSVGs
+   */
   filterOut() {
     // console.log("filterOut");
 
+    // minimumHeight
     //// ========== towerFootprint ==========
     this.house.tower.footprintVisible = this.states[State.towerFootprint];
 
@@ -155,5 +162,11 @@ export class VisibleService {
       .forEach((x: Sensor<any>) => {
         x.visible = this.states[x.sensorType];
       });
+  }
+
+  buildState(arr, states: StatesExtended[], bool: boolean) {
+    states.forEach((state) => {
+      arr[state] = bool;
+    });
   }
 }

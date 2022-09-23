@@ -1,7 +1,7 @@
 @use "@angular/material" as mat;
 @use "sass:map";
 @use "@angular/material/theming";
-// @use "ol/ol.css";
+// @import "~ol/ol.css";
 @import "theme";
 @include mat.core();
 
@@ -57,6 +57,21 @@ a {
   }
 }
 
+a.larger-link {
+  background: var(--color-30);
+  padding: 0 6px;
+  color: white;
+  height: 1.7em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  &:hover {
+    transition: 0.2s;
+    background: var(--color-50) !important;
+    color: var(--color-0) !important;
+  }
+}
 // Sliders
 section > label {
   width: 100%;

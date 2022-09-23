@@ -1,4 +1,4 @@
-<table mat-table [dataSource]="dataSource" class="mat-elevation-z0" multiTemplateDataRows id="table-{{costTable.name}}">
+<table mat-table [dataSource]="dataSource" class="mat-elevation-z0" multiTemplateDataRows id="table-{{costTable.section}}">
   <ng-container [matColumnDef]="col['id']" *ngFor="let col of columns">
     <th mat-header-cell *matHeaderCellDef> {{col['name']}} </th>
     <td mat-cell *matCellDef="let row">

@@ -20,7 +20,7 @@ export class Measure extends BaseSVG {
   offsetPixels = 0;
   offsetMeters = 0;
   direction = 90;
-  lineThickness = 0.6;
+  _lineThickness = 0.6;
 
   decimals = 1;
   classes = ["measure"];
@@ -85,8 +85,7 @@ export class Measure extends BaseSVG {
       this.svg.style("visibility", "");
     }
 
-    this.svgLine
-      .attr("points", [this.a, a, aX, bX, b, this.b].join(" "))
+    this.svgLine.attr("points", [this.a, a, aX, bX, b, this.b].join(" "));
 
     this.svgText
       .attr("text-anchor", "middle")

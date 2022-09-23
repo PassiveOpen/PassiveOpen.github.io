@@ -25,7 +25,6 @@ export class AppStairPlan extends BaseSVG {
   nextWalkLineXY: xy = [0, 0];
   stringerXY: xy = [0, 0];
   nextStingerXY: xy = [0, 0];
-  lineThickness = 1;
   stringers: Stringers;
 
   constructor(data: Partial<AppStairPlan>) {
@@ -83,47 +82,41 @@ export class AppStairPlan extends BaseSVG {
 
     const corner1 = this.stringers.out.coords[1];
     const corner2 = this.stringers.out.coords[2];
-    let outerCorner = null
-    let innerCorner = null
+    let outerCorner = null;
+    let innerCorner = null;
 
-    if(corner1[1] !== outerStinger[1] && corner1[1] === nextOuterStinger[1]){
-      innerCorner = this.stringers.in.coords[1]
-      outerCorner = this.stringers.out.coords[1]
+    if (corner1[1] !== outerStinger[1] && corner1[1] === nextOuterStinger[1]) {
+      innerCorner = this.stringers.in.coords[1];
+      outerCorner = this.stringers.out.coords[1];
     }
-    if(corner2[0] !== outerStinger[0] && corner2[0] === nextOuterStinger[0]){
-      innerCorner = this.stringers.in.coords[2]
-      outerCorner = this.stringers.out.coords[2]
+    if (corner2[0] !== outerStinger[0] && corner2[0] === nextOuterStinger[0]) {
+      innerCorner = this.stringers.in.coords[2];
+      outerCorner = this.stringers.out.coords[2];
     }
 
-
-    this.svgStep
-      .attr("stroke-width", this.meterPerPixel * this.lineThickness)
-      .attr(
-        "points",
-        [
-          this.walkLineXY,
-          this.stringerXY,
+    this.svgStep.attr(
+      "points",
+      [
+        this.walkLineXY,
+        this.stringerXY,
         innerCorner,
-          this.nextStingerXY,
-          this.nextWalkLineXY,
-          nextOuterStinger,
-          outerCorner,
-          outerStinger,
-        ].join(" ")
-      );
+        this.nextStingerXY,
+        this.nextWalkLineXY,
+        nextOuterStinger,
+        outerCorner,
+        outerStinger,
+      ].join(" ")
+    );
 
-    this.svgRise
-      .attr("stroke-width", this.meterPerPixel * this.lineThickness * 1)
-      .attr(
-        "points",
-        [
-          angleXY(riseDeg + 90, this.parent.nose, outerStinger),
-          angleXY(riseDeg + 90, this.parent.nose, this.stringerXY),
-        ].join(" ")
-      );
+    this.svgRise.attr(
+      "points",
+      [
+        angleXY(riseDeg + 90, this.parent.nose, outerStinger),
+        angleXY(riseDeg + 90, this.parent.nose, this.stringerXY),
+      ].join(" ")
+    );
 
     this.svgText
-      .attr("font-size", this.fontSize * this.meterPerPixel)
       .attr("text-anchor", "middle")
       .attr("dominant-baseline", "middle")
       .attr("transform", `translate(${textXY[0]}, ${textXY[1]})`)
@@ -134,5 +127,23 @@ export class AppStairPlan extends BaseSVG {
     //   `translate(${this.walkLineXY[0]}, ${this.walkLineXY[1]})`
     // );
     this.setClass(this.svg);
+  }
+
+  redraw(floor: Floor) {
+    if (this.svgText) {
+      this.svgText.attr("font-size", this.meterPerPixel * this.fontSize);
+    }
+    if (this.svgRise) {
+      this.svgRise.attr(
+        "stroke-width",
+        this.meterPerPixel * this.lineThickness * 1
+      );
+    }
+    if (this.svgStep) {
+      this.svgStep.attr(
+        "stroke-width",
+        this.meterPerPixel * this.lineThickness * 1
+      );
+    }
   }
 }

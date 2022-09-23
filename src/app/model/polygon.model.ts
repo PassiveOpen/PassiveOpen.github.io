@@ -1,11 +1,11 @@
-import * as d3 from 'd3';
-import { Floor } from '../components/enum.data';
-import { BaseSVG } from './base.model';
+import * as d3 from "d3";
+import { Floor } from "../components/enum.data";
+import { xy } from "../house/house.model";
+import { BaseSVG } from "./base.model";
 
 export class AppPolygon extends BaseSVG {
-  name = '';
-  coords: [number, number][] = [];
-  lineThickness = 1;
+  name = "";
+  coords: xy[] = [];
 
   constructor(data: Partial<AppPolygon>) {
     super();
@@ -18,14 +18,14 @@ export class AppPolygon extends BaseSVG {
     }
 
     if (!this.show(floor)) {
-      this.svg.attr('points', '');
+      this.svg.attr("points", "");
       return;
     }
 
     this.svg
-      .attr('points', this.coords.join(' '))
-      .attr('stroke-width', this.meterPerPixel * this.lineThickness)
-      .attr('transform', this.transform);
+      .attr("points", this.coords.join(" "))
+      .attr("stroke-width", this.meterPerPixel * this.lineThickness)
+      .attr("transform", this.transform);
     this.setClass(this.svg);
   }
 }

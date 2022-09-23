@@ -801,7 +801,7 @@ export class House extends HouseUser {
     meterPerPixel: number,
     redrawAll
   ) {
-    console.log("redrawHouse:", redrawAll);
+    // console.log("redrawHouse:", redrawAll);
 
     const loop = (theme, parent) => {
       parent.parts.forEach(async (part: BaseSVG) => {
@@ -813,6 +813,7 @@ export class House extends HouseUser {
 
     if (graphic === Graphic.plan) {
       loop(this, this);
+      loop(this.stair, this.stair);
     }
     if (graphic === Graphic.cross) {
       loop(this.cross, this.cross);

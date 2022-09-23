@@ -32,7 +32,7 @@
     }
     .measure {
       text {
-        stroke: white;
+        stroke: var(--color-0);
         paint-order: stroke;
       }
       &#rise-size,

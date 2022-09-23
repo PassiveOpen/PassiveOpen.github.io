@@ -31,8 +31,8 @@
       </div>
       <div class="floating floating-right">
         <ng-container *ngIf="graphic === Graphic.plan">
-          <!-- <app-svg-stair-plan [isChild]="true" class="svg-plan-stair-plan" fxFlex="0 0 0">
-          </app-svg-stair-plan> -->
+          <app-svg-stair-plan [isChild]="true" class="svg-plan-stair-plan" fxFlex="0 0 0">
+          </app-svg-stair-plan>
           <app-svg-plan class="svg-plan"></app-svg-plan>
         </ng-container>
 
@@ -40,11 +40,11 @@
           <app-three-window></app-three-window>
         </ng-container>
         <ng-container *ngIf="graphic === Graphic.stairPlan">
-          <app-svg-stair-plan  class="svg-stair-plan">
+          <app-svg-stair-plan class="svg-stair-plan">
           </app-svg-stair-plan>
         </ng-container>
         <ng-container *ngIf="graphic === Graphic.stairCross">
-          <app-svg-stair-steps  class="svg-stair-steps">
+          <app-svg-stair-steps class="svg-stair-steps">
           </app-svg-stair-steps>
         </ng-container>
       </div>
