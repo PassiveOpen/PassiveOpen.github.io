@@ -17,17 +17,18 @@ import {
   round,
 } from "../../shared/global-functions";
 import { Window, WindowForm } from "../../model/specific/window.model";
-import { Sensor } from "../../model/specific/sensor.model";
+import { Sensor } from "../../model/specific/sensors/sensor.model";
 import { lindeLundUpstairs } from "./lindeLund.upstairs";
 import { Footprint } from "src/app/model/specific/footprint";
-import { SensorLight } from "src/app/model/specific/sensors/sensor.model";
+import { SensorLight } from "src/app/model/specific/sensors/sensorLight.model";
 import { Vent } from "src/app/model/specific/sensors/vent.model";
+import { Water } from "src/app/model/specific/sensors/water.model";
 
 export const lindeLund: HouseUser = {
   studAmount: 12,
   studDistance: 0.61,
   towerWidth: 1,
-  wallInnerThickness: 0.2,
+  wallInnerThickness: 0.07,
   wallOuterThickness: 0.4,
   roof70DegOffset: 1,
   studAmountNorth: 14,
@@ -1389,6 +1390,23 @@ export const lindeLund: HouseUser = {
                   },
                 })
             ),
+
+            ...[SensorType.drain, SensorType.waterWarm].map(
+              (sensorType) =>
+                new Water<Wall>({
+                  sensorType,
+                  onUpdate: function (this: Sensor<Wall>, house: House) {
+                    const wall = this.parent;
+                    const room = wall.parent;
+                    const point = wall.getPosition(WallSide.in, 0, 1.5);
+                    this.points = [
+                      point,
+                      mixPoints(house.serverRoom, point, true),
+                      house.serverRoom,
+                    ];
+                  },
+                })
+            ),
           ],
         }),
 
@@ -2131,6 +2149,23 @@ export const lindeLund: HouseUser = {
               CornerType.outside
             );
           },
+          parts: [
+            new Water<Wall>({
+              sensorType: SensorType.toilet,
+              size: 120,
+              onUpdate: function (this: Sensor<Wall>, house: House) {
+                const point = offset(
+                  this.parent.getPosition(WallSide.in, 1 / 2, 0),
+                  [0, 0.2]
+                );
+                this.points = [
+                  point,
+                  mixPoints(house.serverRoom, point, true),
+                  house.serverRoom,
+                ];
+              },
+            }),
+          ],
         }),
 
         // East
@@ -2145,6 +2180,35 @@ export const lindeLund: HouseUser = {
               CornerType.straight
             );
           },
+          parts: [
+            new Water<Wall>({
+              sensorType: SensorType.drain,
+              onUpdate: function (this: Sensor<Wall>, house: House) {
+                const point = offset(
+                  this.parent.getPosition(WallSide.in, 2 / 3, 0),
+                  [0, 0]
+                );
+                const room = this.parent.parent;
+                const point2: xy = [point[0], room.northWestCorner[1] + 0.2];
+                this.points = [point, point2];
+              },
+            }),
+            new Water<Wall>({
+              sensorType: SensorType.waterWarm,
+              onUpdate: function (this: Sensor<Wall>, house: House) {
+                const point = offset(
+                  this.parent.getPosition(WallSide.in, 2 / 3, 0),
+                  [0, 0]
+                );
+                const room = this.parent.parent;
+                this.points = [
+                  point,
+                  mixPoints(house.serverRoom, point, true),
+                  house.serverRoom,
+                ];
+              },
+            }),
+          ],
         }),
 
         // West theoretic
@@ -2516,6 +2580,80 @@ export const lindeLund: HouseUser = {
         this.centralElectricity = this.center;
       },
       parts: [
+        new Wall({
+          type: WallType.theoretic,
+          floor: Floor.ground,
+          onUpdate: function (this: Wall, house: House) {
+            this.drawTheoretic("n", house, house.wallOuterThickness);
+          },
+
+          parts: [
+            new Water<Wall>({
+              sensorType: SensorType.drain,
+              onUpdate: function (this: Sensor<Wall>, house: House) {
+                const room = this.parent.parent;
+                const point = room.center;
+                this.points = [
+                  point,
+                  mixPoints(house.serverRoom, point, true),
+                  house.serverRoom,
+                ];
+              },
+            }),
+            ...[SensorType.waterCold, SensorType.waterRain].map(
+              (sensorType) =>
+                new Water<Wall>({
+                  sensorType,
+                  offsetWall: sensorType === SensorType.waterRain ? 0 : 0.3,
+                  onUpdate: function (this: Sensor<Wall>, house: House) {
+                    const wall = this.parent;
+                    const point = wall.getPosition(
+                      WallSide.in,
+                      sensorType === SensorType.waterRain ? 2 / 3 : 3 / 4,
+                      0
+                    );
+                    this.points = [
+                      point,
+                      mixPoints(house.serverRoom, point, false),
+                      house.serverRoom,
+                    ];
+                  },
+                })
+            ),
+            ...[SensorType.waterCold, SensorType.waterRain].map(
+              (sensorType) =>
+                new Water<Wall>({
+                  sensorType,
+                  offsetWall: sensorType === SensorType.waterRain ? 0 : 0.3,
+                  onUpdate: function (this: Sensor<Wall>, house: House) {
+                    const wall = this.parent;
+                    const point = wall.getPosition(
+                      WallSide.in,
+                      sensorType === SensorType.waterRain ? 1 / 3 : 1 / 4,
+                      0
+                    );
+                    const point2 = wall.getPosition(
+                      WallSide.in,
+                      sensorType === SensorType.waterRain ? 2 / 3 : 3 / 4,
+                      0
+                    );
+                    this.points = [point, point2];
+                  },
+                })
+            ),
+            new Water<Wall>({
+              sensorType: SensorType.drain,
+              onUpdate: function (this: Sensor<Wall>, house: House) {
+                const wall = this.parent;
+                const room = wall.parent;
+                const point = wall.getPosition(WallSide.in, 1 / 2, 0);
+                const point2 = room.center;
+                this.points = [point, point2];
+              },
+            }),
+          ],
+        }),
+
         new Sensor<Room>({
           sensorType: SensorType.smoke,
           onUpdate: function (this: Sensor<Room>, house: House) {

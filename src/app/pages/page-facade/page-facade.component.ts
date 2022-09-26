@@ -1,14 +1,14 @@
-import { AfterViewInit, Component } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { AppService } from 'src/app/app.service';
-import { Section, Tag } from 'src/app/components/enum.data';
-import { HouseService } from 'src/app/house/house.service';
-import { ThreeService } from '../../3d/three-window.service';
+import { AfterViewInit, Component } from "@angular/core";
+import { Subscription } from "rxjs";
+import { AppService } from "src/app/app.service";
+import { Section, Tag } from "src/app/components/enum.data";
+import { HouseService } from "src/app/house/house.service";
+import { ThreeService } from "../../3d/three-window.service";
 
 @Component({
-  selector: 'app-page-facade',
-  templateUrl: './page-facade.component.html',
-  styleUrls: ['./page-facade.component.scss'],
+  selector: "app-page-facade",
+  templateUrl: "./page-facade.component.html",
+  styleUrls: ["./page-facade.component.scss"],
 })
 export class PageFacadeComponent implements AfterViewInit {
   house$ = this.houseService.house$;
@@ -16,8 +16,7 @@ export class PageFacadeComponent implements AfterViewInit {
   Section = Section;
   Tag = Tag;
 
-
-  wallDetail = 'wallDetail';
+  wallDetail = "wallDetail";
   subscriptions: Subscription[] = [];
 
   constructor(
@@ -25,16 +24,13 @@ export class PageFacadeComponent implements AfterViewInit {
     private threeService: ThreeService,
     private appService: AppService
   ) {}
+
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
   ngAfterViewInit(): void {
-    this.subscriptions.push(
-      ...[
-      ]
-    );
+    this.subscriptions.push(...[]);
   }
 
-  showPerSection() {
-  }
+  showPerSection() {}
 }

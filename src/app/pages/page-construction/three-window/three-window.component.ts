@@ -187,7 +187,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
     if (!this.model) {
       return;
     }
-    console.log(this.section, this.subModels);
+    // console.log(this.section, this.subModels);
 
     if ([Section.constructionFoundation].includes(this.section)) {
       this.showingSubModels = {
@@ -285,7 +285,7 @@ export class ThreeWindowComponent implements AfterViewInit, OnDestroy {
           duration: 1,
           ease: "power1.out",
         });
-        console.log(mesh.position.y, pos.y);
+        // console.log(mesh.position.y, pos.y);
 
         if (mesh.position.y !== pos.y) {
           gsap.fromTo(

@@ -3,9 +3,10 @@ import { Floor, SensorType } from "src/app/components/enum.data";
 import { AppPolygon } from "src/app/model/polygon.model";
 import { Door } from "src/app/model/specific/door.model";
 import { Room } from "src/app/model/specific/room.model";
-import { Sensor } from "src/app/model/specific/sensor.model";
-import { SensorLight } from "src/app/model/specific/sensors/sensor.model";
+import { Sensor } from "src/app/model/specific/sensors/sensor.model";
+import { SensorLight } from "src/app/model/specific/sensors/sensorLight.model";
 import { Vent } from "src/app/model/specific/sensors/vent.model";
+import { Water } from "src/app/model/specific/sensors/water.model";
 import { Wall, WallSide, WallType } from "src/app/model/specific/wall.model";
 import { Window, WindowForm } from "src/app/model/specific/window.model";
 import {
@@ -52,6 +53,38 @@ export const lindeLundUpstairs = [
             ],
           };
         },
+        parts: [
+          new Water<Wall>({
+            sensorType: SensorType.drain,
+            onUpdate: function (this: Sensor<Wall>, house: House) {
+              const point = offset(
+                this.parent.getPosition(WallSide.in, 1 / 2, 0),
+                [0, 0]
+              );
+              const room = this.parent.parent;
+              const point2: xy = [
+                point[0],
+                room.northWestCorner[1] + room.height / 2,
+              ];
+              this.points = [point, point2];
+            },
+          }),
+          new Water<Wall>({
+            sensorType: SensorType.waterWarm,
+            onUpdate: function (this: Sensor<Wall>, house: House) {
+              const point = offset(
+                this.parent.getPosition(WallSide.in, 1 / 2, 0),
+                [0, 0]
+              );
+              const room = this.parent.parent;
+              this.points = [
+                point,
+                mixPoints(house.serverRoom, point, true),
+                house.serverRoom,
+              ];
+            },
+          }),
+        ],
       }),
 
       // East
@@ -163,6 +196,23 @@ export const lindeLundUpstairs = [
             ],
           };
         },
+        parts: [
+          new Water<Wall>({
+            sensorType: SensorType.toilet,
+            size: 120,
+            onUpdate: function (this: Sensor<Wall>, house: House) {
+              const point = offset(
+                this.parent.getPosition(WallSide.in, 1 / 2, 0),
+                [house.cross.minimumHeightWidth + 0.1, 0]
+              );
+              this.points = [
+                point,
+                mixPoints(house.serverRoom, point, true),
+                house.serverRoom,
+              ];
+            },
+          }),
+        ],
       }),
       new SensorLight<Room>({
         onUpdate: function (this: Sensor<Room>, house: House) {
@@ -584,6 +634,49 @@ export const lindeLundUpstairs = [
             ],
           };
         },
+        parts: [
+          new Water<Wall>({
+            sensorType: SensorType.shower,
+            onUpdate: function (this: Sensor<Wall>, house: House) {
+              const wall = this.parent;
+              const room = wall.parent;
+
+              const point = this.parent.getPosition(
+                WallSide.in,
+                0,
+                house.tower.width
+              );
+
+              this.points = [
+                offset(point, [0, -0.3]),
+                point,
+                mixPoints(house.serverRoom, point, true),
+                house.serverRoom,
+              ];
+            },
+          }),
+          new Water<Wall>({
+            sensorType: SensorType.drain,
+            size:50,
+            onUpdate: function (this: Sensor<Wall>, house: House) {
+              const wall = this.parent;
+              const room = wall.parent;
+
+              const point = this.parent.getPosition(
+                WallSide.in,
+                0,
+                house.tower.width
+              );
+
+              this.points = [
+                offset(point, [0, -0.3]),
+                point,
+                mixPoints(house.serverRoom, point, true),
+                house.serverRoom,
+              ];
+            },
+          }),
+        ],
       }),
       // MidEast
       new Wall({
@@ -747,6 +840,64 @@ export const lindeLundUpstairs = [
                 },
               })
           ),
+
+          new Water<Wall>({
+            sensorType: SensorType.drain,
+            onUpdate: function (this: Sensor<Wall>, house: House) {
+              const room = this.parent.parent;
+              const wall = this.parent;
+              const point = offset(
+                wall.getPosition(WallSide.in, 2 / 3, 0),
+                [0.3, 0]
+              );
+              const point2 = offset(
+                wall.getPosition(WallSide.in, 1 / 3, 0),
+                [0.3, 0]
+              );
+              this.points = [point, point2];
+            },
+          }),
+          new Water<Wall>({
+            sensorType: SensorType.drain,
+            onUpdate: function (this: Sensor<Wall>, house: House) {
+              const room = this.parent.parent;
+              const wall = this.parent;
+              const point = offset(
+                wall.getPosition(WallSide.in, 1 / 3, 0),
+                [0.3, 0]
+              );
+              const point2: xy = [
+                point[0],
+                house.stramien.in.ns.b - (0.5 + house.wallInnerThickness),
+              ];
+              this.points = [point, point2];
+            },
+          }),
+          new Water<Wall>({
+            sensorType: SensorType.waterWarm,
+            onUpdate: function (this: Sensor<Wall>, house: House) {
+              const point = offset(
+                this.parent.getPosition(WallSide.in, 2 / 3, 0),
+                [0.3, 0]
+              );
+              const point2 = offset(
+                this.parent.getPosition(WallSide.in, 1 / 3, 0),
+                [0.3, 0]
+              );
+              this.points = [point, point2];
+            },
+          }),
+
+          new Water<Wall>({
+            sensorType: SensorType.waterWarm,
+            onUpdate: function (this: Sensor<Wall>, house: House) {
+              const point = offset(
+                this.parent.getPosition(WallSide.in, 1 / 3, 0),
+                [0.3, 0]
+              );
+              this.points = [point];
+            },
+          }),
 
           ...[SensorType.lightSwitch, SensorType.temperature].map(
             (sensorType) =>

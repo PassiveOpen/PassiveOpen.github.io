@@ -1,5 +1,5 @@
 import { SensorType } from "src/app/components/enum.data";
-import { Sensor } from "../sensor.model";
+import { Sensor } from "./sensor.model";
 
 export class Vent<T> extends Sensor<T> {
   sensorType = SensorType.ventOut;

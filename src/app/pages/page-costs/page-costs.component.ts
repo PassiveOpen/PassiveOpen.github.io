@@ -1,14 +1,15 @@
 import { AfterViewInit, Component } from "@angular/core";
 import { Section, SensorType, Tag } from "src/app/components/enum.data";
 import { HouseService } from "src/app/house/house.service";
-import { Sensor } from "src/app/model/specific/sensor.model";
+import { Sensor } from "src/app/model/specific/sensors/sensor.model";
 import { BehaviorSubject } from "rxjs";
 import { Door } from "src/app/model/specific/door.model";
 import { Window, WindowForm } from "src/app/model/specific/window.model";
 import { Cost, CostTable, GroupRow } from "src/app/house/cost.model";
 import { Wall } from "src/app/model/specific/wall.model";
 import { round, sum } from "src/app/shared/global-functions";
-import { SensorLight } from "src/app/model/specific/sensors/sensor.model";
+import { SensorLight } from "src/app/model/specific/sensors/sensorLight.model";
+import { Water } from "src/app/model/specific/sensors/water.model";
 
 @Component({
   selector: "app-page-costs",
@@ -24,6 +25,7 @@ export class PageCostsComponent {
     this.getOpenings(),
     this.getElectra(),
     this.getFinish(),
+    this.getWater(),
     this.getOutsideFinish(),
   ];
   hiddenTables = [this.getKitchen(), this.getBathroom()];
@@ -68,6 +70,63 @@ export class PageCostsComponent {
           price: 10,
           unit: "m2",
         }),
+      ],
+    });
+  }
+  getWater(): CostTable {
+    const house = this.houseService.house$.value;
+    const { innerLength, outerLength } = this.houseService.getWallLength();
+    const { innerArea, outerArea } = this.houseService.getWallArea();
+
+    return new CostTable({
+      section: Section.costsWater,
+      alias: "Water ",
+      // desc: TemplateRef<any>,
+      costs: [
+        this.houseService.getT<Water<any>>(
+          Water,
+          ["sensorType"],
+          (x) => ({
+            name: "Cold water",
+            price: 20,
+            unit: "m",
+          }),
+          (x) => x.sensorType === SensorType.waterCold,
+          false
+        ),
+        this.houseService.getT<Water<any>>(
+          Water,
+          ["sensorType"],
+          (x) => ({
+            name: "Warm water",
+            price: 20,
+            unit: "m",
+          }),
+          (x) => x.sensorType === SensorType.waterWarm,
+          false
+        ),
+        this.houseService.getT<Water<any>>(
+          Water,
+          ["sensorType"],
+          (x) => ({
+            name: "Rain water",
+            price: 20,
+            unit: "m",
+          }),
+          (x) => x.sensorType === SensorType.waterWarm,
+          false
+        ),
+        this.houseService.getT<Water<any>>(
+          Water,
+          ["sensorType"],
+          (x) => ({
+            name: "Drains",
+            price: 20,
+            unit: "m",
+          }),
+          (x) => [SensorType.drain, SensorType.toilet].includes(x.sensorType),
+          false
+        ),
       ],
     });
   }
@@ -248,6 +307,10 @@ export class PageCostsComponent {
 
       alias: "Preparations",
       costs: [
+        new Cost({
+          name: "Dirt work",
+          price: 1000,
+        }),
         new Cost({
           name: "Ground prep",
           price: 9000,

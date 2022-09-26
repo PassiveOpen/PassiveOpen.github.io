@@ -60,6 +60,7 @@ export enum Section {
 
   // construction
   constructionWelcome = "construction-welcome",
+  constructionParameters = "construction-parameters",
   constructionFoundation = "construction-foundation",
   constructionCrawlerSpace = "construction-crawler-space",
   constructionRoof = "construction-roof",
@@ -84,6 +85,7 @@ export enum Section {
   wiredExtra = "wired-extra",
   wiredLight = "wired-light",
   wiredVent = "wired-vent",
+  wiredWater = "wired-water",
 
   //costs
   costsWelcome = "costs-welcome",
@@ -91,6 +93,7 @@ export enum Section {
   costsPreparations = "costs-preparations",
   costsOpenings = "costs-openings",
   costsElectra = "costs-electra",
+  costsWater = "costs-water",
   costsFinishes = "costs-finishes",
   costsOuterFinishes = "costs-outer-finishes",
   costsTotals = "costs-totals",
@@ -135,6 +138,12 @@ export enum SensorType {
   temperature = "temperature",
   ventIn = "vent-in",
   ventOut = "vent-out",
+  waterCold = "water-cold",
+  waterRain = "water-rain",
+  waterWarm = "water-warm",
+  drain = "drain",
+  shower = "shower",
+  toilet = "toilet",
 }
 
 export enum State {

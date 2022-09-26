@@ -12,7 +12,7 @@ import { Measure } from "../model/specific/measure.model";
 import { Cross } from "./cross.model";
 import { Wall, WallType } from "../model/specific/wall.model";
 import { Door } from "../model/specific/door.model";
-import { Sensor } from "../model/specific/sensor.model";
+import { Sensor } from "../model/specific/sensors/sensor.model";
 import { throttle, throttleTime } from "rxjs";
 import { state } from "@angular/animations";
 
@@ -56,7 +56,7 @@ export class StateService {
 
     this.buildState(
       arr,
-      [State.measure,State.minimumHeight],
+      [State.measure, State.minimumHeight],
       [
         Section.stairBasic,
         Section.stairCheck,
@@ -97,6 +97,18 @@ export class StateService {
         SensorType.lightSwitch,
       ],
       [Section.wiredLight].includes(section)
+    );
+    this.buildState(
+      arr,
+      [
+        SensorType.toilet,
+        SensorType.shower,
+        SensorType.drain,
+        SensorType.waterCold,
+        SensorType.waterRain,
+        SensorType.waterWarm,
+      ],
+      [Section.wiredWater].includes(section)
     );
     this.buildState(
       arr,

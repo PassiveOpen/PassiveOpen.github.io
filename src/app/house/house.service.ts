@@ -9,7 +9,7 @@ import { AppService } from "../app.service";
 import { BaseSVG } from "../model/base.model";
 import { Room } from "../model/specific/room.model";
 import { Door } from "../model/specific/door.model";
-import { Sensor } from "../model/specific/sensor.model";
+import { Sensor } from "../model/specific/sensors/sensor.model";
 import { Window } from "../model/specific/window.model";
 import { round, sum } from "../shared/global-functions";
 import { generateUUID } from "three/src/math/MathUtils";
@@ -54,7 +54,7 @@ export class HouseService {
    * Updates after a value change.
    */
   update(
-    parent: "cross" | "stair" | "house" = "house",
+    parent: "cross" | "stair" | "house" | "construction" = "house",
     key,
     value,
     tag: Tag = undefined
@@ -71,6 +71,9 @@ export class HouseService {
     }
     if (parent === "cross") {
       house.cross[key] = value;
+    }
+    if (parent === "construction") {
+      house.construction[key] = value;
     }
     house.calculateHouse();
     house.calculateStats();
@@ -129,11 +132,11 @@ export class HouseService {
 
   getOutlets(sensorType: SensorType): number {
     const house = this.house$.value;
-    return  Object.values(house.partsFlatten)
-        .filter((x) => x instanceof Sensor)
-        .filter((x: Sensor<any>) => x.sensorType === sensorType)
-        .map((x: Sensor<any>) => x.amount)
-        .reduce((a, b) => a + b, 0)      
+    return Object.values(house.partsFlatten)
+      .filter((x) => x instanceof Sensor)
+      .filter((x: Sensor<any>) => x.sensorType === sensorType)
+      .map((x: Sensor<any>) => x.amount)
+      .reduce((a, b) => a + b, 0);
   }
 
   getCable(sensorType: SensorType, decimals = 1) {
@@ -242,7 +245,7 @@ export class HouseService {
     ).map((counter: { count: number; part: T }) => {
       const cost = new Cost(callback(counter.part));
 
-      cost.amount = round( counter.count,1);
+      cost.amount = round(counter.count, 1);
       cost.uuid = uuid;
       return cost;
     });

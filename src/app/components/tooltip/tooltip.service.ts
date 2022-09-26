@@ -8,7 +8,7 @@ import { ComponentRef, ElementRef, Injectable } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 import { BaseSVG } from 'src/app/model/base.model';
-import { Sensor } from 'src/app/model/specific/sensor.model';
+import { Sensor } from 'src/app/model/specific/sensors/sensor.model';
 import { HouseService } from '../../house/house.service';
 import { TooltipComponent } from './tooltip.component';
 

@@ -7,7 +7,8 @@ $sun-color: rgb(253, 200, 101);
   .included-stairs-plan {
     pointer-events: none;
   }
-  
+
+  .sensor-water-cold,
   .sensor-dimmer,
   .sensor-pir,
   .sensor-vent-out,
@@ -19,6 +20,7 @@ $sun-color: rgb(253, 200, 101);
       stroke: var(--primary-color) !important;
     }
   }
+  .sensor-water-warm,
   .sensor-vent-in,
   .sensor-camera,
   .sensor-poe,
@@ -30,6 +32,7 @@ $sun-color: rgb(253, 200, 101);
     }
   }
 
+  .sensor-drain,
   .sensor-alarm,
   .sensor-light-switch {
     fill: var(--first-color);
@@ -37,6 +40,7 @@ $sun-color: rgb(253, 200, 101);
       stroke: var(--first-color) !important;
     }
   }
+  .sensor-shower,
   .sensor-dlc,
   .sensor-wifi,
   .sensor-blinds {
@@ -46,6 +50,7 @@ $sun-color: rgb(253, 200, 101);
     }
   }
 
+  .sensor-water-rain,
   .sensor-temperature {
     fill: var(--third-color);
     &.sensor-cable {
@@ -93,6 +98,10 @@ $sun-color: rgb(253, 200, 101);
       fill: none;
       stroke: var(--primary-color);
     }
+    #hall-edge,
+    #balcony-edge {
+      stroke: var(--color-60);
+    }
     .g-sun {
       transition: 0.4s;
       opacity: 0;
@@ -110,15 +119,15 @@ $sun-color: rgb(253, 200, 101);
       pointer-events: none;
       transition: 0.4s;
       opacity: 0;
-      clip-path: polygon(
-        0% 0%,
-        100% 0%,
-        100% 130%,
-        51.7% 78.7%,
-        51.7% 52.9%,
-        42.4% 36.5%,
-        33.1% 36.5%
-      );
+      // clip-path: polygon(
+      //   0% 0%,
+      //   100% 0%,
+      //   100% 130%,
+      //   51.7% 78.7%,
+      //   51.7% 52.9%,
+      //   42.4% 36.5%,
+      //   33.1% 36.5%
+      // );
     }
 
     .house-wind-rose

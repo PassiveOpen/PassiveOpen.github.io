@@ -5,7 +5,7 @@ import { SafeHtml } from "@angular/platform-browser";
 import { Floor } from "../components/enum.data";
 import { Stair } from "../house/stairs.model";
 import { Wall } from "./specific/wall.model";
-import { Sensor } from "./specific/sensor.model";
+import { Sensor } from "./specific/sensors/sensor.model";
 
 let ids = {};
 
@@ -36,6 +36,7 @@ export class BaseSVG {
 
   async draw(floor: Floor) {}
   redraw(floor: Floor) {}
+  init(floor: Floor,theme: Cross | House | Stair) {}
   onUpdate: (theme: Cross | House | Stair) => void;
   tooltip = (x: Cross | House | Stair | Wall): SafeHtml => {
     return `<b>${this.name ? this.name : this.selector}</b>`;
@@ -68,6 +69,7 @@ export class BaseSVG {
     this.meterPerPixel = meterPerPixel;
 
     if (redrawAll) {
+      this.init(floor, theme)
       await this.draw(floor); // This draws all for the first time
     }
     if (this.show(floor)) {

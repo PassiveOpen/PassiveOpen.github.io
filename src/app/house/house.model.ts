@@ -17,6 +17,7 @@ import { Stair } from "./stairs.model";
 import { Measure } from "../model/specific/measure.model";
 import { Windrose } from "../model/specific/windrose.model";
 import { AppPolygon } from "../model/polygon.model";
+import { Construction } from "./construction.model";
 export type xy = [number, number];
 export interface Stramien {
   we: {
@@ -94,6 +95,7 @@ export class House extends HouseUser {
 
   cross = new Cross();
   stair = new Stair();
+  construction = new Construction();
 
   stats: any = {
     wall: {},
@@ -136,6 +138,37 @@ export class House extends HouseUser {
   }
 
   createExtra() {
+    const part0 = new AppPolyline({
+      selector: "balcony-edge",
+      floor: Floor.ground,
+      lineThickness: 1,
+      dash: [1, 8],
+      onUpdate: function (this: AppPolyline, house: House) {
+        const s = house.stramien.in;
+        const o = house.balconyWidth + house.balconyEdge;
+        const point1: xy = [s.we.b, s.ns.b + o];
+        const point2: xy = [s.we.c, s.ns.b + o];
+        this.points = [point1, point2];
+      },
+    });
+    this.parts.push(part0);
+
+    const part1 = new AppPolyline({
+      selector: "hall-edge",
+      floor: Floor.ground,
+      lineThickness: 1,
+      dash: [1, 8],
+      onUpdate: function (this: AppPolyline, house: House) {
+        const s = house.stramien.in;
+        const w = house.stair.totalWidth - house.stair.walkWidth;
+        const o = house.wallInnerThickness * 3 + 1 * 2;
+        const point1: xy = [s.we.b, s.ns.b - o];
+        const point2: xy = [s.we.b + w, s.ns.b - o];
+        this.points = [point1, point2];
+      },
+    });
+    this.parts.push(part1);
+
     const part = new AppPolyline({
       selector: "view-lines",
       floor: Floor.ground,
@@ -629,6 +662,7 @@ export class House extends HouseUser {
 
     this.cross.calculate(this);
     this.stair.calculate(this);
+    this.construction.calculate(this);
   }
   calculateStats() {
     this.getWallLength();
@@ -818,6 +852,7 @@ export class House extends HouseUser {
     if (graphic === Graphic.cross) {
       loop(this.cross, this.cross);
     }
+
     if ([Graphic.stairCross, Graphic.stairPlan].includes(graphic)) {
       loop(this.stair, this.stair);
     }

@@ -112,7 +112,7 @@ export class AppMainPageComponent implements AfterViewInit {
     this.section = this.getSection();
     if (this.section === undefined) {
       this.graphic = Graphic.none;
-      this.graphicSide = GraphicSide.none
+      this.graphicSide = GraphicSide.none;
     } else {
       this.graphic = this.setGraphic(this.section);
       this.graphicSide = this.getSide();
@@ -171,6 +171,7 @@ export class AppMainPageComponent implements AfterViewInit {
         Section.wiredLight,
         Section.wiredSafety,
         Section.wiredVent,
+        Section.wiredWater,
       ].includes(section)
     ) {
       graphic = Graphic.plan;
@@ -211,9 +212,12 @@ export class AppMainPageComponent implements AfterViewInit {
       graphic = Graphic.stairPlan;
     }
     if (
-      [Section.facadeStart, Section.facadeWindow, Section.facadeDoor].includes(
-        section
-      )
+      [
+        Section.constructionParameters,
+        Section.facadeStart,
+        Section.facadeWindow,
+        Section.facadeDoor,
+      ].includes(section)
     ) {
       graphic = Graphic.none;
     }
@@ -267,9 +271,14 @@ export class AppMainPageComponent implements AfterViewInit {
   }
 
   getSide(): GraphicSide {
-    const graphicSide = [Graphic.cross].includes(this.graphic)
-      ? GraphicSide.left
-      : GraphicSide.right;
+    let graphicSide = GraphicSide.right;
+
+    if ([Graphic.cross].includes(this.graphic)) {
+      graphicSide = GraphicSide.left;
+    }
+    if ([Graphic.none].includes(this.graphic)) {
+      graphicSide = GraphicSide.none;
+    }
 
     return graphicSide;
   }

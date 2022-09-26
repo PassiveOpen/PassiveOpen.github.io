@@ -14,10 +14,11 @@ import { BehaviorSubject, take } from "rxjs";
 import { BasicSVG } from "src/app/svg/base-svg.component";
 import { Graphic, Section, SensorType } from "src/app/components/enum.data";
 import { TooltipService } from "src/app/components/tooltip/tooltip.service";
-import { round } from "src/app/shared/global-functions";
+import { angleXY, offset, round } from "src/app/shared/global-functions";
 import { HttpClient } from "@angular/common/http";
 import * as d3 from "d3";
 import { D3Service, SvgLoader } from "../d3.service";
+import { xy } from "src/app/house/house.model";
 
 @Component({
   selector: "app-svg-plan",
@@ -62,11 +63,14 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
     const scroll = this.appService.scroll$.value;
     if (this.appService.fullscreen$.value === true) return;
     if (scroll.section === Section.welcome) {
-      this.g.attr("transform", "transform: scale(0.6) translateX(25%)");
+      this.g.attr("transform", "transform: scale(0.4) translateX(40%)");
+      this.showingImage = true;
     } else {
+      this.showingImage = false;
       this.g.attr("transform", "");
     }
   }
+
   ngAfterViewInit(): void {
     this.svgLoaders.push(
       this.d3Service.loadSVG("assets/models/sun.svg", ".g-sun", (selector) => {
@@ -104,11 +108,9 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
 
     this.renderImg = this.svg
       .select(".render-img")
-      .attr("xlink:href", "/assets/img/top_render.jpg")
-      .attr("x", -636)
-      .attr("y", -354)
-      .attr("width", 2)
-      .attr("height", 2);
+      .attr("xlink:href", "/assets/img/top_render.jpg");
+
+    this.scaleRenderImage();
     d3.select("svg");
   }
 
@@ -136,6 +138,7 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
     (g.select(".plan-stair-plan").node() as any).replaceWith(svg);
     svg.classList.add("plan-stair-plan");
   }
+
   scaleStairs() {
     this.svg
       .select(".plan-stair-plan")
@@ -147,22 +150,90 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
         }`
       );
   }
+
   scaleRenderImage() {
-    const renderOrigin = [636, 394];
-    const renderWidth = 535;
-    const renderHeight = 495;
+    const s = this.house.stramien.out;
+
+    const renderOrigin: xy = [582, 240]; // 0,0
+    const renderWidth = 549; // measured by hand
+    const renderHeight = 481;
+
+    const totalRenderWidth = 1920;
+    const totalRenderHeight = 1080;
+
     const houseWidth = round(this.house.houseWidth / this.meterPerPixel);
     const houseHeight = round(this.house.houseLength / this.meterPerPixel);
+    const houseOrigin: xy = [0, 0];
+
     const scaleWidth = round(renderWidth / houseWidth, 5);
     const scaleHeight = round(renderHeight / houseHeight, 5);
     const scale = Math.max(scaleHeight, scaleWidth);
+
     if (!this.renderImg) {
       return;
     }
+
+    const toMeters = (pixel: xy): xy => {
+      return [
+        houseOrigin[0] - round((pixel[0] * this.meterPerPixel) / scale),
+        houseOrigin[1] - round((pixel[1] * this.meterPerPixel) / scale),
+      ];
+    };
+
+    const toPixels = (xy: xy): xy => {
+      return [
+        round(xy[0] / this.meterPerPixel, 4),
+        round(xy[1] / this.meterPerPixel, 4),
+      ];
+    };
+
+    /**
+     *
+     * @param xy Real world coordinates
+     * @returns percentage in this image
+     */
+    const parse = (xy: xy) => {
+      const pixel = toPixels(xy);
+      return [
+        ((pixel[0] * scale + renderOrigin[0]) / totalRenderWidth) * 100,
+        ((pixel[1] * scale + renderOrigin[1]) / totalRenderHeight) * 100,
+      ]
+        .map((x) => `${round(x, 0)}%`)
+        .join(" ");
+    };
+
+    const clip: xy[] = [
+      angleXY(45, 100, [s.we.d, s.ns.c]),
+      [s.we.d, s.ns.c],
+      [s.we.b + (s.we.c - s.we.b) / 2, s.ns.b + (s.ns.c - s.ns.b) / 2],
+      [s.we.b, s.ns.b],
+      angleXY(180 + 20, 100, [s.we.b, s.ns.b]),
+    ];
+
+    const renderOriginMeter = toMeters(renderOrigin);
     this.renderImg
-      .attr("x", -(renderOrigin[0] * this.meterPerPixel) / scale)
-      .attr("y", -(renderOrigin[1] * this.meterPerPixel) / scale)
+      .attr("x", renderOriginMeter[0])
+      .attr("y", renderOriginMeter[1])
       .attr("width", (1920 * this.meterPerPixel) / scale)
-      .attr("height", (1080 * this.meterPerPixel) / scale);
+      .attr("height", (1080 * this.meterPerPixel) / scale)
+      .attr(
+        "clip-path",
+        `polygon(
+0% 0%,
+100% 0%,
+100% 100%,
+${clip.map((x) => parse(x)).join(", \n")}
+      )`
+      );
+
+    // clip-path: polygon(
+    //   0% 0%,
+    //   100% 0%,
+    //   100% 130%,
+    //   51.7% 78.7%,
+    //   51.7% 52.9%,
+    //   42.4% 36.5%,
+    //   33.1% 36.5%
+    // );
   }
 }

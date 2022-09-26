@@ -1,10 +1,20 @@
-import { Injectable } from '@angular/core';
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { Injectable } from "@angular/core";
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class ThreeService {
+  colors: { [key: number]: string } = {};
+
+  constructor() {
+    [0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100].forEach((i) => {
+      this.colors[i] = getComputedStyle(document.body)
+        .getPropertyValue(`--color-${i}`)
+        .trim();
+    });
+  }
+
   filter(mesh: THREE.Mesh, wallDetail: string) {
     mesh.children.forEach((c) => {
       console.log(c.name, wallDetail);
@@ -73,7 +83,7 @@ export class ThreeService {
 
   import(scene: THREE.Scene, name, callback) {
     var loader = new GLTFLoader();
-    loader.load('/assets/models/threejstest.glb', (gltf) => {
+    loader.load("/assets/models/threejstest.glb", (gltf) => {
       const mesh = gltf.scene;
       // house.position.set(-3, 3.2, 3);
       mesh.children.forEach((c) => {
@@ -91,7 +101,9 @@ export class ThreeService {
   basicGround(scene: THREE.Scene) {
     const size = 100;
     const plane = new THREE.PlaneGeometry(size, size, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    console.log(this.colors[50]);
+
+    const material = new THREE.MeshBasicMaterial({ color: this.colors[10] });
 
     const mesh = new THREE.Mesh(plane, material);
     mesh.position.set(0, -0.5, 0);

@@ -3,9 +3,53 @@
     Construction
   </h1>
   <h3>
-    This page is still under construction. 
+    This page is still under construction.
   </h3>
-  
+
+</section>
+
+<section [id]="Section.constructionParameters">
+  <ng-container *ngIf="(house$|async) as house">
+
+    <table mat-table [dataSource]="house.construction.heatCalcs" class="mat-elevation-z0">
+      <ng-container [matColumnDef]="col['id']" *ngFor="let col of columns">
+        <th mat-header-cell *matHeaderCellDef> {{col['name']}} </th>
+        <td mat-cell *matCellDef="let row">
+          <span *ngIf="row[col['id']]" [innerHTML]="col['def']( row[col['id']], row['unit'] )"></span>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnNames"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnNames;"></tr>
+
+    </table>
+
+    <h3>The numbers that matter:</h3>
+    <p gdColumns=" 1fr 1fr" gdGap="8px">
+      <span>r<sub>construction</sub> </span><span> {{house.construction.rConstruction}}</span>
+      <span>U </span><span> {{house.construction.U}}</span>
+      <span>Wall thickness </span><span> {{house.construction.outerWallThickness}}m</span>
+    </p>
+
+    <label>
+      <span>I joist thickness (and main insulation) {{house.construction.thicknessJoist}} mm
+      </span>
+
+      <mat-slider min="0" [max]="joists.length-1" step="1" [ngModel]="currentJoist(house.construction.thicknessJoist)"
+        (input)="updateJoist($event.value) " tickInterval="1">
+      </mat-slider>
+
+    </label>
+    <label>
+      <span>Celit thickness ({{house.construction.thicknessCelit}}mm )
+      </span>
+
+      <mat-slider min="0" max="150" step="10" [ngModel]="house.construction.thicknessCelit"
+        (input)="update('construction', 'thicknessCelit', round($event.value, 4)) " tickInterval="1">
+      </mat-slider>
+    </label>
+
+  </ng-container>
 </section>
 
 <section [id]="Section.constructionFoundation">

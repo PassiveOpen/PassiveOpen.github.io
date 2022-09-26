@@ -79,6 +79,14 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
       </div>
 
+      <button mat-mini-fab (click)="appService.setState(States.theoreticalWalls)"
+        [class.active]="checkState(States.theoreticalWalls)">
+        <label>
+          Theoretic walls
+        </label>
+        <mat-icon style="font-family:'Material Icons Outlined';">density_large</mat-icon>
+      </button>
+
       <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
         <mat-icon style.transform="rotate({{extra?20:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
         </mat-icon>

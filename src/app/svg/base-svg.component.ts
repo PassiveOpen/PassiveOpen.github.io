@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   HostListener,
+  HostBinding,
   Input,
   ViewChild,
 } from "@angular/core";
@@ -80,6 +81,8 @@ export class BasicSVG {
 
     this.tooltipService.attachPopup([e.pageX, e.pageY], obj);
   }
+
+  @HostBinding("class.imaged") showingImage: boolean = false;
 
   @Input() isChild = false;
   graphic: Graphic;
@@ -193,6 +196,7 @@ export class BasicSVG {
             })
           ),
           this.resize$.pipe(
+            filter(x=>  !this.showingImage),
             throttleTime(10)
             // tap((x) => console.log("scrollresize"))
           )

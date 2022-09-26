@@ -21,6 +21,7 @@ import { MatIconRegistry } from "@angular/material/icon";
 import { CookieService } from "ngx-cookie-service";
 import { ThreeWindowComponent } from "./pages/page-construction/three-window/three-window.component";
 import { DisqusModule } from "ngx-disqus";
+import { NgxGoogleAnalyticsModule } from "ngx-google-analytics";
 import { PageInstallationsComponent } from "./pages/page-installation/page-installation.component";
 import { PageConstructionComponent } from "./pages/page-construction/page-construction.component";
 import { PageWiredComponent } from "./pages/page-wired/page-wired.component";
@@ -72,7 +73,8 @@ import { PageAboutComponent } from "./pages/page-about/page-about.component";
     FlexLayoutModule,
     HttpClientModule,
     FontAwesomeModule,
-    DisqusModule.forRoot('passiv'),
+    DisqusModule.forRoot("passiv"),
+    NgxGoogleAnalyticsModule.forRoot("G-W580DX5P7G"),
     RouterModule.forRoot(routes, {
       anchorScrolling: "enabled",
       // onSameUrlNavigation: "reload",

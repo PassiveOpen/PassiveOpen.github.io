@@ -3,7 +3,7 @@ import { filter } from "d3";
 import { AppService } from "src/app/app.service";
 import { Section, SensorType, State, Tag } from "src/app/components/enum.data";
 import { HouseService } from "src/app/house/house.service";
-import { Sensor } from "src/app/model/specific/sensor.model";
+import { Sensor } from "src/app/model/specific/sensors/sensor.model";
 import { round } from "src/app/shared/global-functions";
 
 @Component({
