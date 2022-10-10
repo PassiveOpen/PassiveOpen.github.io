@@ -169,6 +169,59 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
       </button>
 
     </ng-container>
+
+
+
+    <ng-container *ngIf="scroll.graphic === Graphic.window">
+
+      <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end end" fxLayoutGap="8px">
+
+        <ng-container *ngFor="let constructionPart of constructionParts">
+          <button mat-mini-fab class="construction" (click)="appService.setState(constructionPart)" color="accent"
+            [class.active]="checkState(constructionPart)">
+            <label>
+              {{constructionPart.replace("construction-","")}}
+            </label>
+            <!-- <mat-icon>crop_square</mat-icon> -->
+          </button>
+
+
+        </ng-container>
+        <button mat-mini-fab (click)="appService.setState(States.mirror)" color="accent"
+          [class.active]="checkState(States.mirror)">
+          <label>
+            Mirror
+          </label>
+          <mat-icon>foundation</mat-icon>
+        </button>
+        <!-- 
+
+        <button mat-mini-fab (click)="appService.setState(ConstructionParts.gips)" color="accent"
+          [class.active]="checkState(ConstructionParts.gips)">
+          <label>
+            Gips
+          </label>
+          <fa-icon [icon]="faMound"></fa-icon>
+        </button>
+
+        <button mat-mini-fab (click)="appService.setState(ConstructionParts.insulation)" color="accent"
+          [class.active]="checkState(ConstructionParts.insulation)">
+          <label>
+            Insulation
+          </label>
+          <fa-icon [icon]="faTemperatureHigh"></fa-icon>
+        </button> -->
+
+      </div>
+
+      <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
+        <mat-icon style.transform="rotate({{extra?20:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
+        </mat-icon>
+      </button>
+    </ng-container>
+
+
+
     <button mat-mini-fab (click)="fullscreen = !fullscreen" color="accent">
       <mat-icon *ngIf="!fullscreen">fullscreen</mat-icon>
       <mat-icon *ngIf="fullscreen">fullscreen_exit</mat-icon>

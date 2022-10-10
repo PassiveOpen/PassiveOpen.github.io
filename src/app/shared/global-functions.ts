@@ -1,5 +1,7 @@
 import { xy } from "../house/house.model";
 
+export const phi = 1.61803398874989;
+
 export const round = (number: number, decimals = 4) => {
   return Math.round(number * 10 ** decimals) / 10 ** decimals;
 };
@@ -18,8 +20,11 @@ export const angleXY = (deg, r, offset: xy = [0, 0], decimals = 4): xy => {
   return [round(x + offset[0], decimals), round(y + offset[1], decimals)];
 };
 
+/**
+ * angle in Deg between two points
+ */
 export const angleBetween = (p1: xy, p2: xy) => {
-  return (Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) * 180) / Math.PI;
+  return round((Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) * 180) / Math.PI,3);
 };
 
 export const findCircleLineIntersections = (r, m, n, h = 0, k = 0) => {

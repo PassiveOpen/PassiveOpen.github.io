@@ -1,6 +1,6 @@
 import { AppStair } from "../model/specific/stair-step.model";
 import { AppPolygon } from "../model/polygon.model";
-import { Cross } from "src/app/house/cross.model";
+import { Cross, Elevation } from "src/app/house/cross.model";
 import { AppPath } from "src/app/model/path.model";
 import {
   angleBetween,
@@ -92,7 +92,7 @@ export class Stair {
     // console.log(this.totalRun);
 
     this.groundFloorTop = 0;
-    this.topFloorTop = -this.house.cross.groundFloorTop; // 0
+    this.topFloorTop = -this.house.cross.elevations[Elevation.groundFloor]; // 0
 
     this.totalRise = this.topFloorTop - this.groundFloorTop;
     this.stairOrigin = [

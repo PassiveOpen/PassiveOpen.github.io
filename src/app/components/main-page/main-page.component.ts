@@ -224,12 +224,34 @@ export class AppMainPageComponent implements AfterViewInit {
     if (
       [
         Section.constructionWelcome,
+        Section.constructionFoundation,
         Section.constructionCrawlerSpace,
         Section.constructionFloor,
-        Section.constructionFoundation,
         Section.constructionRoof,
-        Section.constructionWall,
         Section.constructionWallFinish,
+        Section.constructionWallSole,
+        Section.constructionWallJoists,
+        Section.constructionWallOSB,
+        Section.constructionWallTape,
+        Section.constructionWallOuterSheet,
+        Section.constructionWallSpace,
+        Section.constructionWallFacade,
+        Section.constructionWallInsulation,
+        Section.constructionWallService,
+        Section.constructionWallGips,
+        Section.constructionFloor,
+
+        Section.constructionFloorLVL,
+        Section.constructionGroundFloor,
+        
+        
+        Section.constructionRoofRidge,
+        Section.constructionRoofJoist,
+        Section.constructionRoofInside,
+        Section.constructionRoofOuterSheet,
+        Section.constructionRoofSpace,
+        Section.constructionRoofTiles,
+
       ].includes(section)
     ) {
       graphic = Graphic.window;

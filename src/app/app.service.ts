@@ -46,7 +46,7 @@ export class AppService {
   );
 
   floor$ = new BehaviorSubject(Floor.ground);
-  discord = "https://discord.gg/HUKhWMvC";
+  discord = "https://discord.gg/hrjfzY3yTp";
   github = "https://github.com/PassiveOpen/PassiveOpen.github.io";
   scroll$ = new BehaviorSubject<Scroll>({
     scroll: 0,

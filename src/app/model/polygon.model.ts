@@ -24,8 +24,21 @@ export class AppPolygon extends BaseSVG {
 
     this.svg
       .attr("points", this.coords.join(" "))
-      .attr("stroke-width", this.meterPerPixel * this.lineThickness)
       .attr("transform", this.transform);
     this.setClass(this.svg);
+  }
+  redraw(floor: Floor) {
+    if (this.svg) {
+      this.svg.attr("stroke-width", this.meterPerPixel * this.lineThickness);
+    }
+  }
+
+  square(w: number, h: number, origin: xy) {
+    this.coords = [
+      [origin[0], origin[1]],
+      [origin[0] + w, origin[1]],
+      [origin[0] + w, origin[1] + h],
+      [origin[0], origin[1] + h],
+    ];
   }
 }

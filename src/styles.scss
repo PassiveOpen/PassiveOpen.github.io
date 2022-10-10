@@ -33,10 +33,13 @@ p {
 }
 
 section {
-  margin: 25vh 0;
   border-left: 1px solid rgba(0, 0, 0, 0);
-  padding: 16px 4px 16px 16px;
   transition: 0.6s;
+
+  margin: 0 0 0 0;
+  padding: 8vh 4px 20vh 16px;
+  // margin: 25vh 0;
+  // padding: 16px 4px 16px 16px;
 
   &.section-active {
     border-left-color: rgba(0, 0, 0, 0.2);

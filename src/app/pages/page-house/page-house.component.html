@@ -298,8 +298,9 @@
     </mat-slide-toggle>
     <label>
       <span>Ground floor above ground: {{house.cross.floorAboveGround}} m</span>
-      <mat-slider min="0" max="1" [ngModel]="house.cross.floorAboveGround"
-        (input)="update('cross','floorAboveGround',$event.value)" step="0.1" tickInterval="1"></mat-slider>
+      <mat-slider min="0" [max]="house.cross.crawlerHeight+house.cross.groundFloorThickness"
+        [ngModel]="house.cross.floorAboveGround" (input)="update('cross','floorAboveGround',$event.value)" step="0.1"
+        tickInterval="1"></mat-slider>
     </label>
 
 

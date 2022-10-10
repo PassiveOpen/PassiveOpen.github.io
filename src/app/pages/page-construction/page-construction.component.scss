@@ -1,0 +1,23 @@
+:host {
+  counter-reset: heading;
+}
+h2.counter {
+  position: relative;
+  &::after {
+    content: "Step";
+    position: absolute;
+    top: -1.2em;
+    left: -0.6em;
+    font-size: 0.8em;
+    opacity: 0.6;
+  }
+  &::before {
+    content: counter(heading) "";
+    counter-increment: heading;
+    width: 32px;
+    display: inline-block;
+    opacity: 0.6;
+  }
+  counter-reset: subheading;
+  // }
+}

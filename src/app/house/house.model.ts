@@ -19,6 +19,7 @@ import { Windrose } from "../model/specific/windrose.model";
 import { AppPolygon } from "../model/polygon.model";
 import { Construction } from "./construction.model";
 export type xy = [number, number];
+export type xyz = [number, number, number];
 export interface Stramien {
   we: {
     a: number;
@@ -41,7 +42,7 @@ export class HouseUser {
   towerWidth: number;
   wallInnerThickness: number;
   wallOuterThickness: number;
-  roof70DegOffset: number;
+  roofOuterThickness: number;
   studAmountNorth: number;
   studAmountSouth: number;
   studAmountWest: number;

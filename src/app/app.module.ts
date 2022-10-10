@@ -19,7 +19,6 @@ import { PageStairsComponent } from "./pages/page-stairs/page-stairs.component";
 import { PageFacadeComponent } from "./pages/page-facade/page-facade.component";
 import { MatIconRegistry } from "@angular/material/icon";
 import { CookieService } from "ngx-cookie-service";
-import { ThreeWindowComponent } from "./pages/page-construction/three-window/three-window.component";
 import { DisqusModule } from "ngx-disqus";
 import { NgxGoogleAnalyticsModule } from "ngx-google-analytics";
 import { PageInstallationsComponent } from "./pages/page-installation/page-installation.component";
@@ -37,12 +36,13 @@ import { PageCostsComponent } from "./pages/page-costs/page-costs.component";
 import { SafeHtmlPipe } from "./shared/safehtml.pipe";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { PageAboutComponent } from "./pages/page-about/page-about.component";
+import { ThreeConstructionComponent } from "./3d/three-construction/three-construction.component";
 
 @NgModule({
   declarations: [
     AppComponent,
     SideMenuComponent,
-    ThreeWindowComponent,
+    ThreeConstructionComponent,
     AppSVGComponent,
     SvgComponent,
     SvgCrossComponent,

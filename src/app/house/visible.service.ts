@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { House } from "./house.model";
 import {
+  ConstructionParts,
   Section,
   SensorType,
   State,
@@ -125,7 +126,156 @@ export class StateService {
       [SensorType.blinds, SensorType.temperature],
       [Section.wiredExtra].includes(section)
     );
+    this.statesForConstruction(arr, section);
     this.appService.commitState(arr);
+  }
+
+  statesForConstruction(arr, section) {
+    const buildUp = [];
+
+    //  <======= Inside =======> //
+    buildUp.push(Section.constructionWallGips);
+    this.buildState(
+      arr,
+      [ConstructionParts.gips],
+      [...buildUp].includes(section)
+    );
+
+    buildUp.push(Section.constructionWallService);
+    this.buildState(
+      arr,
+      [ConstructionParts.serviceBeams, ConstructionParts.serviceInsulation],
+      [...buildUp].includes(section)
+    );
+    //  <======= Inside =======> //
+
+    //  <======= Outside =======> //
+    buildUp.push(Section.constructionWallFacade);
+    this.buildState(
+      arr,
+      [ConstructionParts.facade],
+      [...buildUp].includes(section)
+    );
+
+    buildUp.push(Section.constructionWallSpace);
+    this.buildState(
+      arr,
+      [ConstructionParts.space],
+      [...buildUp].includes(section)
+    );
+
+    buildUp.push(Section.constructionRoofTiles);
+    this.buildState(
+      arr,
+      [ConstructionParts.roofTiles],
+      [...buildUp].includes(section)
+    );
+    buildUp.push(Section.constructionRoofSpace);
+    this.buildState(
+      arr,
+      [ConstructionParts.roofSpace],
+      [...buildUp].includes(section)
+    );
+    buildUp.push(Section.constructionRoofOuterSheet);
+    buildUp.push(Section.constructionWallOuterSheet);
+    this.buildState(
+      arr,
+      [ConstructionParts.outerSheet, ConstructionParts.roofOuterSheets],
+      [...buildUp].includes(section)
+    );
+
+    buildUp.push(Section.constructionWallInsulation);
+    this.buildState(
+      arr,
+      [ConstructionParts.insulation],
+      [...buildUp].includes(section)
+    );
+    //  <======= Outside =======> //
+
+    //  <======= Floor&Roof =======> //
+    buildUp.push(Section.constructionRoofInside);
+    // this.buildState(
+    //   arr,
+    //   [ConstructionParts.roofJoists],
+    //   [...buildUp].includes(section)
+    // );
+    buildUp.push(Section.constructionRoofJoist);
+    this.buildState(
+      arr,
+      [ConstructionParts.roofJoists],
+      [...buildUp].includes(section)
+    );
+    buildUp.push(Section.constructionRoofRidge);
+    this.buildState(
+      arr,
+      [ConstructionParts.roofRidge],
+      [...buildUp].includes(section)
+    );
+    buildUp.push(Section.constructionFloor);
+    this.buildState(
+      arr,
+      [ConstructionParts.topFloorJoists, ConstructionParts.topFloorOSB],
+      [...buildUp].includes(section)
+    );
+    buildUp.push(Section.constructionFloorLVL);
+    this.buildState(
+      arr,
+      [ConstructionParts.floorLVL],
+      [...buildUp].includes(section)
+    );
+    //  <======= Floor&Roof =======> //
+
+    //  <======= Pre floor =======> //
+    buildUp.push(Section.constructionWallTape);
+    this.buildState(
+      arr,
+      [ConstructionParts.tapes],
+      [...buildUp].includes(section)
+    );
+
+    buildUp.push(Section.constructionWallOSB);
+    this.buildState(
+      arr,
+      [ConstructionParts.osbWall],
+      [...buildUp].includes(section)
+    );
+
+    buildUp.push(Section.constructionWallJoists);
+    this.buildState(
+      arr,
+      [ConstructionParts.joists],
+      [...buildUp].includes(section)
+    );
+
+    buildUp.push(Section.constructionWallSole);
+    this.buildState(
+      arr,
+      [ConstructionParts.sole],
+      [...buildUp].includes(section)
+    );
+    //  <======= Pre floor =======> //
+
+    //  <======= Below ground =======> //
+    buildUp.push(Section.constructionGroundFloor);
+    this.buildState(
+      arr,
+      [ConstructionParts.groundFloor],
+      [...buildUp].includes(section)
+    );
+
+    buildUp.push(Section.constructionCrawlerSpace);
+    this.buildState(
+      arr,
+      [ConstructionParts.crawlerSpace],
+      [...buildUp].includes(section)
+    );
+
+    buildUp.push(Section.constructionFoundation);
+    this.buildState(
+      arr,
+      [ConstructionParts.foundation],
+      [...buildUp].includes(section)
+    );
   }
 
   /**

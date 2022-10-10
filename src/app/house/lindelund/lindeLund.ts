@@ -26,11 +26,11 @@ import { Water } from "src/app/model/specific/sensors/water.model";
 
 export const lindeLund: HouseUser = {
   studAmount: 12,
-  studDistance: 0.61,
+  studDistance: 0.6,
   towerWidth: 1,
   wallInnerThickness: 0.07,
-  wallOuterThickness: 0.4,
-  roof70DegOffset: 1,
+  wallOuterThickness: 0.3,
+  roofOuterThickness: 0.5,
   studAmountNorth: 14,
   studAmountSouth: 3,
   studAmountWest: 13,

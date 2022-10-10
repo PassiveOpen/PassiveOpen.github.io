@@ -20,7 +20,7 @@ export class Water<T> extends Sensor<T> {
 
   override init(floor: Floor, house: House) {
     const ceiling = house.cross.ceilingHeight;
-    const floorThickness = house.cross.floorThickness;
+    const floorThickness = house.cross.topFloorThickness;
 
     if (this.sensorType === SensorType.toilet) {
       this.size = 120;

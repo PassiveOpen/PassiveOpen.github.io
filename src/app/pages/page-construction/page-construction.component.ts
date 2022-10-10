@@ -3,7 +3,7 @@ import { AppService } from "src/app/app.service";
 import { HouseService } from "src/app/house/house.service";
 import { Section, Tag } from "src/app/components/enum.data";
 import { round, sum } from "src/app/shared/global-functions";
-import { rowHeatCalc } from "src/app/house/construction.model";
+import { rowHeatCalc, Thicknesses } from "src/app/house/construction.model";
 
 export type column = {
   id: keyof rowHeatCalc;
@@ -22,10 +22,9 @@ export class PageConstructionComponent implements AfterViewInit {
   Section = Section;
   update = this.houseService.update;
   round = round;
+  Thicknesses = Thicknesses;
 
   joists = [200, 300, 350, 400];
-
-  currentJoist = (x) => this.joists.findIndex((y) => y === x);
 
   columns: column[] = [
     { id: "name", name: "Name", def: (x) => `${x}` },
@@ -35,13 +34,22 @@ export class PageConstructionComponent implements AfterViewInit {
     { id: "deltaT", name: "Delta T", def: (x) => `${round(x, 1)}°C` },
     { id: "temp", name: "Temp", def: (x) => `${round(x, 1)}°C` },
   ];
-
   columnNames = this.columns.map((x) => x.id);
+
+  constructor(public houseService: HouseService) {}
+
+  ngAfterViewInit(): void {}
+
+  currentJoist = () =>
+    this.joists.findIndex(
+      (y) =>
+        y === this.house$.value.construction.Thicknesses[Thicknesses.joists]
+    );
 
   updateJoist(index) {
     this.update("construction", "thicknessJoist", this.joists[index]);
   }
-  constructor(public houseService: HouseService) {}
-
-  ngAfterViewInit(): void {}
+  updateOuterSheet(index) {
+    this.update("construction", "thicknessJoist", this.joists[index]);
+  }
 }

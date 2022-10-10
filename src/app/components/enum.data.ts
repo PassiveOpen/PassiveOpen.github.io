@@ -60,13 +60,36 @@ export enum Section {
 
   // construction
   constructionWelcome = "construction-welcome",
-  constructionParameters = "construction-parameters",
+
   constructionFoundation = "construction-foundation",
   constructionCrawlerSpace = "construction-crawler-space",
-  constructionRoof = "construction-roof",
+  constructionGroundFloor = "construction-ground-floor",
+
+  constructionWallSole = "construction-wall-sole",
+  constructionWallJoists = "construction-wall-joists",
+  constructionWallOSB = "construction-wall-osb",
+  constructionWallTape = "construction-wall-tape",
+
+  constructionFloorLVL = "construction-floor-lvl",
+  constructionRoofRidge = "construction-roof-ridge",
+  constructionRoofJoist = "construction-roof-joist",
+  constructionRoofInside = "construction-roof-inside",
+  constructionRoofOuterSheet = "construction-roof-outerSheet",
+  constructionRoofSpace = "construction-roof-space",
+  constructionRoofTiles = "construction-roof-tiles",
+
+  constructionWallInsulation = "construction-wall-insulation",
+  constructionWallOuterSheet = "construction-wall-outer-sheet",
+  constructionWallSpace = "construction-wall-space",
+  constructionWallFacade = "construction-wall-facade",
+  constructionWallGips = "construction-wall-gips",
+  constructionWallService = "construction-wall-service",
+
   constructionFloor = "construction-floor",
-  constructionWall = "construction-wall",
+  constructionFloorOSB = "construction-floor-osb",
+  constructionRoof = "construction-roof",
   constructionWallFinish = "construction-wall-finish",
+  constructionParameters = "construction-parameters",
 
   // installations
   installationWelcome = "installations-welcome",
@@ -158,10 +181,42 @@ export enum State {
   grid = "grid",
   walkLine = "walkLine",
   minimumHeight = "minimumHeight",
+  mirror = "mirror",
 }
 
 export enum CableType {
   OutsidePOE = "OutsidePOE",
   SharedEthernet = "SharedEthernet",
 }
-export type StatesExtended = State | SensorType | CableType;
+export type StatesExtended = State | SensorType | CableType | ConstructionParts;
+
+export enum ConstructionParts {
+  foundation = "A1-construction-foundation",
+  crawlerSpace = "A2-construction-crawler-space",
+  groundFloor = "A3-construction-ground-floor",
+  sole = "A4-construction-sole",
+  joists = "A5-construction-joists",
+  osbWall = "A6-construction-osb-wall",
+  tapes = "A7-construction-tapes",
+
+  floorLVL = "B1-construction-floorLVL",
+  topFloorJoists = "B2-construction-top-floor-joists",
+  topFloorOSB = "B2-construction-top-floor-osb",
+  roofRidge = "B3-construction-roof-ridge",
+  roofJoists = "B4-construction-roof-joists",
+
+  insulation = "C1-construction-insulation",
+  outerSheet = "C2-construction-outerSheet",
+  
+  roofOuterSheets = "C3-construction-roof-outerSheet",
+  roofSpace = "C4-construction-roof-space",
+  roofTiles = "C5-construction-roof-tiles",
+
+  space = "D1-construction-space",
+  facade = "D2-construction-facade",
+
+
+  serviceBeams = "E1-construction-serviceBeams",
+  serviceInsulation = "E2-construction-serviceInsulation",
+  gips = "E3-construction-gips",
+}

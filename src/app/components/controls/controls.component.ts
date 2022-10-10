@@ -1,11 +1,15 @@
 import { Component, ElementRef, OnInit } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
+
+import { faTemperatureHigh, faMound } from "@fortawesome/free-solid-svg-icons";
+
 import { CookieService } from "ngx-cookie-service";
 import { filter } from "rxjs";
 import { AppService } from "src/app/app.service";
 import { HouseService } from "src/app/house/house.service";
 import { animationSlideInOut } from "../animations";
 import {
+  ConstructionParts,
   Floor,
   Graphic,
   SensorType,
@@ -37,6 +41,12 @@ export class ControlsComponent implements OnInit {
   sensors: SensorIcon[] = Object.values(SensorType).map((x) => {
     return { state: x, title: x };
   });
+
+  constructionParts = Object.values(ConstructionParts);
+  ConstructionParts = ConstructionParts;
+
+  faTemperatureHigh = faTemperatureHigh;
+  faMound = faMound;
 
   extra = true;
 

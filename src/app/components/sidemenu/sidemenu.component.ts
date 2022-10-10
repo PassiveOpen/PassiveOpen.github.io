@@ -8,7 +8,7 @@ import packageJson from '../../../../package.json';
   styleUrls: ['./sidemenu.component.scss'],
 })
 export class SideMenuComponent implements OnInit {
-  @HostBinding('class.mini') mini = false;
+  @HostBinding('class.mini') mini = true;
   @HostBinding('class.collapsed') collapsed = true;
 
   version: string = packageJson.version;

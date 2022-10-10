@@ -63,3 +63,15 @@
   flex-direction: column;
   padding: 8px 8px 16px 8px;
 }
+.construction {
+  height: 16px;
+  width: 16px;
+  label {
+    right: 18px !important;
+    top: 6px;
+    line-height: 0;
+  }
+}
+.dev {
+  color: #613d1a;
+}
