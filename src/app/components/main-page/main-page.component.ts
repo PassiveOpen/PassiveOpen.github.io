@@ -243,19 +243,26 @@ export class AppMainPageComponent implements AfterViewInit {
 
         Section.constructionFloorLVL,
         Section.constructionGroundFloor,
-        
-        
+
         Section.constructionRoofRidge,
         Section.constructionRoofJoist,
         Section.constructionRoofInside,
         Section.constructionRoofOuterSheet,
         Section.constructionRoofSpace,
         Section.constructionRoofTiles,
-
       ].includes(section)
     ) {
-      graphic = Graphic.window;
+      graphic = Graphic.construction;
     }
+    
+    if (
+      [
+        Section.House3D,
+      ].includes(section)
+    ) {
+      graphic = Graphic.House3D;
+    }
+    
     if (
       [
         Section.installationDrinkWater,

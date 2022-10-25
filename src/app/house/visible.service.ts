@@ -194,11 +194,11 @@ export class StateService {
 
     //  <======= Floor&Roof =======> //
     buildUp.push(Section.constructionRoofInside);
-    // this.buildState(
-    //   arr,
-    //   [ConstructionParts.roofJoists],
-    //   [...buildUp].includes(section)
-    // );
+    this.buildState(
+      arr,
+      [ConstructionParts.roofOSB],
+      [...buildUp].includes(section)
+    );
     buildUp.push(Section.constructionRoofJoist);
     this.buildState(
       arr,

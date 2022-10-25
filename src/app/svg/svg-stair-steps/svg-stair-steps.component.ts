@@ -11,6 +11,8 @@ import { Measure } from "src/app/model/specific/measure.model";
 import { BasicSVG } from "src/app/svg/base-svg.component";
 import { Floor, Graphic, Section } from "src/app/components/enum.data";
 import { TooltipService } from "src/app/components/tooltip/tooltip.service";
+import { D3DistanceService } from "../d3Distance.service";
+import { ContextMenuService } from "src/app/components/context-menu/context-menu.service";
 import { D3Service } from "../d3.service";
 
 @Component({
@@ -32,9 +34,19 @@ export class SvgStairsComponent extends BasicSVG implements AfterViewInit {
     public tooltipService: TooltipService,
     public host: ElementRef,
     private httpClient: HttpClient,
-    public d3Service: D3Service
+    public d3Service: D3Service,
+    public d3DistanceService: D3DistanceService,
+    public contextMenuService: ContextMenuService
   ) {
-    super(houseService, appService, tooltipService, host, d3Service);
+    super(
+      houseService,
+      appService,
+      tooltipService,
+      host,
+      d3Service,
+      d3DistanceService,
+      contextMenuService
+    );
   }
 
   ngAfterViewInit(): void {

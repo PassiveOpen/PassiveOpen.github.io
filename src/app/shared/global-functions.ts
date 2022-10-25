@@ -5,7 +5,9 @@ export const phi = 1.61803398874989;
 export const round = (number: number, decimals = 4) => {
   return Math.round(number * 10 ** decimals) / 10 ** decimals;
 };
-
+export const centerBetweenPoints = ([x, y], [v, w]): xy => {
+  return [(v - x) / 2 + x, (w - y) / 2 + y];
+};
 export const sum = (a: any[], decimals = 4) => {
   return round(
     a.reduce((partialSum, v) => partialSum + v, 0),
@@ -23,8 +25,11 @@ export const angleXY = (deg, r, offset: xy = [0, 0], decimals = 4): xy => {
 /**
  * angle in Deg between two points
  */
-export const angleBetween = (p1: xy, p2: xy) => {
-  return round((Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) * 180) / Math.PI,3);
+export const angleBetween = (p1: xy, p2: xy, decimals = 3) => {
+  return round(
+    (Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) * 180) / Math.PI,
+    decimals
+  );
 };
 
 export const findCircleLineIntersections = (r, m, n, h = 0, k = 0) => {

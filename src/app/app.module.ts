@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
+import { OverlayModule } from "@angular/cdk/overlay";
 
 import { AppComponent } from "./app.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
@@ -37,12 +38,17 @@ import { SafeHtmlPipe } from "./shared/safehtml.pipe";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { PageAboutComponent } from "./pages/page-about/page-about.component";
 import { ThreeConstructionComponent } from "./3d/three-construction/three-construction.component";
+import { AppContextMenuComponent } from "./components/context-menu/context-menu.component";
+import { Page3dHouseComponent } from "./pages/page-3d-house/page-3d-house.component";
+import { ThreeHouseComponent } from "./3d/three-house/three-house.component";
+import { BaseThreeComponent } from "./3d/base-three.component";
 
 @NgModule({
   declarations: [
     AppComponent,
     SideMenuComponent,
     ThreeConstructionComponent,
+    ThreeHouseComponent,
     AppSVGComponent,
     SvgComponent,
     SvgCrossComponent,
@@ -56,15 +62,18 @@ import { ThreeConstructionComponent } from "./3d/three-construction/three-constr
     PageConstructionComponent,
     PageWiredComponent,
     PageCostsComponent,
+    Page3dHouseComponent,
     PageMapComponent,
     PageFacadeComponent,
     PageCostsComponent,
+    BaseThreeComponent,
     TooltipComponent,
     OverlayDirective,
     ControlsComponent,
     AppMainPageComponent,
     SafeHtmlPipe,
     AppTableComponent,
+    AppContextMenuComponent,
   ],
   imports: [
     BrowserModule,
@@ -72,6 +81,7 @@ import { ThreeConstructionComponent } from "./3d/three-construction/three-constr
     MaterialModule,
     FlexLayoutModule,
     HttpClientModule,
+    OverlayModule,
     FontAwesomeModule,
     DisqusModule.forRoot("passiv"),
     NgxGoogleAnalyticsModule.forRoot("G-W580DX5P7G"),

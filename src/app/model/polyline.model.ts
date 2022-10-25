@@ -5,7 +5,7 @@ import { BaseSVG } from "./base.model";
 import { Floor } from "../components/enum.data";
 
 export class AppPolyline extends BaseSVG {
-  points: xy[] = [];
+  coords: xy[] = [];
   dash: number[] = [];
 
   constructor(data: Partial<AppPolyline>) {
@@ -24,7 +24,7 @@ export class AppPolyline extends BaseSVG {
     }
 
     this.svg
-      .attr("points", this.points.join(" "))
+      .attr("points", this.coords.join(" "))
       .attr("transform", this.transform);
 
     this.setClass(this.svg);

@@ -1,10 +1,21 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, take } from "rxjs";
+import {
+  BehaviorSubject,
+  Observable,
+  take,
+  fromEvent,
+  Subscription,
+} from "rxjs";
 import { AppService } from "../app.service";
 import { HouseService } from "../house/house.service";
 import * as d3 from "d3";
 import { CookieService } from "ngx-cookie-service";
+import { round } from "../shared/global-functions";
+import { AppPolyline } from "../model/polyline.model";
+import { Cross } from "../house/cross.model";
+import { Graphic } from "../components/enum.data";
+import { AppDistance } from "../model/distance.model";
 
 @Injectable({
   providedIn: "root",

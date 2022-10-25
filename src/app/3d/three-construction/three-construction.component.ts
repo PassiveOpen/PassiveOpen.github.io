@@ -18,7 +18,7 @@ import {
 } from "src/app/components/enum.data";
 import { Construction, Thicknesses } from "src/app/house/construction.model";
 import { Cross, Elevation, RoofPoint } from "src/app/house/cross.model";
-import { xy, xyz } from "src/app/house/house.model";
+import { House, xy, xyz } from "src/app/house/house.model";
 import { HouseService } from "src/app/house/house.service";
 import {
   angleBetween,
@@ -29,7 +29,7 @@ import {
   round,
 } from "src/app/shared/global-functions";
 import * as THREE from "three";
-import { MeshPhongMaterial, Vector3 } from "three";
+import { MeshLambertMaterial, MeshPhongMaterial, Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { degToRad } from "three/src/math/MathUtils";
 import {
@@ -38,6 +38,8 @@ import {
   ThreeService,
 } from "../three-window.service";
 import { Reflector } from "three/examples/jsm/objects/Reflector.js";
+import { Window } from "src/app/house/window.model";
+import { CSG } from "three-csg-ts";
 
 @Component({
   selector: "app-three-construction",
@@ -73,15 +75,18 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
   subscriptions: Subscription[] = [];
   observer: ResizeObserver;
   orbitControlsCookie;
-
   modelName = "wallDetail";
   model: THREE.Scene;
 
   section: Section;
   tag: Tag;
 
+  house: House;
   cross: Cross;
   construction: Construction;
+  animations: { [key in ConstructionParts]?: gsap.core.Timeline } = {};
+  subModels: { [key in ConstructionParts]?: (THREE.Mesh | THREE.Group)[] } = {};
+
   thickness;
   crossDepth;
   amountOfStuds;
@@ -101,9 +106,22 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
   edgeAngle: number;
   lowerAngle: number;
   upperAngle: number;
+  window = new Window({});
 
-  animations: { [key in ConstructionParts]?: gsap.core.Timeline } = {};
-  subModels: { [key in ConstructionParts]?: (THREE.Mesh | THREE.Group)[] } = {};
+  windowRoughOSBClip = this.threeService.createCube({
+    material: Material.concrete,
+    whd: [
+      this.window.roughWidthOSB - (this.window.gap + this.window.thicknessOSB),
+      this.window.roughHeightOSB,
+      2,
+    ],
+    xyz: [0, this.window.roughBottomOSB, -1],
+  });
+  windowRoughClip = this.threeService.createCube({
+    material: Material.whiteWood,
+    whd: [this.window.roughWidth - this.window.gap, this.window.roughHeight, 2],
+    xyz: [0, this.window.roughBottom, -1],
+  });
 
   constructor(
     private threeService: ThreeService,
@@ -180,7 +198,6 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       );
     }
     if (orbitControlsTarget !== "") {
-      console.log(orbitControlsTarget);
       this.controls.target.fromArray(JSON.parse(orbitControlsTarget));
     }
     // if (this.OrbitControlsCookie === "") ;
@@ -208,30 +225,15 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     this.rendererContainer.nativeElement.appendChild(this.renderer.domElement);
     this.animate();
 
-    const offset =
-      this.thickness[Thicknesses.outerSheet] / Math.cos(degToRad(20));
-
     for (let point of [
-      [0, 0],
-      [0, this.cross.elevations[Elevation.topFloor]],
-
-      this.construction.getRoofPoint(RoofPoint.roofWallInner),
-      this.construction.getRoofPoint(RoofPoint.roofWallOuter),
-
-      this.construction.getRoofPoint(RoofPoint.roofBendInside),
-      this.construction.getRoofPoint(RoofPoint.roofBendOutside),
-
-      this.offsetDistanceBend(
-        this.thickness[Thicknesses.outerSheet],
-        RoofPoint.roofBendOutside
+      ...Object.keys(RoofPoint).map((x: RoofPoint) =>
+        this.construction.getRoofPoint(x)
       ),
-
-      this.construction.getRoofPoint(RoofPoint.roofTopInside),
-      this.construction.getRoofPoint(RoofPoint.roofTopOutside),
-
-      this.construction.getRoofPoint(RoofPoint.roofLowestInside),
-      this.construction.getRoofPoint(RoofPoint.roofLowestOutside),
-    ] as xy[]) {
+      this.offsetDistanceBend(
+        -this.thickness[Thicknesses.roofJoists],
+        RoofPoint.bendOutside
+      ),
+    ]) {
       const axesHelper = new THREE.AxesHelper(1);
       axesHelper.position.set(
         0,
@@ -246,14 +248,60 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     (window as any).scene = this.scene;
   }
 
-  offsetDistanceBend = (x, key: RoofPoint): xy => {
+  getRoofAndOffsetPoints(d) {
+    type RoofPointOffset = {
+      //@ts-ignore
+      [K in RoofPoint as K extends string ? `${K}Offset` : never]: RoofPoint[K];
+    };
+    let obj: {
+      [key in keyof RoofPointOffset | RoofPoint]?: xy;
+    } = {};
+    Object.keys(RoofPoint).forEach((key: RoofPoint) => {
+      obj[key] = this.construction.getRoofPoint(key);
+      obj[`${key}Offset`] = this.offsetDistanceBend(d, key);
+    });
+    return obj;
+  }
+  offsetDistanceBend = (d, key: RoofPoint): xy => {
     const xy = this.construction.getRoofPoint(key);
 
-    const diffAngle = (this.lowerAngle - this.upperAngle) / 2;
-    const distance = x / Math.cos(degToRad(diffAngle));
-    return angleXY(this.edgeAngle+90, distance, xy);
+    let diffAngle = 0;
+    let angle = 0;
+    if ([RoofPoint.bendInside, RoofPoint.bendOutside].includes(key)) {
+      diffAngle = (this.lowerAngle - this.upperAngle) / 2;
+      // diffAngle = -(
+      //   90 -
+      //   angleBetween(
+      //     this.construction.getRoofPoint(RoofPoint.bendInside),
+      //     this.construction.getRoofPoint(RoofPoint.bendOutside)
+      //   )
+      // );
+      angle = this.edgeAngle + 90;
+    }
+    if ([RoofPoint.topInside, RoofPoint.topOutside].includes(key)) {
+      diffAngle = 0;
+      angle = 90;
+    }
+    if ([RoofPoint.lowestInside, RoofPoint.lowestOutside].includes(key)) {
+      diffAngle = 0;
+      angle = this.lowerAngle + 180;
+    }
+    if (
+      [
+        RoofPoint.groundFloorInside,
+        RoofPoint.groundFloorOutside,
+        RoofPoint.wallInside,
+        RoofPoint.wallOutside,
+      ].includes(key)
+    ) {
+      diffAngle = 0;
+      angle = 180;
+    }
+
+    const distance = d / Math.cos(degToRad(diffAngle));
+    return angleXY(angle, distance, xy);
   };
-  //// LifeCicle ////
+  //// LifeCircle ////
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
@@ -289,15 +337,15 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
 
     this.lowerAngle = round(
       angleBetween(
-        this.construction.getRoofPoint(RoofPoint.roofLowestOutside),
-        this.construction.getRoofPoint(RoofPoint.roofBendOutside)
+        this.construction.getRoofPoint(RoofPoint.lowestOutside),
+        this.construction.getRoofPoint(RoofPoint.bendOutside)
       ) - 90,
       3
     );
     this.upperAngle = round(
       angleBetween(
-        this.construction.getRoofPoint(RoofPoint.roofBendOutside),
-        this.construction.getRoofPoint(RoofPoint.roofTopOutside)
+        this.construction.getRoofPoint(RoofPoint.bendOutside),
+        this.construction.getRoofPoint(RoofPoint.topOutside)
       ) - 90,
       3
     );
@@ -381,10 +429,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     );
 
     this.threeService.basicGround(this.scene, -3);
-    this.threeService.lights(
-      this.scene,
-      new THREE.Vector3(this.center.x, this.ceilingHeight - 0.3, -3)
-    );
+    this.threeService.lights(this.scene);
 
     this.buildConstruction();
 
@@ -396,33 +441,33 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     });
 
     const scale = 0.5;
-    this.threeService.importGLTF(
-      this.scene,
-      "Male_Standing.glb",
-      (mesh: THREE.Mesh) => {
-        mesh.scale.set(scale, scale, scale);
-        mesh.rotateY(degToRad(-90 - 20));
-        mesh.position.set(this.demoWith / 2, 0, -2);
-      }
-    );
+    this.threeService.importGLTF("Male_Standing.glb", (mesh: THREE.Mesh) => {
+      this.scene.add(mesh);
+      mesh.scale.set(scale, scale, scale);
+      mesh.rotateY(degToRad(-90 - 20));
+      mesh.position.set(
+        this.demoWith / 2,
+        this.cross.elevations[Elevation.topFloor],
+        -2
+      );
+    });
   }
 
   buildConstruction() {
-    this.demoDepth = this.construction.getRoofPoint(
-      RoofPoint.roofTopOutside
-    )[0];
+    this.demoDepth = this.construction.getRoofPoint(RoofPoint.topOutside)[0];
 
-    // this.buildFoundation();
-    // this.buildICF();
-    // this.buildGroundFloor();
-    // this.buildTapes();
-    // this.buildOSB();
-    // this.buildOSBRoof();
-    // this.buildTopFloor();
-    // this.buildFloorLVL();
+    this.buildFoundation();
+    this.buildICF();
+    this.buildGroundFloor();
+    this.buildTapes();
+    this.buildWindowOSB();
+    this.buildOSB();
+    this.buildOSBRoof();
+    this.buildTopFloor();
+    this.buildFloorLVL();
 
-    // this.buildTopFloorOSB();
-    // this.buildSole();
+    this.buildTopFloorOSB();
+    this.buildSole();
     this.buildJoist();
     this.buildRoofJoists();
     // this.buildInsulation();
@@ -433,20 +478,14 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     this.buildRoofSpace();
     this.buildFacade();
     this.buildGips();
+    this.buildRoofTiles();
+    this.debugMeasureBlock();
     this.createMirror();
     const states = this.appService.states$.value;
     Object.values(ConstructionParts).forEach((key) => {
       this.subModels[key].forEach((x) => this.scene.add(x));
       this.animations[key].progress(states[key] === true ? 0 : 1);
     });
-
-    setTimeout(() => {
-      this.animations[ConstructionParts.roofSpace]
-        .yoyo(true)
-        .repeat(-1)
-        .repeatDelay(0.3)
-        .play();
-    }, 1000);
   }
   createMirror() {
     this.mirror = new Reflector(new THREE.PlaneGeometry(30, 30), {
@@ -459,7 +498,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     this.mirror.position.set(
       -2,
       0,
-      -this.construction.getRoofPoint(RoofPoint.roofTopOutside)[0]
+      -this.construction.getRoofPoint(RoofPoint.topOutside)[0]
     );
     this.scene.add(this.mirror);
   }
@@ -501,12 +540,12 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     return group;
   }
 
-  createCornerTape(w, w2, t): THREE.Group {
+  createCornerTape(w, w2, t, l): THREE.Group {
     const group = new THREE.Group();
 
     const mesh = this.threeService.createCube({
       material: Material.tape,
-      whd: [this.demoWith, w, t],
+      whd: [l, w, t],
     });
     mesh.rotateX(degToRad(0));
     this.translate(mesh, 0, -w, 0);
@@ -514,7 +553,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
 
     const mesh2 = this.threeService.createCube({
       material: Material.tape,
-      whd: [this.demoWith, w2, t],
+      whd: [l, w2, t],
     });
     mesh2.rotateX(degToRad(90));
     this.translate(mesh2, 0, -w2 / 2 - t / 2, -w2 / 2 + t / 2);
@@ -620,7 +659,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       .flatMap((x) => x.children)
       .sort((a, b) => a.position.x - b.position.x)
       .forEach((joist, i) => {
-        this.scaleInOut(key, joist, 0.1);
+        this.scaleZInOut(key, joist, 0.1);
       });
     this.buildRoofLVL();
   }
@@ -628,24 +667,16 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
   buildRoofLowerJoists() {
     const key = ConstructionParts.roofJoists;
 
-    const lowerInner = this.construction.getRoofPoint(
-      RoofPoint.roofLowestInside
-    );
-    const lowerOuter = this.construction.getRoofPoint(
-      RoofPoint.roofLowestOutside
-    );
-    const higherInner = this.construction.getRoofPoint(
-      RoofPoint.roofBendInside
-    );
-    const higherOuter = this.construction.getRoofPoint(
-      RoofPoint.roofBendOutside
-    );
+    const wallInner = this.construction.getRoofPoint(RoofPoint.wallInside);
+    const lowerInner = this.construction.getRoofPoint(RoofPoint.wallInside);
+    const lowerOuter = this.construction.getRoofPoint(RoofPoint.wallOutside);
+    const higherInner = this.construction.getRoofPoint(RoofPoint.bendInside);
+    const higherOuter = this.construction.getRoofPoint(RoofPoint.bendOutside);
 
     const h = this.thickness[Thicknesses.roofJoists];
     const group = new THREE.Group();
     this.subModels[key].push(group);
-    const angle = -(90 - angleBetween(lowerInner, higherInner));
-    group.rotateX(degToRad(angle));
+    group.rotateX(degToRad(this.lowerAngle));
     this.translate(group, 0, lowerOuter[1], -lowerOuter[0]);
     const l = getDiagonal(lowerOuter, higherOuter);
 
@@ -666,6 +697,11 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
         new THREE.Vector3(0, higherInner[1], -higherInner[0])
       )
     );
+    const horizontalAngled = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    localPlanes.push(horizontalAngled);
+    horizontalAngled.applyMatrix4(
+      new THREE.Matrix4().setPosition(new THREE.Vector3(0, lowerInner[1], 0))
+    );
 
     const offset = 0;
     const offsetBlock = 0.05;
@@ -676,7 +712,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       let spacing = i * this.studDistance - this.joistFlangeWidth / 2;
       if (i === 0) spacing = 0;
       const joist = this.createJoist(l + offset * 2, h);
-      joist.position.set(0, -offset, -h);
+      joist.position.set(0, -offset, 0);
 
       const blocking = this.threeService.createCube({
         material: Material.pine,
@@ -700,7 +736,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
         .flatMap((x: THREE.Mesh) => x.material)
         .forEach((mat: MeshPhongMaterial) => {
           mat.side = THREE.DoubleSide;
-          // mat.clippingPlanes = localPlanes;
+          mat.clippingPlanes = localPlanes;
           mat.clipIntersection = false;
           mat.clipShadows = true;
         });
@@ -717,14 +753,10 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
   buildRoofHigherJoists() {
     const key = ConstructionParts.roofJoists;
 
-    const lowerInner = this.construction.getRoofPoint(RoofPoint.roofBendInside);
-    const lowerOuter = this.construction.getRoofPoint(
-      RoofPoint.roofBendOutside
-    );
-    const higherInner = this.construction.getRoofPoint(RoofPoint.roofTopInside);
-    const higherOuter = this.construction.getRoofPoint(
-      RoofPoint.roofTopOutside
-    );
+    const lowerInner = this.construction.getRoofPoint(RoofPoint.bendInside);
+    const lowerOuter = this.construction.getRoofPoint(RoofPoint.bendOutside);
+    const higherInner = this.construction.getRoofPoint(RoofPoint.topInside);
+    const higherOuter = this.construction.getRoofPoint(RoofPoint.topOutside);
 
     const group = new THREE.Group();
     this.subModels[key].push(group);
@@ -911,50 +943,160 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     const rows = Math.ceil(this.cross.innerWallHeight / osbHeight);
     const cols = Math.ceil(this.demoWith / osbWidth);
 
+    // <==== corners ====>
+    const corner1 = this.createCornerTape(
+      w,
+      w * 1,
+      t,
+      this.window.roughWidth - this.window.gap + w
+    );
+    corner1.scale.set(1, 1, -1);
+    this.translate(
+      corner1,
+      0,
+      this.window.roughBottom + t,
+      this.crossDepth[Thicknesses.serviceBeams]
+    );
+    this.subModels[key].push(corner1);
+    this.scaleXInOut(key, corner1, duration);
+
+    const corner2 = this.createCornerTape(
+      w,
+      w * 1,
+      t,
+      this.window.roughWidth - this.window.gap + w
+    );
+    corner2.scale.set(1, -1, -1);
+    this.translate(
+      corner2,
+      0,
+      this.window.roughTop - t,
+      this.crossDepth[Thicknesses.serviceBeams]
+    );
+    this.subModels[key].push(corner2);
+    this.scaleXInOut(key, corner2, duration);
+
+    const corner3 = this.createCornerTape(
+      w,
+      w * 1,
+      t,
+      this.window.roughTop - this.window.roughBottom + w * 2 - t * 2
+    );
+    corner3.rotateZ(degToRad(90));
+    corner3.scale.set(1, 1, -1);
+    this.translate(
+      corner3,
+      this.window.roughWidth - this.window.gap - t,
+      this.window.roughBottom - w + t,
+      this.crossDepth[Thicknesses.serviceBeams]
+    );
+    this.subModels[key].push(corner3);
+    this.scaleXInOut(key, corner3, duration);
+
+    const corner4 = this.createCornerTape(
+      w,
+      w * 1,
+      t,
+      this.thickness[Thicknesses.joists] + this.thickness[Thicknesses.osb]
+    );
+    corner4.rotateY(degToRad(-90));
+    corner4.scale.set(1, -1, -1);
+    this.translate(
+      corner4,
+      this.window.roughWidth - this.window.gap - t,
+      this.window.roughBottom,
+      this.crossDepth[Thicknesses.serviceBeams]
+    );
+    this.subModels[key].push(corner4);
+    this.scaleXInOut(key, corner4, duration);
+
+    const corner5 = this.createCornerTape(
+      w,
+      w * 1,
+      t,
+      this.thickness[Thicknesses.joists] + this.thickness[Thicknesses.osb]
+    );
+    corner5.rotateY(degToRad(-90));
+    corner5.scale.set(1, 1, -1);
+    this.translate(
+      corner5,
+      this.window.roughWidth - this.window.gap - t,
+      this.window.roughTop,
+      this.crossDepth[Thicknesses.serviceBeams]
+    );
+    this.subModels[key].push(corner5);
+    this.scaleXInOut(key, corner5, duration);
+    // <==== corners ====>
+
     for (let row of [...Array(rows).keys()]) {
       const y = osbHeight * row;
-      const mesh = this.threeService.createCube({
-        material: Material.tape,
-        whd: [this.demoWith, w, t],
-        xyz: [0, y, depth],
-      });
+      const mesh = this.clip(
+        this.threeService.createCube({
+          material: Material.tape,
+          whd: [this.demoWith, w, t],
+          xyz: [0, y, depth],
+        }),
+        this.windowRoughOSBClip
+      );
       this.subModels[key].push(mesh);
       this.scaleXInOut(key, mesh, duration);
 
       for (let col of [...Array(cols).keys()]) {
         const x = row % 2 ? osbWidth * col : osbWidth * 0.5 + osbWidth * col;
         if (x + w > this.demoWith) continue;
-        if (y + osbHeight > this.cross.innerWallHeight) continue;
-        const mesh = this.threeService.createCube({
-          material: Material.tape,
-          whd: [w, osbHeight, t],
-          xyz: [x, y, depth],
-        });
+        let l = osbHeight;
+        if (y + osbHeight > this.cross.innerWallHeight)
+          l = this.cross.innerWallHeight - y;
+        const mesh = this.clip(
+          this.threeService.createCube({
+            material: Material.tape,
+            whd: [w, l, t],
+            xyz: [x, y, depth],
+          }),
+          this.windowRoughOSBClip
+        );
         this.subModels[key].push(mesh);
-        this.scaleXInOut(key, mesh, duration);
+        this.scaleYInOut(key, mesh, duration);
       }
     }
   }
+
+  buildRoofTapes() {}
+
   buildInsulation() {
     const key = ConstructionParts.insulation;
 
-    const floor = [0, this.solePlateThickness];
-    const wall = [0, this.innerWallHeight - this.solePlateThickness * 3, 0];
-    const roofBendOutside = this.construction.getRoofPoint(
-      RoofPoint.roofBendOutside
-    );
-    const roofBendInside = this.construction.getRoofPoint(
-      RoofPoint.roofBendInside
-    );
-    const top = this.construction.getRoofPoint(RoofPoint.roofTopOutside);
+    const floor = [0, this.solePlateThickness * 2];
+    const wall = [0, this.innerWallHeight - this.solePlateThickness * 2, 0];
 
-    let w = this.studDistance - this.joistFlangeWidth;
+    let w = this.studDistance - this.joistFlangeWidth / 2;
+    const t = this.thickness[Thicknesses.roofJoists] * 0.95;
 
-    const insulation = (t, spacing, first, second, origin) => {
+    const clips = this.threeService.createCube({
+      material: Material.concrete,
+      whd: [
+        this.window.roughWidth + this.window.thicknessOSB,
+        this.window.roughHeight + this.window.thicknessOSB * 2,
+        0.5,
+      ],
+      xyz: [0, this.window.roughBottomOSB, -0.1],
+    });
+
+    const clips2 = this.threeService.createCube({
+      material: Material.concrete,
+      whd: [
+        this.window.roughWidth + this.window.thicknessOSB,
+        this.window.roughHeight + this.window.thicknessOSB * 2,
+        0.5,
+      ],
+      xyz: [0, this.window.roughBottomOSB, -0.1],
+    });
+
+    const insulation = (t, spacing, first, second, origin, clips) => {
       const mesh = this.threeService.createCube({
         material: Material.insulation,
-        whd: [w, getDiagonal(first, second), t],
-        xyz: [0, 0, -t],
+        whd: [this.demoWith, wall[1], 3],
+        xyz: [0, 0, -1.5],
       });
 
       let rotation = new THREE.Matrix4().makeRotationX(
@@ -966,7 +1108,8 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
 
       // mesh.rotateX(degToRad(-angleBetween(first, second) + 90));
       // this.translate(mesh, spacing, first[1], -first[0]);
-      this.subModels[key].push(mesh);
+
+      this.subModels[key].push(this.clip(mesh, clips));
     };
 
     for (let i of [...Array(this.amountOfStuds).keys()]) {
@@ -979,23 +1122,29 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
         w -= this.joistFlangeWidth / 2;
       }
       insulation(
-        this.thickness[Thicknesses.roofJoists],
+        this.thickness[Thicknesses.roofJoists] * 0.95,
         spacing,
-        this.construction.getRoofPoint(RoofPoint.roofBendOutside),
-        this.construction.getRoofPoint(RoofPoint.roofTopOutside),
-        this.construction.getRoofPoint(RoofPoint.roofBendOutside)
+        this.construction.getRoofPoint(RoofPoint.bendOutside),
+        this.construction.getRoofPoint(RoofPoint.topOutside),
+        this.construction.getRoofPoint(RoofPoint.bendOutside),
+        clips
       );
       insulation(
-        this.thickness[Thicknesses.roofJoists],
+        this.thickness[Thicknesses.roofJoists] * 0.95,
         spacing,
-        this.construction.getRoofPoint(RoofPoint.roofLowestOutside),
-        this.construction.getRoofPoint(RoofPoint.roofBendOutside),
-        this.construction.getRoofPoint(RoofPoint.roofLowestOutside)
+        this.construction.getRoofPoint(RoofPoint.lowestOutside),
+        this.construction.getRoofPoint(RoofPoint.bendOutside),
+        this.construction.getRoofPoint(RoofPoint.lowestOutside),
+        clips
       );
-      insulation(this.thickness[Thicknesses.joists], spacing, floor, wall, [
-        -this.thickness[Thicknesses.joists],
-        this.solePlateThickness,
-      ]);
+      insulation(
+        this.thickness[Thicknesses.joists] * 0.95,
+        spacing,
+        floor,
+        wall,
+        [-this.thickness[Thicknesses.joists], this.solePlateThickness * 2],
+        clips
+      );
     }
 
     // <======== animation  ========> //
@@ -1027,7 +1176,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  scaleInOut(key, mesh, duration = 0.3, ease = "power3") {
+  scaleZInOut(key, mesh, duration = 0.3, ease = "power3") {
     this.animations[key].to(mesh.position, {
       z: 0,
       duration,
@@ -1038,6 +1187,27 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       {
         z: 0,
         x: 0,
+        duration,
+        ease,
+      },
+      `<`
+    );
+    this.animations[key].to(mesh, {
+      visible: false,
+      duration: 0,
+    });
+  }
+  scaleYInOut(key, mesh, duration = 0.3, ease = "power3") {
+    this.animations[key].to(mesh.position, {
+      y: 0,
+      duration,
+      ease,
+    });
+    this.animations[key].to(
+      mesh.scale,
+      {
+        y: 0,
+        z: 0,
         duration,
         ease,
       },
@@ -1077,7 +1247,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
 
     const bottom =
       this.cross.elevations[Elevation.groundFloor] + this.solePlateThickness;
-    const top = this.construction.getRoofPoint(RoofPoint.roofWallInner)[1];
+    const top = this.construction.getRoofPoint(RoofPoint.wallInside)[1];
 
     const group = new THREE.Group();
     this.translate(group, 0, bottom, this.crossDepth[Thicknesses.joists]);
@@ -1086,20 +1256,59 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       x: degToRad(-90),
       duration,
     });
+    const osbThickness = this.thickness[Thicknesses.osb];
+    const joistHeight = this.construction.thickness[Thicknesses.joists];
 
+    const amount = this.amountOfStuds + 2;
     // <====== JOISTS  ======> //
-    const length = top - bottom - this.solePlateThickness * 2;
-    for (let i of [...Array(this.amountOfStuds + 1).keys()]) {
+    for (let i of [...Array(amount).keys()]) {
+      let length = top - bottom - this.solePlateThickness * 2;
+      let elevation = this.solePlateThickness;
       let spacing = i * this.studDistance - this.joistFlangeWidth / 2;
+      if (i === amount - 1)
+        spacing =
+          this.window.roughWidth - this.window.gap + this.window.thicknessOSB;
       if (i === 0) spacing = 0;
 
-      const mesh = this.createJoist(
-        length,
-        this.construction.thickness[Thicknesses.joists]
-      );
-      this.translate(mesh, spacing, this.solePlateThickness, 0);
+      if (spacing < this.window.roughWidth - this.window.gap) {
+        // top stud
+        elevation =
+          joistHeight + this.window.roughTopOSB - this.solePlateThickness;
+        length = length + this.solePlateThickness - elevation;
+        const mesh = this.createJoist(
+          length,
+          this.construction.thickness[Thicknesses.joists]
+        );
+        this.translate(mesh, spacing, elevation, 0);
+        group.add(mesh);
+        this.scaleZInOut(key, mesh, 0.2);
+        // top stud
+
+        // reset
+        elevation = this.solePlateThickness;
+        length =
+          this.window.roughBottom - this.solePlateThickness * 2 - osbThickness;
+      }
+
+      const mesh = this.createJoist(length, joistHeight);
+      this.translate(mesh, spacing, elevation, 0);
       group.add(mesh);
-      this.scaleInOut(key, mesh, 0.2);
+      this.scaleZInOut(key, mesh, 0.2);
+    }
+    for (let i of [...Array(2).keys()]) {
+      let length =
+        this.window.roughWidth - this.window.gap + this.window.thicknessOSB;
+
+      let elevation =
+        joistHeight + this.window.roughTopOSB - this.solePlateThickness;
+      let z = this.joistFlangeWidth;
+      if (i === 0) z = joistHeight;
+
+      const mesh = this.createJoist(length, joistHeight);
+      mesh.rotation.set(degToRad(90), 0, degToRad(-90));
+      this.translate(mesh, 0, elevation, z);
+      group.add(mesh);
+      this.scaleZInOut(key, mesh, 0.2);
     }
 
     // <====== Soleplates  ======> //
@@ -1115,7 +1324,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
         0
       );
       group.add(mesh);
-      this.scaleInOut(key, mesh, 0.2);
+      this.scaleZInOut(key, mesh, 0.2);
     }
   }
   buildTopFloor() {
@@ -1162,6 +1371,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     this.subModels[key].push(group);
   }
   buildTopFloorOSB() {
+    this.buildRoofTapes();
     const key = ConstructionParts.topFloorOSB;
 
     const length = 2.4;
@@ -1169,7 +1379,6 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     const totalWidth = this.demoDepth;
     const totalLength = this.demoWith;
     const thickness = this.thickness[Thicknesses.osb];
-    const bottom = this.cross.elevations[Elevation.topFloor];
 
     const origin = [
       0,
@@ -1191,7 +1400,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       (osbPlate, i, j, l, w, total) => {
         const duration = 0.3 + ((i + j) / total) * 0.2;
 
-        this.scaleInOut(key, osbPlate, duration);
+        this.scaleZInOut(key, osbPlate, duration);
       }
     );
   }
@@ -1206,7 +1415,8 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     totalLength,
     rotation,
     material: Material,
-    callback
+    callback,
+    clips?
   ) {
     const group = new THREE.Group();
 
@@ -1244,12 +1454,15 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
           continue;
         }
 
-        const osbPlate = this.threeService.createCube({
+        let osbPlate = this.threeService.createCube({
           material,
           whd: [l, w, thickness],
         });
         this.translate(osbPlate, x, y, z);
 
+        if (clips) {
+          osbPlate = this.clip(osbPlate, clips);
+        }
         group.add(osbPlate);
         callback(osbPlate, wRow, lRow, l, w, total, isLeftOver);
       }
@@ -1265,8 +1478,86 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     this.subModels[key].push(group);
   }
 
+  clip(mesh, clip) {
+    mesh.updateMatrix();
+    clip.updateMatrix();
+    return CSG.subtract(mesh, clip) as THREE.Mesh<
+      THREE.BoxGeometry,
+      MeshLambertMaterial[]
+    >;
+  }
+  buildRoofTiles() {
+    const key = ConstructionParts.roofTiles;
+    const h = 308 / 1000;
+    const w = 204 / 1000;
+    const scale = 1;
+    const thickness = 0.3;
+    const overlapAngle = -4;
+    const overlapHeight = 0.01;
+
+    const crossDepth =
+      this.thickness[Thicknesses.outerSheet] +
+      this.thickness[Thicknesses.space] +
+      0.02;
+    const roof = this.getRoofAndOffsetPoints(crossDepth);
+
+    this.threeService.importGLTF("rooftile.glb", (mainMesh: THREE.Mesh) => {
+      mainMesh.scale.set(scale, scale, scale);
+
+      // @ts-ignore
+      const mat: MeshStandardMaterial = mainMesh.children[0].material;
+      // mat.emission = new THREE.Color(0xffffff);
+
+      [
+        // [RoofPoint.groundOutside, RoofPoint.wallOutside],
+        [RoofPoint.lowestOutside, RoofPoint.bendOutside],
+        [RoofPoint.bendOutside, RoofPoint.topOutside],
+      ].map((coords, i) => {
+        const { totalWidth, origin, rotation, angle } =
+          this.getAngledProperties(coords[0], coords[1], crossDepth);
+
+        const cols = Math.ceil(totalWidth / h);
+        for (let col of [...Array(cols).keys()]) {
+          const rows = Math.ceil(this.demoWith / w);
+          for (let row of [...Array(rows).keys()]) {
+            const spacingW = row * w;
+            const spacingH = col * h;
+            const mesh = mainMesh.clone();
+            mesh.rotateX(degToRad(rotation[0] + 90 + overlapAngle));
+            this.subModels[key].push(mesh);
+            // mesh.position.set(origin[0], origin[1], origin[2]);
+            const [x, y] = angleXY(angle, spacingH, roof[`${coords[0]}Offset`]);
+            mesh.position.set(spacingW, y + overlapHeight, -x);
+          }
+        }
+      });
+
+      // <======== animation  ========> //
+      this.animations[key].to(
+        this.subModels[key].map((x) => x.position),
+        {
+          z: 2,
+          ease: "power3",
+          stagger: { amount: 1 },
+        }
+      );
+      this.animations[key].to(
+        this.subModels[key].map((x) => x.scale),
+        {
+          z: 0,
+          x: 0,
+          stagger: { amount: 1 },
+        },
+        `<+=0.3`
+      );
+      this.subModels[key].forEach((x) => this.scene.add(x));
+      this.animations[key].progress(
+        this.appService.states$.value[key] === true ? 0 : 1
+      );
+    }); // loader
+  }
   buildOSBRoof() {
-    const key = ConstructionParts.roofOuterSheets;
+    const key = ConstructionParts.roofOSB;
 
     const length = 2.4;
     const width = 1.2;
@@ -1285,8 +1576,8 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       });
     };
 
-    const bottom1 = this.construction.getRoofPoint(RoofPoint.roofBendInside);
-    const top1 = this.construction.getRoofPoint(RoofPoint.roofTopInside);
+    const bottom1 = this.construction.getRoofPoint(RoofPoint.bendInside);
+    const top1 = this.construction.getRoofPoint(RoofPoint.topInside);
     const origin1 = [
       0,
       bottom1[1],
@@ -1306,8 +1597,8 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       Material.osb,
       callback
     );
-    const bottom2 = this.construction.getRoofPoint(RoofPoint.roofWallInner);
-    const top2 = this.construction.getRoofPoint(RoofPoint.roofBendInside);
+    const bottom2 = this.construction.getRoofPoint(RoofPoint.wallInside);
+    const top2 = this.construction.getRoofPoint(RoofPoint.bendInside);
     const origin2 = [
       0,
       bottom2[1],
@@ -1333,9 +1624,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
 
     const length = 2.4;
     const width = 1.2;
-    const totalWidth = this.construction.getRoofPoint(
-      RoofPoint.roofWallInner
-    )[1];
+    const totalWidth = this.construction.getRoofPoint(RoofPoint.wallInside)[1];
     const totalLength = this.demoWith;
     const thickness = this.thickness[Thicknesses.osb];
     const bottom = this.cross.elevations[Elevation.groundFloor];
@@ -1345,6 +1634,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     let stackFull = 0;
     let stackWidthLeftovers = 0;
     let stackLengthLeftovers = 0;
+
     this.brickPattern(
       key,
       origin,
@@ -1381,7 +1671,8 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
         } else {
           stackFull += 1;
         }
-      }
+      },
+      this.windowRoughOSBClip
     );
 
     this.animations[key].to(
@@ -1395,26 +1686,84 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       duration: 0,
     });
   }
+  debugMeasureBlock() {
+    // this.scene.add(this.windowRoughOSBClip);
+    // this.scene.add(this.windowRoughClip);
+    // const mesh = this.threeService.createCube({
+    //   material: Material.concrete,
+    //   whd: [this.window.roughWidthOSB, this.window.roughHeightOSB, 0.6],
+    //   xyz: [0, this.window.roughBottomOSB, -0.1],
+    // });
+    // this.scene.add(mesh);
+  }
+
+  buildWindowOSB() {
+    const key = ConstructionParts.osbWall;
+    const t = this.thickness[Thicknesses.osb];
+    const inside = this.crossDepth[Thicknesses.serviceBeams];
+    const wallDepth = this.crossDepth[Thicknesses.outerSheet] - inside;
+
+    //bottom
+    const mesh1 = this.threeService.createCube({
+      material: Material.osb,
+      whd: [this.window.roughWidth - this.window.gap + t, t, wallDepth],
+      xyz: [0, this.window.roughBottomOSB, inside],
+    });
+    this.subModels[key].push(mesh1);
+
+    //top
+    const mesh2 = this.threeService.createCube({
+      material: Material.osb,
+      whd: [this.window.roughWidth - this.window.gap + t, t, wallDepth],
+      xyz: [0, this.window.roughTop, inside],
+    });
+    this.subModels[key].push(mesh2);
+
+    //right
+    const mesh3 = this.threeService.createCube({
+      material: Material.osb,
+      whd: [t, this.window.roughHeight, wallDepth],
+      xyz: [
+        this.window.roughWidth - this.window.gap,
+        this.window.roughBottom,
+        inside,
+      ],
+    });
+    this.subModels[key].push(mesh3);
+
+    [mesh1, mesh2, mesh3].forEach((mesh) => {
+      this.animations[key].to(mesh.position, {
+        z: -1,
+        duration: 0.6,
+      });
+      this.animations[key].to(mesh.scale, {
+        x: 0,
+        z: 0,
+        duration: 0.6,
+      });
+      this.animations[key].to(mesh, {
+        visible: false,
+        duration: 0,
+      });
+    });
+  }
+
   buildServiceBeams() {
     const key = ConstructionParts.serviceBeams;
-
+    const t = this.thickness[Thicknesses.serviceBeams];
     for (let i of [...Array(this.amountOfStuds + 1).keys()]) {
       let spacing = i * this.studDistance - this.joistFlangeWidth / 2;
       if (i === 0) spacing = 0;
 
       const mesh = this.threeService.createCube({
         material: Material.osb,
-        whd: [
-          this.joistFlangeWidth,
-          this.ceilingHeight,
-          this.thickness[Thicknesses.serviceBeams],
-        ],
+        whd: [this.joistFlangeWidth, this.ceilingHeight, t],
       });
       this.translate(
         mesh,
         spacing,
         0,
-        this.crossDepth[Thicknesses.serviceBeams]
+        this.crossDepth[Thicknesses.serviceBeams] - t
       );
       this.subModels[key].push(mesh);
     }
@@ -1439,8 +1788,10 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       `<+=0.3`
     );
   }
+
   buildServiceInsulation() {
     const key = ConstructionParts.serviceInsulation;
+    const t = this.thickness[Thicknesses.serviceBeams];
 
     for (let i of [...Array(this.amountOfStuds).keys()]) {
       let w = this.studDistance - this.joistFlangeWidth;
@@ -1455,14 +1806,14 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
 
       const mesh = this.threeService.createCube({
         material: Material.insulation,
-        whd: [w, this.ceilingHeight, this.thickness[Thicknesses.serviceBeams]],
+        whd: [w, this.ceilingHeight, t],
       });
 
       this.translate(
         mesh,
         spacing,
         0,
-        this.crossDepth[Thicknesses.serviceBeams]
+        this.crossDepth[Thicknesses.serviceBeams] - t
       );
       this.subModels[key].push(mesh);
     }
@@ -1600,7 +1951,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     const key = ConstructionParts.roofRidge;
     const h = this.cross.roofRidgeHight;
     const w = this.cross.roofRidgeWidth;
-    const point = this.construction.getRoofPoint(RoofPoint.roofTopOutside);
+    const point = this.construction.getRoofPoint(RoofPoint.topOutside);
     const mesh = this.threeService.createCube({
       material: Material.pine,
       whd: [this.demoWith, h, w],
@@ -1675,17 +2026,18 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
   }
   buildGips() {
     const key = ConstructionParts.gips;
+    const t = this.thickness[Thicknesses.gips];
 
     for (let i of [...Array(this.amountOfStuds / 2).keys()]) {
       const gripsPlate = this.threeService.createCube({
         material: Material.gips,
-        whd: [1.2, this.ceilingHeight, this.thickness[Thicknesses.gips]],
+        whd: [1.2, this.ceilingHeight, t],
       });
       this.translate(
         gripsPlate,
         i * this.studDistance * 2,
         0,
-        this.crossDepth[Thicknesses.gips]
+        this.crossDepth[Thicknesses.gips] - t
       );
       this.subModels[key].push(gripsPlate);
     }
@@ -1720,6 +2072,25 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       }
     );
   }
+
+  getAngledProperties(low: RoofPoint, high: RoofPoint, thickness) {
+    const roof = this.getRoofAndOffsetPoints(thickness);
+    const totalWidth = getDiagonal(roof[`${low}Offset`], roof[`${high}Offset`]);
+    const angle = angleBetween(roof[low], roof[high]);
+    const origin = this.useOppositeCorner(
+      roof[`${low}Offset`],
+      thickness,
+      angle
+    );
+    const rotation = [angle - 90, 0, 0];
+    return {
+      totalWidth,
+      angle,
+      origin,
+      rotation,
+    };
+  }
+
   buildOuterSheet() {
     const key = ConstructionParts.outerSheet;
     const totalLength = this.demoWith;
@@ -1734,104 +2105,64 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     const floor = [0, this.solePlateThickness];
     const wall = [0, this.innerWallHeight - this.solePlateThickness * 3, 0];
 
-    const roofBendOutside = this.offsetDistanceBend(
-      this.thickness[Thicknesses.outerSheet],
-      RoofPoint.roofBendOutside
-    );
-    const roofLowestOutside = this.construction.getRoofPoint(
-      RoofPoint.roofLowestOutside
-    );
-    const roofTopOutside = this.construction.getRoofPoint(
-      RoofPoint.roofTopOutside
-    );
+    const wallCallback = (osbPlate, i, j, l, w, total) => {
+      const duration = 0.3 + ((i + j) / total) * 0.2;
+      this.animations[key].to(osbPlate.rotation, {
+        x: degToRad(90),
+        duration,
+      });
+      const lengthLeftOver = l * 1.05 < length;
+      const widthLeftOver = w * 1.05 < width;
 
-    const totalWidth2 = getDiagonal(roofBendOutside, roofTopOutside);
-    const origin2 = [0, roofBendOutside[1], -roofBendOutside[0]];
-    const rotation2 = [
-      angleBetween(roofBendOutside, roofTopOutside) - 90,
-      0,
-      0,
-    ];
-    this.brickPattern(
-      key,
-      origin2,
-      length,
-      width,
-      thickness,
-      totalWidth2,
-      totalLength,
-      rotation2,
-      Material.outerSheet,
-      (mesh, i, j, l, w, total) => {
-        const duration = 0.3 + ((i + j) / total) * 0.2;
-        this.scaleInOut(key, mesh, duration);
-      }
-    );
-    const totalWidth1 = getDiagonal(roofLowestOutside, roofBendOutside);
-    const origin1 = [0, roofLowestOutside[1], -roofLowestOutside[0]];
-    const rotation1 = [
-      angleBetween(roofLowestOutside, roofBendOutside) - 90,
-      0,
-      0,
-    ];
-    this.brickPattern(
-      key,
-      origin1,
-      length,
-      width,
-      thickness,
-      totalWidth1,
-      totalLength,
-      rotation1,
-      Material.outerSheet,
-      (mesh, i, j, l, w, total) => {
-        const duration = 0.3 + ((i + j) / total) * 0.2;
-        this.scaleInOut(key, mesh, duration);
-      }
-    );
-
-    const totalWidth = this.outerWallHeight;
-    const bottom = this.cross.elevations[Elevation.groundFloor];
-    const origin = [0, bottom, this.crossDepth[Thicknesses.outerSheet]];
-    const rotation = [0, 0, 0];
-    this.brickPattern(
-      key,
-      origin,
-      length,
-      width,
-      thickness,
-      totalWidth,
-      totalLength,
-      rotation,
-      Material.outerSheet,
-      (osbPlate, i, j, l, w, total) => {
-        const duration = 0.3 + ((i + j) / total) * 0.2;
-        this.animations[key].to(osbPlate.rotation, {
-          x: degToRad(90),
+      this.animations[key].to(
+        osbPlate.position,
+        {
+          x: (lengthLeftOver ? length : 0) + l / 2,
+          y: thickness * stackFull,
+          z: (widthLeftOver ? width : 0) + width * 0.5 + w / 2,
           duration,
-        });
-        const lengthLeftOver = l * 1.05 < length;
-        const widthLeftOver = w * 1.05 < width;
-
-        this.animations[key].to(
-          osbPlate.position,
-          {
-            x: (lengthLeftOver ? length : 0) + l / 2,
-            y: thickness * stackFull,
-            z: (widthLeftOver ? width : 0) + width * 0.5 + w / 2,
-            duration,
-          },
-          "<"
-        );
-        if (lengthLeftOver) {
-          stackLengthLeftovers += 1;
-        } else if (widthLeftOver) {
-          stackWidthLeftovers += 1;
-        } else {
-          stackFull += 1;
-        }
+        },
+        "<"
+      );
+      if (lengthLeftOver) {
+        stackLengthLeftovers += 1;
+      } else if (widthLeftOver) {
+        stackWidthLeftovers += 1;
+      } else {
+        stackFull += 1;
       }
-    );
+    };
+
+    // <====== loop =====> //
+    [
+      [RoofPoint.groundFloorOutside, RoofPoint.wallOutside],
+      [RoofPoint.lowestOutside, RoofPoint.bendOutside],
+      [RoofPoint.bendOutside, RoofPoint.topOutside],
+    ].map((coords, i) => {
+      const { totalWidth, origin, rotation } = this.getAngledProperties(
+        coords[0],
+        coords[1],
+        thickness
+      );
+
+      this.brickPattern(
+        key,
+        origin,
+        length,
+        width,
+        thickness,
+        totalWidth,
+        totalLength,
+        rotation,
+        Material.outerSheet,
+        i === 0
+          ? wallCallback
+          : (mesh, i, j, l, w, total) => {
+              this.scaleZInOut(key, mesh, 0.1);
+            },
+        i === 0 ? this.windowRoughOSBClip : undefined
+      );
+    });
 
     this.animations[key].to(
       this.subModels[key].flatMap((x) => x.position),
@@ -1846,35 +2177,72 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
   }
   buildSpace() {
     const key = ConstructionParts.space;
+    const w = this.joistFlangeWidth;
 
-    const thickness = this.thickness[Thicknesses.space] / 2;
+    const t = this.thickness[Thicknesses.space] / 2;
     for (let i of [...Array(4).keys()]) {
-      let spacing = (i / 3) * (this.outerWallHeight - this.joistFlangeWidth);
+      let spacing = (i / 3) * (this.outerWallHeight - w);
       // if (i === 0) spacing = 0;
 
-      const mesh = this.threeService.createCube({
-        material: Material.osb,
-        whd: [this.demoWith, this.joistFlangeWidth, thickness],
-      });
-      this.translate(
-        mesh,
-        0,
-        spacing,
-        this.crossDepth[Thicknesses.space] + thickness
+      const mesh = this.clip(
+        this.threeService.createCube({
+          material: Material.osb,
+          whd: [this.demoWith, w, t],
+          xyz: [0, spacing, this.crossDepth[Thicknesses.space] + t],
+        }),
+        this.windowRoughOSBClip
       );
       this.subModels[key].push(mesh);
     }
     for (let i of [...Array(this.amountOfStuds + 1).keys()]) {
-      let spacing = i * this.studDistance - this.joistFlangeWidth / 2;
+      let spacing = i * this.studDistance - w / 2;
       if (i === 0) spacing = 0;
 
-      const mesh = this.threeService.createCube({
-        material: Material.pine,
-        whd: [this.joistFlangeWidth, this.outerWallHeight, thickness],
-      });
-      this.translate(mesh, spacing, 0, this.crossDepth[Thicknesses.space]);
+      const mesh = this.clip(
+        this.threeService.createCube({
+          material: Material.pine,
+          whd: [w, this.outerWallHeight, t],
+          xyz: [spacing, 0, this.crossDepth[Thicknesses.space]],
+        }),
+        this.windowRoughOSBClip
+      );
       this.subModels[key].push(mesh);
     }
+    // <======== Around Window  ========> //
+    this.subModels[key].push(
+      this.threeService.createCube({
+        material: Material.osb,
+        whd: [this.window.roughWidth + w, w, t],
+        xyz: [
+          0,
+          this.window.roughBottom - w,
+          this.crossDepth[Thicknesses.space] + t,
+        ],
+      })
+    );
+    this.subModels[key].push(
+      this.threeService.createCube({
+        material: Material.osb,
+        whd: [this.window.roughWidth + w, w, t],
+        xyz: [
+          0,
+          this.window.roughTop + w / 2,
+          this.crossDepth[Thicknesses.space] + t,
+        ],
+      })
+    );
+    this.subModels[key].push(
+      this.threeService.createCube({
+        material: Material.osb,
+        whd: [w, this.window.roughHeight + w * 2, t],
+        xyz: [
+          this.window.roughWidth,
+          this.window.roughBottom - w,
+          this.crossDepth[Thicknesses.space],
+        ],
+      })
+    );
+    // <======== Around Window  ========> //
 
     // <======== animation  ========> //
     this.animations[key].to(
@@ -1896,68 +2264,66 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       `<+=0.3`
     );
   }
+  useOppositeCorner(origin, d, angle): xyz {
+    const [x, y] = angleXY(angle - 90, d, origin);
+    return [0, y, -x];
+  }
   buildRoofSpace() {
     const key = ConstructionParts.roofSpace;
 
     const thickness = this.thickness[Thicknesses.space] / 2;
+    const crossDepth = this.thickness[Thicknesses.outerSheet] + thickness;
+    const roof = this.getRoofAndOffsetPoints(crossDepth);
 
-    const roofBendOutside = this.construction.getRoofPoint(
-      RoofPoint.roofBendOutside
-    );
-    const roofBendInside = this.construction.getRoofPoint(
-      RoofPoint.roofBendInside
-    );
-    const roofLowestOutside = this.construction.getRoofPoint(
-      RoofPoint.roofLowestOutside
-    );
-    const roofTopOutside = this.construction.getRoofPoint(
-      RoofPoint.roofTopOutside
-    );
-
-    for (let i of [...Array(4).keys()]) {
-      let spacing = (i / 3) * (this.outerWallHeight - this.joistFlangeWidth);
-      // if (i === 0) spacing = 0;
-
-      const mesh = this.threeService.createCube({
-        material: Material.osb,
-        whd: [this.demoWith, this.joistFlangeWidth, thickness],
-      });
-      this.translate(
-        mesh,
-        0,
-        spacing,
-        this.crossDepth[Thicknesses.space] + thickness
+    [
+      [RoofPoint.lowestOutside, RoofPoint.bendOutside],
+      [RoofPoint.bendOutside, RoofPoint.topOutside],
+    ].map(([first, second]) => {
+      const length = getDiagonal(
+        roof[`${first}Offset`],
+        roof[`${second}Offset`]
       );
-      this.subModels[key].push(mesh);
-    }
+      const angle = angleBetween(roof[first], roof[second]);
+      const origin = this.useOppositeCorner(
+        roof[`${first}Offset`],
+        thickness,
+        angle
+      );
+      const spacer = 204 / 1000;
+      const cols = Math.ceil(length / spacer);
+      // Horizontal
+      for (let i of [...Array(cols).keys()]) {
+        let spacing = spacer * i - this.joistFlangeWidth / 2;
+        // if (i === 0) spacing = 0;
 
-    const depth = this.thickness[Thicknesses.outerSheet];
-    const createStick = (first, second, origin, spacing) => {
-      const mesh = this.threeService.createCube({
-        material: Material.pine,
-        whd: [this.joistFlangeWidth, getDiagonal(first, second), thickness],
-        xyz: [0, offset[1], offset[0]],
-      });
-      let rotation = new THREE.Matrix4().makeRotationX(
-        degToRad(angleBetween(first, second) - 90)
-      );
-      mesh.applyMatrix4(
-        rotation.setPosition(new THREE.Vector3(spacing, origin[1], -origin[0]))
-      );
+        const mesh = this.threeService.createCube({
+          material: Material.osb,
+          whd: [this.demoWith, this.joistFlangeWidth / 2, thickness],
+          xyz: [0, spacing, thickness],
+        });
 
-      this.subModels[key].push(mesh);
-    };
-    for (let i of [...Array(this.amountOfStuds + 1).keys()]) {
-      let spacing = i * this.studDistance - this.joistFlangeWidth / 2;
-      if (i === 0) spacing = 0;
-      createStick(
-        roofLowestOutside,
-        roofBendOutside,
-        roofLowestOutside,
-        spacing
-      );
-      createStick(roofBendOutside, roofTopOutside, roofBendOutside, spacing);
-    }
+        let rotation = new THREE.Matrix4().makeRotationX(degToRad(angle - 90));
+        mesh.applyMatrix4(rotation.setPosition(new THREE.Vector3(...origin)));
+
+        this.subModels[key].push(mesh);
+      }
+
+      // Vertical
+      for (let i of [...Array(this.amountOfStuds + 1).keys()]) {
+        let spacing = i * this.studDistance - this.joistFlangeWidth / 2;
+        if (i === 0) spacing = 0;
+
+        const mesh = this.threeService.createCube({
+          material: Material.pine,
+          whd: [this.joistFlangeWidth, length, thickness],
+          xyz: [spacing, 0, 0],
+        });
+        let rotation = new THREE.Matrix4().makeRotationX(degToRad(angle - 90));
+        mesh.applyMatrix4(rotation.setPosition(new THREE.Vector3(...origin)));
+
+        this.subModels[key].push(mesh);
+      }
+    });
 
     // <======== animation  ========> //
     this.animations[key].to(
@@ -1966,7 +2332,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
         z: 1,
         duration: 0.7,
         ease: "power3",
-        stagger: { each: 0.4 },
+        stagger: { amount: 1 },
       }
     );
     this.animations[key].to(
@@ -1974,7 +2340,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       {
         z: 0,
         x: 0,
-        stagger: { each: 0.4 },
+        stagger: { amount: 1 },
       },
       `<+=0.3`
     );
@@ -1982,42 +2348,96 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
   buildFacade() {
     const key = ConstructionParts.facade;
 
-    const width = 0.3;
+    const w = 0.3;
     const gap = 0.02;
-    const width2 = 0.05;
-    let planks = Math.ceil(this.demoWith / (width + gap));
+    const w2 = 0.05;
+    const wWindow = 150 / 1000;
+
+    const windowFrameClip = this.threeService.createCube({
+      material: Material.concrete,
+      whd: [
+        this.window.roughWidth - this.window.gap + wWindow,
+        this.window.roughHeight + wWindow * 2,
+        2,
+      ],
+      xyz: [0, this.window.roughBottom - wWindow, -1],
+    });
+
+    const t = this.thickness[Thicknesses.facade];
+    let planks = Math.ceil(this.demoWith / (w + gap));
     for (let i of [...Array(planks).keys()]) {
+      // upper thinner
       if (i === 0) continue;
-      const spacing = i * (width + gap) - width2 / 2 - gap / 2;
-      const meshSmall = this.threeService.createCube({
-        material: Material.facade,
-        whd: [width2, this.outerWallHeight, this.thickness[Thicknesses.facade]],
-      });
-      this.translate(
-        meshSmall,
-        spacing,
-        0,
-        this.crossDepth[Thicknesses.facade] + this.thickness[Thicknesses.facade]
+      const spacing = i * (w + gap) - w2 / 2 - gap / 2;
+      const meshSmall = this.clip(
+        this.threeService.createCube({
+          material: Material.facade,
+          whd: [w2, this.outerWallHeight, t],
+          xyz: [spacing, 0, this.crossDepth[Thicknesses.facade] + t],
+        }),
+        windowFrameClip
       );
       this.subModels[key].push(meshSmall);
     }
     for (let i of [...Array(planks).keys()]) {
-      let spacing = i * width + i * gap;
+      // lower broader
+      let spacing = i * w + i * gap;
       if (i === 0) spacing = 0;
 
-      const mesh = this.threeService.createCube({
-        material: Material.facade,
-        whd: [width, this.outerWallHeight, this.thickness[Thicknesses.facade]],
-      });
-      this.translate(mesh, spacing, 0, this.crossDepth[Thicknesses.facade]);
+      const mesh = this.clip(
+        this.threeService.createCube({
+          material: Material.facade,
+          whd: [w, this.outerWallHeight, t],
+          xyz: [spacing, 0, this.crossDepth[Thicknesses.facade]],
+        }),
+        this.windowRoughClip
+      );
       this.subModels[key].push(mesh);
     }
 
+    // <======== Around Window  ========> //
+    // bottom
+    this.subModels[key].push(
+      this.threeService.createCube({
+        material: Material.whiteWood,
+        whd: [this.window.roughWidth - this.window.gap, wWindow, t * 1.1],
+        xyz: [
+          0,
+          this.window.roughBottom - wWindow,
+          this.crossDepth[Thicknesses.facade] + t,
+        ],
+      })
+    );
+    // top
+    this.subModels[key].push(
+      this.threeService.createCube({
+        material: Material.whiteWood,
+        whd: [
+          this.window.roughWidth - this.window.gap + wWindow * 1.2,
+          wWindow,
+          t * 1.1,
+        ],
+        xyz: [0, this.window.roughTop, this.crossDepth[Thicknesses.facade] + t],
+      })
+    );
+    // right
+    this.subModels[key].push(
+      this.threeService.createCube({
+        material: Material.whiteWood,
+        whd: [wWindow, this.window.roughHeight + wWindow * 1.2, t * 1.1],
+        xyz: [
+          this.window.roughWidth - this.window.gap,
+          this.window.roughBottom - wWindow * 1.2,
+          this.crossDepth[Thicknesses.facade] + t,
+        ],
+      })
+    );
+    // <======== Around Window  ========> //
     // <======== animation  ========> //
     this.animations[key].to(
       this.subModels[key].map((x) => x.position),
       {
-        z: this.crossDepth[Thicknesses.facade] + width / 2,
+        z: this.crossDepth[Thicknesses.facade] + w / 2,
         ease: "power3",
         stagger: { amount: 1.2 },
       }

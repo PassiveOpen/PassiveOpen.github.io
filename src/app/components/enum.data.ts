@@ -120,6 +120,9 @@ export enum Section {
   costsFinishes = "costs-finishes",
   costsOuterFinishes = "costs-outer-finishes",
   costsTotals = "costs-totals",
+
+  //Extra
+  House3D = "House3D",
 }
 export enum Floor {
   top = "top",
@@ -139,7 +142,8 @@ export enum Graphic {
   cross = "cross",
   stairPlan = "stairPlan",
   stairCross = "stairCross",
-  window = "window",
+  construction = "construction",
+  House3D = "House3D",
   none = "none",
 }
 
@@ -204,17 +208,17 @@ export enum ConstructionParts {
   topFloorOSB = "B2-construction-top-floor-osb",
   roofRidge = "B3-construction-roof-ridge",
   roofJoists = "B4-construction-roof-joists",
+  roofOSB = "B5-construction-roof-osb",
 
   insulation = "C1-construction-insulation",
   outerSheet = "C2-construction-outerSheet",
-  
+
   roofOuterSheets = "C3-construction-roof-outerSheet",
   roofSpace = "C4-construction-roof-space",
   roofTiles = "C5-construction-roof-tiles",
 
   space = "D1-construction-space",
   facade = "D2-construction-facade",
-
 
   serviceBeams = "E1-construction-serviceBeams",
   serviceInsulation = "E2-construction-serviceInsulation",

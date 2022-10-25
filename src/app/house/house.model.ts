@@ -18,6 +18,7 @@ import { Measure } from "../model/specific/measure.model";
 import { Windrose } from "../model/specific/windrose.model";
 import { AppPolygon } from "../model/polygon.model";
 import { Construction } from "./construction.model";
+import { AppDistance } from "../model/distance.model";
 export type xy = [number, number];
 export type xyz = [number, number, number];
 export interface Stramien {
@@ -139,6 +140,7 @@ export class House extends HouseUser {
   }
 
   createExtra() {
+    this.parts.push(new AppDistance());
     const part0 = new AppPolyline({
       selector: "balcony-edge",
       floor: Floor.ground,
@@ -149,7 +151,7 @@ export class House extends HouseUser {
         const o = house.balconyWidth + house.balconyEdge;
         const point1: xy = [s.we.b, s.ns.b + o];
         const point2: xy = [s.we.c, s.ns.b + o];
-        this.points = [point1, point2];
+        this.coords = [point1, point2];
       },
     });
     this.parts.push(part0);
@@ -165,7 +167,7 @@ export class House extends HouseUser {
         const o = house.wallInnerThickness * 3 + 1 * 2;
         const point1: xy = [s.we.b, s.ns.b - o];
         const point2: xy = [s.we.b + w, s.ns.b - o];
-        this.points = [point1, point2];
+        this.coords = [point1, point2];
       },
     });
     this.parts.push(part1);
@@ -185,7 +187,7 @@ export class House extends HouseUser {
         const pointE: xy = [s.we.d + o, ns];
         const central: xy = [we, ns];
 
-        this.points = [pointN, pointS, central, pointW, pointE];
+        this.coords = [pointN, pointS, central, pointW, pointE];
       },
     });
 
@@ -216,7 +218,7 @@ export class House extends HouseUser {
           const point1: xy = [s.we.a, s.ns.b];
           const point2: xy = [s.we.b, s.ns.b];
           const point3: xy = [s.we.b, s.ns.a];
-          this.points = [
+          this.coords = [
             offset(point1, [0, house.cross.minimumHeightWidth]),
             offset(point2, [
               house.cross.minimumHeightWidth,
@@ -244,7 +246,7 @@ export class House extends HouseUser {
                   house.cross.minimumHeightWidth,
               ]
             : [s.we.c, s.ns.b];
-          this.points = [
+          this.coords = [
             offset(point1, [-house.cross.minimumHeightWidth, 0]),
             offset(point2, [
               -house.cross.minimumHeightWidth,
@@ -271,7 +273,7 @@ export class House extends HouseUser {
               ]
             : [s.we.c, s.ns.b];
           const point2: xy = [s.we.d, s.ns.b];
-          this.points = [
+          this.coords = [
             offset(point1, [
               -house.cross.minimumHeightWidth,
               house.cross.minimumHeightWidth,
@@ -291,7 +293,7 @@ export class House extends HouseUser {
           const s = house.stramien.in;
           const point1: xy = [s.we.d, s.ns.c];
           const point2: xy = [s.we.c, s.ns.c];
-          this.points = [
+          this.coords = [
             offset(point1, [0, -house.cross.minimumHeightWidth]),
             offset(point2, [0, -house.cross.minimumHeightWidth]),
           ];
@@ -308,7 +310,7 @@ export class House extends HouseUser {
           const s = house.stramien.in;
           const point1: xy = [s.we.b, s.ns.c];
           const point2: xy = [s.we.a, s.ns.c];
-          this.points = [
+          this.coords = [
             offset(point1, [0, -house.cross.minimumHeightWidth]),
             offset(point2, [0, -house.cross.minimumHeightWidth]),
           ];
@@ -444,7 +446,7 @@ export class House extends HouseUser {
                 selector: id,
                 lineThickness: 1.5,
                 onUpdate: function (this: AppPolyline, house: House) {
-                  this.points = [
+                  this.coords = [
                     [-margin, house.stramien[side][d][i]],
                     [house.houseWidth + margin, house.stramien[side][d][i]],
                   ];
@@ -458,7 +460,7 @@ export class House extends HouseUser {
                 selector: id,
                 lineThickness: 1.5,
                 onUpdate: function (this: AppPolyline, house: House) {
-                  this.points = [
+                  this.coords = [
                     [house.stramien[side][d][i], -margin],
                     [house.stramien[side][d][i], house.houseLength + margin],
                   ];
@@ -589,7 +591,7 @@ export class House extends HouseUser {
 
   /**Main calculations */
   calculateHouse() {
-    this.outerBase = this.studAmount * this.studDistance; // 5.5m
+    this.outerBase = round(this.studAmount * this.studDistance); // 5.5m
     this.extensionToSouth = this.studAmountSouth * this.studDistance;
     this.extensionToNorth = this.studAmountNorth * this.studDistance;
     this.extensionToEast = this.studAmountEast * this.studDistance;

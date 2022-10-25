@@ -31,8 +31,10 @@ import { House } from "../house/house.model";
 import * as d3 from "d3";
 import { Cross } from "../house/cross.model";
 import { Stair } from "../house/stairs.model";
-import { D3Service } from "./d3.service";
+import { D3DistanceService } from "./d3Distance.service";
 import { ZoomTransform } from "d3";
+import { ContextMenuService } from "../components/context-menu/context-menu.service";
+import { D3Service } from "./d3.service";
 
 @Component({
   selector: "app-svg-base",
@@ -40,7 +42,13 @@ import { ZoomTransform } from "d3";
 })
 export class BasicSVG {
   stringCache = "";
+
   @HostListener("click", ["$event"]) onClick(e: PointerEvent) {
+    this.contextMenuService.closeMenu();
+    if (this.d3DistanceService.isDistance) {
+      return;
+    }
+
     const getID = (el): string => {
       if (!el || el === this.svgEl.nativeElement) {
         return;
@@ -81,7 +89,11 @@ export class BasicSVG {
 
     this.tooltipService.attachPopup([e.pageX, e.pageY], obj);
   }
-
+  @HostListener("contextmenu", ["$event"])
+  preventContextMenu(e: PointerEvent) {
+    this.contextMenuService.click(e);
+    return false;
+  }
   @HostBinding("class.imaged") showingImage: boolean = false;
 
   @Input() isChild = false;
@@ -119,7 +131,9 @@ export class BasicSVG {
     public appService: AppService,
     public tooltipService: TooltipService,
     public host: ElementRef,
-    public d3Service: D3Service
+    public d3Service: D3Service,
+    public d3DistanceService: D3DistanceService,
+    public contextMenuService: ContextMenuService
   ) {}
 
   //// LifeCicle ////
@@ -196,7 +210,7 @@ export class BasicSVG {
             })
           ),
           this.resize$.pipe(
-            filter(x=>  !this.showingImage),
+            filter((x) => !this.showingImage),
             throttleTime(10)
             // tap((x) => console.log("scrollresize"))
           )
@@ -253,6 +267,7 @@ export class BasicSVG {
     const meterPerPixel = Math.max(scaleW, scaleH) / this.getScale();
     const zoomed = this.meterPerPixel !== meterPerPixel;
     this.meterPerPixel = meterPerPixel;
+    this.svgEl.nativeElement.setAttribute("meterPerPixel", `${meterPerPixel}`);
 
     const margin = this.marginInPixels.map((x) =>
       round(x * this.meterPerPixel)

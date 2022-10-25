@@ -1,19 +1,21 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import * as d3 from 'd3';
-import { Selection } from 'd3';
-import { AppService } from 'src/app/app.service';
-import { HouseService } from 'src/app/house/house.service';
-import { BasicSVG } from '../base-svg.component';
-import { BehaviorSubject } from 'rxjs';
-import { Floor, Graphic, Section } from 'src/app/components/enum.data';
-import { TooltipService } from 'src/app/components/tooltip/tooltip.service';
-import { D3Service } from '../d3.service';
+import { HttpClient } from "@angular/common/http";
+import { Component, AfterViewInit, ViewChild, ElementRef } from "@angular/core";
+import * as d3 from "d3";
+import { Selection } from "d3";
+import { AppService } from "src/app/app.service";
+import { HouseService } from "src/app/house/house.service";
+import { BasicSVG } from "../base-svg.component";
+import { BehaviorSubject } from "rxjs";
+import { Floor, Graphic, Section } from "src/app/components/enum.data";
+import { TooltipService } from "src/app/components/tooltip/tooltip.service";
+import { D3DistanceService } from "../d3Distance.service";
+import { ContextMenuService } from "src/app/components/context-menu/context-menu.service";
+import { D3Service } from "../d3.service";
 
 @Component({
-  selector: 'app-svg-stair-plan',
-  templateUrl: './svg-stair-plan.component.html',
-  styleUrls: ['./svg-stair-plan.component.scss'],
+  selector: "app-svg-stair-plan",
+  templateUrl: "./svg-stair-plan.component.html",
+  styleUrls: ["./svg-stair-plan.component.scss"],
 })
 export class SvgStairPlanComponent extends BasicSVG implements AfterViewInit {
   graphic = Graphic.stairPlan;
@@ -29,8 +31,18 @@ export class SvgStairPlanComponent extends BasicSVG implements AfterViewInit {
     public tooltipService: TooltipService,
     public host: ElementRef,
     public d3Service: D3Service,
+    public d3DistanceService: D3DistanceService,
+    public contextMenuService: ContextMenuService
   ) {
-    super(houseService, appService, tooltipService, host, d3Service);
+    super(
+      houseService,
+      appService,
+      tooltipService,
+      host,
+      d3Service,
+      d3DistanceService,
+      contextMenuService
+    );
   }
 
   ngAfterViewInit(): void {
@@ -55,11 +67,11 @@ export class SvgStairPlanComponent extends BasicSVG implements AfterViewInit {
         this.section
       )
     ) {
-      this.svg.style('opacity', 0);
-      this.svg.style('pointer-events', 'none');
+      this.svg.style("opacity", 0);
+      this.svg.style("pointer-events", "none");
     } else {
-      this.svg.style('pointer-events', '');
-      this.svg.style('opacity', 1);
+      this.svg.style("pointer-events", "");
+      this.svg.style("opacity", 1);
     }
   }
 }

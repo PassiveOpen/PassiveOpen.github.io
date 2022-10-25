@@ -5,13 +5,15 @@ import { BasicSVG } from "src/app/svg/base-svg.component";
 import { Graphic, Section } from "src/app/components/enum.data";
 import { TooltipService } from "src/app/components/tooltip/tooltip.service";
 import { HouseService } from "src/app/house/house.service";
-import { D3Service, SvgLoader } from "../d3.service";
+import { D3DistanceService } from "../d3Distance.service";
 import {
   Elevation,
   RoofPoint,
   RoofStyle,
   RoofType,
 } from "src/app/house/cross.model";
+import { ContextMenuService } from "src/app/components/context-menu/context-menu.service";
+import { D3Service, SvgLoader } from "../d3.service";
 
 @Component({
   selector: "app-svg-cross",
@@ -32,14 +34,27 @@ export class SvgCrossComponent
     public appService: AppService,
     public tooltipService: TooltipService,
     public host: ElementRef,
-    public d3Service: D3Service
+    public d3Service: D3Service,
+    public d3DistanceService: D3DistanceService,
+    public contextMenuService: ContextMenuService
   ) {
-    super(houseService, appService, tooltipService, host, d3Service);
+    super(
+      houseService,
+      appService,
+      tooltipService,
+      host,
+      d3Service,
+      d3DistanceService,
+      contextMenuService
+    );
   }
 
   ngAfterViewInit(): void {
     this.loadFigure();
     this.setUp();
+    // setTimeout(() => {
+    //   this.d3Service.startDistance();
+    // }, 1000);
   }
 
   loadFigure() {
@@ -87,28 +102,25 @@ export class SvgCrossComponent
   }
 
   drawPoints() {
-    const x = this.cross.getIntersectionWithRoof(this.cross.minimumHeight);
-    const i = this.cross.getIntersectionWithRoof(this.cross.minimumHeightRoom);
-    const level = this.cross.elevations[Elevation.topFloor];
-    // [...this.cross.innerRoofContourLine, x, i].forEach((x, i) => {
-    //   d3.select<SVGCircleElement, unknown>(`#roof-point-${i}`)
-    //     .attr("cx", x[0] + this.cross.wallOuterThickness)
-    //     .attr("cy", -level - x[1])
-    //     .attr("r", i < 4 ? 0.1 : 0.13)
-    //     .style("fill", i < 4 ? "var(--color-50)" : "var(--color-80)")
-    //     .attr("stroke-width", this.meterPerPixel * 0);
-    // });
-
-    Object.keys(RoofPoint).forEach((key: RoofPoint,i) => {
-      const point = this.house.construction.getRoofPoint(key);
-      
+    this.house.cross.pointOf70Roof().forEach((point, i) => {
       d3.select<SVGCircleElement, unknown>(`#debug-point-${i}`)
-        .attr("cx", point[0]+this.cross.wallOuterThickness )
+        .attr("cx", point[0])
         .attr("cy", -point[1])
-        .attr("r", 0.1)
+        .attr("r", 0.051)
         .style("fill", "var(--primary-color)")
         .attr("stroke-width", 0);
     });
+
+    //   Object.keys(RoofPoint).forEach((key: RoofPoint, i) => {
+    //     const point = this.house.construction.getRoofPoint(key);
+
+    //     d3.select<SVGCircleElement, unknown>(`#debug-point-${i}`)
+    //       .attr("cx", point[0] + this.cross.wallOuterThickness)
+    //       .attr("cy", point[1])
+    //       .attr("r", 0.1)
+    //       .style("fill", "var(--primary-color)")
+    //       .attr("stroke-width", 0);
+    //   });
   }
 
   drawBendPoint() {

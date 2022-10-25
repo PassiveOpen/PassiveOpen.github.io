@@ -55,14 +55,14 @@ export class Construction {
     [Thicknesses.serviceBeams]: 60 / 1000,
     [Thicknesses.osb]: 15 / 1000,
     [Thicknesses.joists]: 300 / 1000,
-    [Thicknesses.outerSheet]: 600 / 1000,
+    [Thicknesses.outerSheet]: 60 / 1000,
     [Thicknesses.space]: 40 / 1000,
     [Thicknesses.facade]: 40 / 1000,
     [Thicknesses.roofJoists]: 400 / 1000,
   };
 
   crossDepth: {
-    [key in Thicknesses ]?: number;
+    [key in Thicknesses]?: number;
   } = {};
   heatCalcs: rowHeatCalc[];
 
@@ -80,7 +80,7 @@ export class Construction {
       -this.cross.wallOuterThickness,
       0,
     ]);
-    return [x, -y];
+    return [x, y];
   }
 
   calculate(house: House) {
@@ -97,7 +97,7 @@ export class Construction {
     };
     this.crossDepth[Thicknesses.joists] = 0;
     this.crossDepth[Thicknesses.osb] = 0;
-    this.crossDepth[Thicknesses.groundFloorEdge] = 200/1000;
+    this.crossDepth[Thicknesses.groundFloorEdge] = 200 / 1000;
     buildUp(Thicknesses.outerSheet, Thicknesses.joists);
     buildUp(Thicknesses.space, Thicknesses.outerSheet);
     buildUp(Thicknesses.facade, Thicknesses.space);

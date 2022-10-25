@@ -16,9 +16,6 @@ npm run start
 
 in the log you can see a local website url. Often http://localhost:4200
 
-# Your own design
-
-ToDo
 
 # Develop Angular Tips
 

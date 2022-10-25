@@ -17,8 +17,10 @@ import { TooltipService } from "src/app/components/tooltip/tooltip.service";
 import { angleXY, offset, round } from "src/app/shared/global-functions";
 import { HttpClient } from "@angular/common/http";
 import * as d3 from "d3";
-import { D3Service, SvgLoader } from "../d3.service";
 import { xy } from "src/app/house/house.model";
+import { ContextMenuService } from "src/app/components/context-menu/context-menu.service";
+import { D3Service, SvgLoader } from "../d3.service";
+import { D3DistanceService } from "../d3Distance.service";
 
 @Component({
   selector: "app-svg-plan",
@@ -54,9 +56,19 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
     public tooltipService: TooltipService,
     public host: ElementRef,
     private httpClient: HttpClient,
-    public d3Service: D3Service
+    public d3Service: D3Service,
+    public d3DistanceService: D3DistanceService,
+    public contextMenuService: ContextMenuService
   ) {
-    super(houseService, appService, tooltipService, host, d3Service);
+    super(
+      houseService,
+      appService,
+      tooltipService,
+      host,
+      d3Service,
+      d3DistanceService,
+      contextMenuService,
+    );
   }
 
   override svgSpecificUpdate() {

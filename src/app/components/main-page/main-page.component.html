@@ -36,9 +36,11 @@
           <app-svg-plan class="svg-plan"></app-svg-plan>
         </ng-container>
 
-        <ng-container *ngIf="graphic === Graphic.window">
-          <!-- <app-three-window></app-three-window> -->
+        <ng-container *ngIf="graphic === Graphic.construction">
           <app-three-construction></app-three-construction>
+        </ng-container>
+        <ng-container *ngIf="graphic === Graphic.House3D">
+          <app-three-house></app-three-house>
         </ng-container>
         <ng-container *ngIf="graphic === Graphic.stairPlan">
           <app-svg-stair-plan class="svg-stair-plan">

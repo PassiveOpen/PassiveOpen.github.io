@@ -4,19 +4,12 @@
 
 <svg #svg class="cross" preserveAspectRatio="xMidYMid meet">
   <defs>
-    <polygon id="clip-roof" d="M130.532,285.709c0,0-17.042,21.134-29.287,14.291c-20.5-11.457-98.902,19.709-98.902,19.709
-    l-5.333,253.333h152.667L130.532,285.709z"></polygon>
-
     <pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="scale(0.1)">
       <path d="M-1,1 l2,-2
                M0,4 l4,-4
                M3,5 l2,-2" style="stroke:black; stroke-width:0.1" />
     </pattern>
-
   </defs>
-  <clipPath id="clip-roof2">
-    <use xlink:href="#clip-roof" overflow="visible"></use>
-  </clipPath>
 
   <g class="all" transform="rotate(0)">
     <g class="g-figure"></g>
@@ -70,6 +63,7 @@
       <g id="minimum-room"></g>
       <g id="minimum-room-h"></g>
     </g>
-    <circle  *ngFor="let i of [0,1,2,3,4,5,6,7,8,9,10]" id="debug-point-{{i}}"></circle>
+    <circle *ngFor="let i of [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]" id="debug-point-{{i}}"></circle>
+    <g id="distance"></g>
   </g>
 </svg>

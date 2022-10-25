@@ -9,6 +9,7 @@ import { PageMapComponent } from "./pages/page-map/page-map.component";
 import { PageWiredComponent } from "./pages/page-wired/page-wired.component";
 import { PageCostsComponent } from "./pages/page-costs/page-costs.component";
 import { PageAboutComponent } from "./pages/page-about/page-about.component";
+import { Page3dHouseComponent } from "./pages/page-3d-house/page-3d-house.component";
 
 export const routes: Routes = [
   { path: "map", component: PageMapComponent },
@@ -23,6 +24,7 @@ export const routes: Routes = [
       { path: "facade", component: PageFacadeComponent },
       { path: "installations", component: PageInstallationsComponent },
       { path: "construction", component: PageConstructionComponent },
+      // { path: "house", component: Page3dHouseComponent },
       { path: "wired", component: PageWiredComponent },
     ],
   },

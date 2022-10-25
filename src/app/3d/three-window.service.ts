@@ -18,11 +18,11 @@ export enum Material {
   foam = "foam",
   hollowCoreSlap = "hollowCoreSlap",
   concrete = "concrete",
-  mirror = "mirror",
+  whiteWood = "whiteWood",
 }
 
 export interface CubeProperties {
-  material: Material;
+  material?: Material;
   whd: xyz;
   xyz?: xyz;
 }
@@ -43,6 +43,12 @@ export class ThreeService {
   );
   textureFoam = new THREE.TextureLoader().load("assets/textures/foam.jpg");
   textureGips = new THREE.TextureLoader().load("assets/textures/gips.jpg");
+  texturePine = new THREE.TextureLoader().load(
+    "assets/textures/western-yellow-pine.jpg"
+  );
+  textureWhiteWood = new THREE.TextureLoader().load(
+    "assets/textures/whiteWood.jpg"
+  );
 
   constructor() {
     [0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100].forEach((i) => {
@@ -63,7 +69,7 @@ export class ThreeService {
       }
     });
   }
-  lights(scene: THREE.Scene, pointLightVector) {
+  lights(scene: THREE.Scene) {
     const glight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(glight);
 
@@ -111,12 +117,12 @@ export class ThreeService {
   getMaterial(material: Material) {
     let mat = [new THREE.MeshLambertMaterial({ color: 0x00ff00 })];
     if (material === Material.pine) {
-      const texture = new THREE.TextureLoader().load(
-        "assets/textures/western-yellow-pine.jpg"
-      );
-      texture.matrixAutoUpdate = false;
+      mat = [new THREE.MeshLambertMaterial({ map: this.texturePine })];
+    }
+    if (material === Material.whiteWood) {
+      const map = this.textureWhiteWood;
 
-      mat = [new THREE.MeshLambertMaterial({ map: texture })];
+      mat = [new THREE.MeshLambertMaterial({ map })];
     }
     if (material === Material.osb) {
       const texture = new THREE.TextureLoader().load("assets/textures/osb.jpg");
@@ -153,9 +159,6 @@ export class ThreeService {
     if (material === Material.ground) {
       mat = [new THREE.MeshLambertMaterial({ color: this.colors[10] })];
     }
-    if (material === Material.mirror) {
-    
-    }
     if (material === Material.concrete) {
       mat = [
         new THREE.MeshLambertMaterial({ map: this.textureHollowCoreSlapPlain }),
@@ -164,6 +167,7 @@ export class ThreeService {
     if (material === Material.tape) {
       mat = [new THREE.MeshLambertMaterial({ color: 0x777777 })];
     }
+
     if (material === Material.foam) {
       mat = [new THREE.MeshLambertMaterial({ map: this.textureFoam })];
     }
@@ -224,7 +228,7 @@ export class ThreeService {
   }
 
   //threejstest.glb
-  importGLTF(scene: THREE.Scene, name, callback) {
+  importGLTF(name, callback) {
     var loader = new GLTFLoader();
     loader.load(`/assets/models/${name}`, (gltf: GLTF) => {
       const mesh = gltf.scene;
@@ -235,7 +239,6 @@ export class ThreeService {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       mesh.name = name;
-      scene.add(mesh);
       callback(mesh);
     });
   }
@@ -257,8 +260,8 @@ export class ThreeService {
   basicGround(scene: THREE.Scene, y: number) {
     const size = 100;
     const plane = new THREE.PlaneGeometry(size, size, 1, 1);
-    const material = this.getMaterial(Material.ground);
-    const mesh = new THREE.Mesh(plane, material);
+    const material = this.getMaterial(Material.whiteWood);
+    const mesh = new THREE.Mesh(plane, material[0]);
     mesh.position.set(0, y, 0);
     mesh.rotateX(-Math.PI / 2);
     mesh.receiveShadow = true;
