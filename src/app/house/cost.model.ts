@@ -14,12 +14,12 @@ export enum Prop {
   unit = "unit",
 }
 export type column = {
-  id: keyof Cost | keyof GroupRow;
+  id: keyof Cost | keyof GroupRow | keyof TotalRow;
   name: string;
+  def?: (x: string, y?: any) => string;
   postfix?: string;
   prefix?: string;
 };
-
 export class CostTable {
   alias: string;
   desc?: string;

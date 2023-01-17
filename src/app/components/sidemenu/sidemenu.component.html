@@ -46,6 +46,11 @@
       <mat-icon>solar_power</mat-icon>
       <span>Installations</span>
     </button>
+    <button mat-list-item routerLink="/planning" [disabled]="planning.isActive" #planning="routerLinkActive"
+      routerLinkActive="active" (click)="click()">
+      <mat-icon>calendar_month</mat-icon>
+      <span>Planning</span>
+    </button>
     <!-- <button mat-list-item routerLink="/map" [disabled]="map.isActive" #map="routerLinkActive" routerLinkActive="active"
       (click)="click()">
       <mat-icon>pin_drop</mat-icon>

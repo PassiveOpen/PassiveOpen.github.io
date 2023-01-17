@@ -1,6 +1,6 @@
 {
   "name": "passiveopen",
-  "version": "2022.1.0",
+  "version": "2023.1.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -29,6 +29,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@types/three": "^0.144.0",
     "d3": "^7.6.1",
+    "date-fns": "^2.29.3",
     "gsap": "^3.10.4",
     "ngx-cookie-service": "^14.0.1",
     "ngx-disqus": "^2.4.3",

@@ -120,6 +120,16 @@ export enum Section {
   costsFinishes = "costs-finishes",
   costsOuterFinishes = "costs-outer-finishes",
   costsTotals = "costs-totals",
+  
+
+  //planning
+
+  planningPreps = 'planningPreps',
+  planningFoundation = 'planningFoundation',
+  planningFraming = 'planningFraming',
+  planningOutside = 'planningOutside',
+  planningInstallations = 'planningInstallations',
+  planningFinishing = 'planningFinishing',
 
   //Extra
   House3D = "House3D",

@@ -10,11 +10,13 @@ import { PageWiredComponent } from "./pages/page-wired/page-wired.component";
 import { PageCostsComponent } from "./pages/page-costs/page-costs.component";
 import { PageAboutComponent } from "./pages/page-about/page-about.component";
 import { Page3dHouseComponent } from "./pages/page-3d-house/page-3d-house.component";
+import { PagePlanningComponent } from "./pages/page-planning/page-planning.component";
 
 export const routes: Routes = [
   { path: "map", component: PageMapComponent },
   { path: "costs", component: PageCostsComponent },
   { path: "about", component: PageAboutComponent },
+  { path: "planning", component: PagePlanningComponent },
   {
     path: "",
     component: AppMainPageComponent,

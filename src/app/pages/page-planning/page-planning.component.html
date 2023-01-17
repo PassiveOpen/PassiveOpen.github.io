@@ -1,0 +1,45 @@
+<h1>Planning <img src="/assets/svg/logo.svg" /></h1>
+
+
+<p>
+  todo
+</p>
+
+<h3>
+  This page is still under construction.
+  <br>
+  {{minFirstDate}}
+  <br>
+  {{maxLastDate}}
+  <br>
+  {{totalWeeks}} weeks ||
+  {{totalDays}} days
+</h3>
+
+<div style="width:100%;overflow-x:scroll; background:blueviolet">
+
+  <ng-container *ngFor="let data of tables">
+    <section [id]="data.section">
+
+      <h2 (click)="data.sectionFold  = !data.sectionFold">
+        <mat-icon>{{!data.sectionFold?'expand_less':'expand_more'}}
+        </mat-icon>
+        {{data.alias}}
+      </h2>
+      <div [class.folded]="data.sectionFold">
+
+
+        <!-- 
+        <span *ngIf="data.section === Section.costsFinishes">
+          Nice to discover a lot of moldings:
+          <a href="https://en.wikipedia.org/wiki/Molding_(decorative)">Wikipedia Moldings</a>
+        </span> -->
+
+
+        <app-table-planning [columns]="columns" [data]="data"></app-table-planning>
+
+
+      </div>
+    </section>
+  </ng-container>
+</div>

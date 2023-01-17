@@ -42,6 +42,9 @@ import { AppContextMenuComponent } from "./components/context-menu/context-menu.
 import { Page3dHouseComponent } from "./pages/page-3d-house/page-3d-house.component";
 import { ThreeHouseComponent } from "./3d/three-house/three-house.component";
 import { BaseThreeComponent } from "./3d/base-three.component";
+import { CommonModule } from "@angular/common";
+import { PagePlanningComponent } from "./pages/page-planning/page-planning.component";
+import { AppTablePlanningComponent } from "./pages/page-planning/table-planning/table-planning.component";
 
 @NgModule({
   declarations: [
@@ -63,6 +66,7 @@ import { BaseThreeComponent } from "./3d/base-three.component";
     PageWiredComponent,
     PageCostsComponent,
     Page3dHouseComponent,
+    PagePlanningComponent,
     PageMapComponent,
     PageFacadeComponent,
     PageCostsComponent,
@@ -73,10 +77,12 @@ import { BaseThreeComponent } from "./3d/base-three.component";
     AppMainPageComponent,
     SafeHtmlPipe,
     AppTableComponent,
+    AppTablePlanningComponent,
     AppContextMenuComponent,
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     BrowserAnimationsModule,
     MaterialModule,
     FlexLayoutModule,

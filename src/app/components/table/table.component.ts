@@ -8,6 +8,7 @@ import {
 import { BehaviorSubject, map } from "rxjs";
 import { HouseService } from "src/app/house/house.service";
 import {
+  column,
   Cost,
   CostTable,
   GroupRow,
@@ -15,14 +16,6 @@ import {
   TotalRow,
 } from "src/app/house/cost.model";
 import { round } from "src/app/shared/global-functions";
-
-export type column = {
-  id: keyof Cost | keyof GroupRow | keyof TotalRow;
-  name: string;
-  def?: (x: string, y?: any) => string;
-  postfix?: string;
-  prefix?: string;
-};
 
 @Component({
   selector: "app-table",
