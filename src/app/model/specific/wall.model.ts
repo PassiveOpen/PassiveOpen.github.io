@@ -8,7 +8,7 @@ import { SafeHtml } from "@angular/platform-browser";
 import {
   angleBetween,
   angleXY,
-  getDiagonal,
+  distanceBetweenPoints,
   offset,
   round,
 } from "src/app/shared/global-functions";
@@ -61,6 +61,7 @@ export class Wall extends BaseSVG {
   orientation = "";
   ceiling: number = -1;
   gable = false;
+  tower = false;
 
   constructor(data: Partial<Wall>) {
     super();
@@ -186,7 +187,7 @@ export class Wall extends BaseSVG {
     const arr = this.sides[side];
     if (!arr || !arr[0] || !arr[1]) return 0;
     return round(
-      getDiagonal(...(arr as [[number, number], [number, number]])),
+      distanceBetweenPoints(...(arr as [[number, number], [number, number]])),
       decimals
     );
   }
@@ -283,7 +284,7 @@ export class Wall extends BaseSVG {
       if (cornerType === CornerType.inside) return dio;
       if (cornerType === CornerType.outside) return dio;
       if (cornerType === CornerType.tower)
-        return getDiagonal(t.innerCoords[0], t.outerCoords[7]);
+        return distanceBetweenPoints(t.innerCoords[0], t.outerCoords[7]);
       if (cornerType === CornerType.straight) return this.thickness;
     };
 
@@ -291,7 +292,7 @@ export class Wall extends BaseSVG {
     let second = this.parent.coords[j];
 
     this.origin = first;
-    this.innerWallLength = getDiagonal(first, second);
+    this.innerWallLength = distanceBetweenPoints(first, second);
     let angle = angleBetween(first, second) - 90;
 
     this.sides = {
@@ -312,5 +313,14 @@ export class Wall extends BaseSVG {
         ),
       ];
     }
+  }
+
+  getFootPrint() {
+    if (!this.sides) return [];
+    const result = [];
+    if (this.sides[WallSide.in]) result.push(...this.sides[WallSide.in]);
+    if (this.sides[WallSide.out])
+      result.push(...this.sides[WallSide.out].reverse());
+    return result;
   }
 }

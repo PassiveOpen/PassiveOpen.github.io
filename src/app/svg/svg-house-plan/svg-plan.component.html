@@ -1,9 +1,9 @@
-<svg #svg class="plan" preserveAspectRatio="xMidYMid meet">
-  <style type="text/css">
+<svg xmlns="http://www.w3.org/2000/svg" #svg class="plan" preserveAspectRatio="xMidYMid meet">
+  <!-- <style type="text/css">
     .g-room {
       fill: url(#MyGradient)
     }
-  </style>
+  </style> -->
   <defs>
     <linearGradient id="MyGradient" gradientTransform="rotate(90)">
       <stop class="alt-stop" offset="-10%" />
@@ -131,12 +131,18 @@
 
     </g>
 
+    <g class="g-example">
+      <g id="{{key}}" *ngFor="let key of exampleKeys" class="example-g">
+        <!-- <use id="{{key}}" class="svg-example" /> -->
+      </g>
+
+    </g>
 
     <image class="render-img"></image>
 
     <g class="g-sun"></g>
 
-    <g id="distance"></g>
+    <g id="g-distance"></g>
 
 
   </g>

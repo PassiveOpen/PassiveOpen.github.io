@@ -12,6 +12,7 @@ import {
   ConstructionParts,
   Floor,
   Graphic,
+  House3DParts,
   SensorType,
   State,
   StatesExtended,
@@ -44,6 +45,10 @@ export class ControlsComponent implements OnInit {
 
   constructionParts = Object.values(ConstructionParts);
   ConstructionParts = ConstructionParts;
+
+  
+  house3DParts = Object.values(House3DParts);
+  House3DParts = House3DParts;
 
   faTemperatureHigh = faTemperatureHigh;
   faMound = faMound;

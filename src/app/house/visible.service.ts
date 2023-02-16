@@ -16,6 +16,7 @@ import { Door } from "../model/specific/door.model";
 import { Sensor } from "../model/specific/sensors/sensor.model";
 import { throttle, throttleTime } from "rxjs";
 import { state } from "@angular/animations";
+import { AppSVG } from "../model/svg.model";
 
 @Injectable({
   providedIn: "root",
@@ -323,6 +324,12 @@ export class StateService {
       .filter((x) => x instanceof Sensor)
       .forEach((x: Sensor<any>) => {
         x.visible = this.states[x.sensorType];
+      });
+    //// ========== SVG exampels ==========
+    this.house.partsFlatten
+      .filter((x) => x instanceof AppSVG)
+      .forEach((x: AppSVG) => {
+        x.visible = this.states[State.examplePlan];
       });
   }
 

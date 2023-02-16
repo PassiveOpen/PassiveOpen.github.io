@@ -89,10 +89,16 @@ export class SvgCrossComponent
   }
 
   svgUpdateMarginAndSize() {
+
+    const low = this.cross.elevations[Elevation.crawlerFloor];
     this.drawingSize = [
-      [0, -(this.cross.elevations[Elevation.crawlerFloor] + 3)],
-      [this.house.outerBase, this.cross.elevations[Elevation.topFloor] - 3],
+      [0, -this.cross.elevations[RoofPoint.topOutside]],
+      [
+        this.house.outerBase,
+        -low + this.cross.elevations[RoofPoint.topOutside],
+      ],
     ];
+    // const [[x, y], [maxX, maxY]] = this.drawingSize;
     const margin = 3;
     this.marginInMeters = [margin, margin, margin, margin];
 

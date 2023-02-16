@@ -10,7 +10,7 @@ import { Sensor } from "./specific/sensors/sensor.model";
 let ids = {};
 
 export class BaseSVG {
-  floor: Floor;
+  floor: Floor = Floor.ground;
   name;
   parts: BaseSVG[];
   svg: d3.Selection<SVGGElement, unknown, HTMLElement, undefined>;
@@ -36,7 +36,7 @@ export class BaseSVG {
 
   async draw(floor: Floor) {}
   redraw(floor: Floor) {}
-  init(floor: Floor,theme: Cross | House | Stair) {}
+  init(floor: Floor, theme: Cross | House | Stair) {}
   onUpdate: (theme: Cross | House | Stair) => void;
   tooltip = (x: Cross | House | Stair | Wall): SafeHtml => {
     return `<b>${this.name ? this.name : this.selector}</b>`;
@@ -69,7 +69,7 @@ export class BaseSVG {
     this.meterPerPixel = meterPerPixel;
 
     if (redrawAll) {
-      this.init(floor, theme)
+      this.init(floor, theme);
       await this.draw(floor); // This draws all for the first time
     }
     if (this.show(floor)) {

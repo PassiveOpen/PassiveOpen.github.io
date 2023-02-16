@@ -26,7 +26,7 @@ export const routes: Routes = [
       { path: "facade", component: PageFacadeComponent },
       { path: "installations", component: PageInstallationsComponent },
       { path: "construction", component: PageConstructionComponent },
-      // { path: "house", component: Page3dHouseComponent },
+      { path: "house", component: Page3dHouseComponent },
       { path: "wired", component: PageWiredComponent },
     ],
   },

@@ -1,12 +1,8 @@
 :host {
-  // max-width: 900px;
-  // display: block;
-  // margin: 0 auto;
-  // padding: 0 32px;
 }
 section {
   margin: 0px;
-  padding: 0px 0 0 24px;
+  padding: 8px 4px 8px 16px;
   h2 {
     cursor: pointer;
     transition: 0.2s;
@@ -19,28 +15,11 @@ section {
     }
   }
   & > div {
-    max-height: 100vh;
     transition: 0.4s ease-in;
     overflow: hidden;
     &.folded {
       transition: 0.4s ease-out;
       max-height: 0px;
-    }
-  }
-}
-
-app-table {
-  // margin: 32px 0 64px;
-  display: block;
-}
-::ng-deep {
-  #table-costs-totals {
-    .mat-column-sizeOrVersion,
-    .mat-column-other,
-    .mat-column-calcAmount,
-    .mat-column-calcAmount,
-    .mat-column-price {
-      color: transparent;
     }
   }
 }

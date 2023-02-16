@@ -23,7 +23,7 @@ import { HouseService } from "src/app/house/house.service";
 import {
   angleBetween,
   angleXY,
-  getDiagonal,
+  distanceBetweenPoints,
   offset,
   phi,
   round,
@@ -32,11 +32,7 @@ import * as THREE from "three";
 import { MeshLambertMaterial, MeshPhongMaterial, Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { degToRad } from "three/src/math/MathUtils";
-import {
-  CubeProperties,
-  Material,
-  ThreeService,
-} from "../three-window.service";
+import { CubeProperties, Material, ThreeService } from "../three.service";
 import { Reflector } from "three/examples/jsm/objects/Reflector.js";
 import { Window } from "src/app/house/window.model";
 import { CSG } from "three-csg-ts";
@@ -678,7 +674,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     this.subModels[key].push(group);
     group.rotateX(degToRad(this.lowerAngle));
     this.translate(group, 0, lowerOuter[1], -lowerOuter[0]);
-    const l = getDiagonal(lowerOuter, higherOuter);
+    const l = distanceBetweenPoints(lowerOuter, higherOuter);
 
     const localPlanes = [];
 
@@ -764,7 +760,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
     group.rotateX(degToRad(angle));
     this.translate(group, 0, lowerOuter[1], -lowerOuter[0]);
     const h = this.thickness[Thicknesses.roofJoists];
-    const l = getDiagonal(lowerOuter, higherOuter);
+    const l = distanceBetweenPoints(lowerOuter, higherOuter);
 
     const localPlanes = [];
 
@@ -1583,7 +1579,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       bottom1[1],
       -bottom1[0] - this.crossDepth[Thicknesses.osb] - thickness,
     ];
-    const totalWidth1 = getDiagonal(bottom1, top1);
+    const totalWidth1 = distanceBetweenPoints(bottom1, top1);
     const rotation1 = [angleBetween(bottom1, top1) - 90, 0, 0];
     this.brickPattern(
       key,
@@ -1604,7 +1600,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       bottom2[1],
       -bottom2[0] - this.crossDepth[Thicknesses.osb] - thickness,
     ];
-    const totalWidth2 = getDiagonal(bottom2, top2);
+    const totalWidth2 = distanceBetweenPoints(bottom2, top2);
     const rotation2 = [angleBetween(bottom2, top2) - 90, 0, 0];
     this.brickPattern(
       key,
@@ -2075,7 +2071,10 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
 
   getAngledProperties(low: RoofPoint, high: RoofPoint, thickness) {
     const roof = this.getRoofAndOffsetPoints(thickness);
-    const totalWidth = getDiagonal(roof[`${low}Offset`], roof[`${high}Offset`]);
+    const totalWidth = distanceBetweenPoints(
+      roof[`${low}Offset`],
+      roof[`${high}Offset`]
+    );
     const angle = angleBetween(roof[low], roof[high]);
     const origin = this.useOppositeCorner(
       roof[`${low}Offset`],
@@ -2279,7 +2278,7 @@ export class ThreeConstructionComponent implements AfterViewInit, OnDestroy {
       [RoofPoint.lowestOutside, RoofPoint.bendOutside],
       [RoofPoint.bendOutside, RoofPoint.topOutside],
     ].map(([first, second]) => {
-      const length = getDiagonal(
+      const length = distanceBetweenPoints(
         roof[`${first}Offset`],
         roof[`${second}Offset`]
       );

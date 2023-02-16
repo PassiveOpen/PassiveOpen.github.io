@@ -1,13 +1,24 @@
+import { Axis } from "../components/enum.data";
 import { xy } from "../house/house.model";
+import * as THREE from "three";
 
 export const phi = 1.61803398874989;
 
 export const round = (number: number, decimals = 4) => {
   return Math.round(number * 10 ** decimals) / 10 ** decimals;
 };
-export const centerBetweenPoints = ([x, y], [v, w]): xy => {
-  return [(v - x) / 2 + x, (w - y) / 2 + y];
+
+/**
+ * Get the center between two points
+ * @param coord1
+ * @param point2
+ * @param offset offset a ratio
+ * @returns
+ */
+export const centerBetweenPoints = ([x, y]: xy, [v, w]: xy, offset = 1): xy => {
+  return [(v - x) / (2 / offset) + x, (w - y) / (2 / offset) + y];
 };
+
 export const sum = (a: any[], decimals = 4) => {
   return round(
     a.reduce((partialSum, v) => partialSum + v, 0),
@@ -84,8 +95,11 @@ export const multiLineIntersect = (multiLine: xy[], line2: xy[]): xy[] => {
   }
   return intersections;
 };
-
-export const getDiagonal = (coord1: xy, coord2: xy, decimals = 4): number => {
+export const distanceBetweenPoints = (
+  coord1: xy,
+  coord2: xy,
+  decimals = 4
+): number => {
   if (!coord1 || !coord2) return 0;
   const h = coord2[0] - coord1[0];
   const w = coord2[1] - coord1[1];
@@ -114,3 +128,21 @@ export function toDegrees(angle) {
 export function toRadians(angle) {
   return angle * (Math.PI / 180);
 }
+
+//** get axis */
+export const getAxis = (axis: Axis): THREE.Vector3 => {
+  switch (axis) {
+    case Axis.x:
+      return new THREE.Vector3(1, 0, 0);
+    case Axis.y:
+      return new THREE.Vector3(0, 1, 0);
+    case Axis.z:
+      return new THREE.Vector3(0, 0, 1);
+    case Axis.red:
+      return new THREE.Vector3(1, 0, 0);
+    case Axis.green:
+      return new THREE.Vector3(0, 1, 0);
+    case Axis.blue:
+      return new THREE.Vector3(0, 0, 1);
+  }
+};

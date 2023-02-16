@@ -6,7 +6,7 @@ import {
   angleBetween,
   angleXY,
   findCircleLineIntersections,
-  getDiagonal,
+  distanceBetweenPoints,
   lineIntersect,
   offset,
   round,
@@ -633,7 +633,7 @@ export class Stair {
           previous = intersections[step - 1];
         }
         this.intersections[offsetStep + step] =
-          this.run - getDiagonal(previous, intersections[step]);
+          this.run - distanceBetweenPoints(previous, intersections[step]);
       } catch (e) {}
     }
     return steps;

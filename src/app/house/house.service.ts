@@ -15,6 +15,7 @@ import { round, sum } from "../shared/global-functions";
 import { generateUUID } from "three/src/math/MathUtils";
 import { Cost, GroupRow } from "./cost.model";
 import { Measure } from "../model/specific/measure.model";
+import { AppSVG } from "../model/svg.model";
 
 @Injectable({
   providedIn: "root",
@@ -45,6 +46,11 @@ export class HouseService {
   // sensorKeys = [];
   sensorKeys = this.house$.value.partsFlatten
     .filter((x) => x instanceof Sensor)
+    .map((x) => x.selector)
+    .sort((a, b) => a.localeCompare(b));
+
+  exampleKeys = this.house$.value.partsFlatten
+    .filter((x) => x instanceof AppSVG)
     .map((x) => x.selector)
     .sort((a, b) => a.localeCompare(b));
 

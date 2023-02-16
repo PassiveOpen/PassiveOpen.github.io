@@ -11,7 +11,7 @@ import { CableType, Floor, SensorType } from "../../components/enum.data";
 import {
   angleBetween,
   angleXY,
-  getDiagonal,
+  distanceBetweenPoints,
   mixPoints,
   offset,
   round,
@@ -23,20 +23,22 @@ import { Footprint } from "src/app/model/specific/footprint";
 import { SensorLight } from "src/app/model/specific/sensors/sensorLight.model";
 import { Vent } from "src/app/model/specific/sensors/vent.model";
 import { Water } from "src/app/model/specific/sensors/water.model";
+import { AppSVG } from "src/app/model/svg.model";
+import { RoofPoint } from "../cross.model";
 
 export const lindeLund: HouseUser = {
   studAmount: 12,
   studDistance: 0.6,
   towerWidth: 1,
   wallInnerThickness: 0.07,
-  wallOuterThickness: 0.3,
+  wallOuterThickness: 0.5,
   roofOuterThickness: 0.5,
-  studAmountNorth: 14,
-  studAmountSouth: 3,
-  studAmountWest: 13,
+  studAmountNorth: 12,
+  studAmountSouth: 4,
+  studAmountWest: 12,
   studAmountEast: 8,
   showTower: true,
-  balconyWidth: 1.2,
+  balconyWidth: 6.2,
   name: "Lindelund",
 
   orientation: {
@@ -46,6 +48,7 @@ export const lindeLund: HouseUser = {
   },
   parts: [
     new Footprint({
+      // tower
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         const s = house.stramien;
@@ -76,7 +79,7 @@ export const lindeLund: HouseUser = {
         ...[...Array(17).keys()]
           .map((i, index, arr) => {
             const towerCorners = [3, 4, 5, 6, 7];
-            const gables = [1]; // todo
+            const gables = [1, 9, 12, 15];
 
             if ([3, 4, 5, 6, 7].includes(i)) return;
             const innerCorners = [0, 11, 14, 17];
@@ -85,6 +88,7 @@ export const lindeLund: HouseUser = {
             return new Wall({
               type: WallType.outer,
               floor: Floor.all,
+              gable: gables.includes(i),
               onUpdate: function (this: Wall, house: House) {
                 const getCorner = (i) => {
                   if (i === towerCorners[0] || i === towerCorners[4] + 1)
@@ -176,14 +180,33 @@ export const lindeLund: HouseUser = {
                         })
                     )
                   : []),
+                ...(i === 13
+                  ? [1].map(
+                      (x) =>
+                        new Window({
+                          rotate: 0,
+                          width: 0.6,
+                          onUpdate: function (this: Window, house: House) {
+                            const wall = this.parent;
 
+                            this.origin = offset(
+                              wall.getPosition(WallSide.in, 1, -0.9),
+                              [-wall.thickness, 0]
+                            );
+                          },
+                        })
+                    )
+                  : []),
                 ...(i === 12 // South-glass-facade-South-Wall
                   ? [1].map(
                       (x) =>
                         new Window({
                           rotate: -90,
                           floor: Floor.all,
+                          elevation: 0,
                           onUpdate: function (this: Window, house: House) {
+                            this.height =
+                              house.cross.elevations[RoofPoint.topInside];
                             const wall = this.parent;
                             (this.width = wall.innerWallLength),
                               (this.origin = wall.getPosition(
@@ -191,6 +214,29 @@ export const lindeLund: HouseUser = {
                                 x / 2,
                                 this.width / 2
                               ));
+                          },
+                        })
+                    )
+                  : []),
+
+                ...(i === 11
+                  ? [1].map(
+                      (x) =>
+                        new Window({
+                          rotate: 180,
+                          width: 0.6,
+
+                          onUpdate: function (this: Window, house: House) {
+                            const wall = this.parent;
+
+                            this.origin = offset(
+                              wall.getPosition(
+                                WallSide.in,
+                                0,
+                                this.width + 0.9
+                              ),
+                              [wall.thickness, 0]
+                            );
                           },
                         })
                     )
@@ -358,6 +404,7 @@ export const lindeLund: HouseUser = {
         new Wall({
           type: WallType.outer,
           floor: Floor.all,
+          tower: true,
           onUpdate: function (this: Wall, house: House) {
             this.ceiling = house.cross.ceilingHeight;
             this.outOfDesign = !house.showTower;
@@ -404,6 +451,7 @@ export const lindeLund: HouseUser = {
         new Wall({
           type: WallType.outer,
           floor: Floor.all,
+          tower: true,
           onUpdate: function (this: Wall, house: House) {
             this.ceiling = house.cross.ceilingHeight;
             this.outOfDesign = !house.showTower;
@@ -443,6 +491,7 @@ export const lindeLund: HouseUser = {
         new Wall({
           type: WallType.outer,
           floor: Floor.all,
+          tower: true,
           onUpdate: function (this: Wall, house: House) {
             this.ceiling = house.cross.ceilingHeight;
             this.outOfDesign = !house.showTower;
@@ -1298,7 +1347,17 @@ export const lindeLund: HouseUser = {
           onUpdate: function (this: Wall, house: House) {
             this.drawTheoretic("s", house, house.wallOuterThickness);
           },
-          parts: [],
+          parts: [
+            new AppSVG({
+              filename: "Table.svg",
+              onUpdate: function (this: AppSVG) {
+                this.rotation = 0;
+                const wall: Wall = this.parent;
+                const point = wall.getPosition(WallSide.in, 0, 1.3 + 1.3 + 0.8);
+                this.anchor = offset(point, [0, -0.8 - (0.8 + 0.8)]);
+              },
+            }),
+          ],
         }),
         // West short
         new Wall({
@@ -1344,6 +1403,55 @@ export const lindeLund: HouseUser = {
               sensorType: SensorType.socket,
               onUpdate: function (this: Sensor<Wall>) {
                 this.points = [this.parent.getPosition(WallSide.in, 1, 1)];
+              },
+            }),
+            ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(
+              (i) =>
+                new AppSVG({
+                  filename: "kitchen.svg",
+                  onUpdate: function (this: AppSVG) {
+                    let y = 0.6 * i;
+                    if (i > 4) y = 0.6 * (i - 5);
+                    if (i > 8) y = 0.6 * (i - 8);
+                    if (i > 12) y = -(0.6 + 0.9);
+
+                    let x = -0.6;
+                    if (i > 4) x = 1.2 + 0.6;
+                    if (i > 8) x = 1.8;
+                    if (i > 12) x = 0.6 * (i - 13);
+
+                    this.rotation = 0;
+                    if (i > 4) this.rotation = 180;
+                    if (i > 8) this.rotation = 0;
+                    if (i > 12) this.rotation = -90;
+
+                    if (i === 4) {
+                      this.scale = [1, 0.4 / 0.6];
+                      y -= 0.6 - this.scale[1] * 0.6;
+                    }
+                    const wall: Wall = this.parent;
+                    const point = wall.getPosition(WallSide.in, 1, y);
+                    this.anchor = offset(point, [x, 0]);
+                  },
+                })
+            ),
+
+            new AppSVG({
+              filename: "sink.svg",
+              onUpdate: function (this: AppSVG) {
+                this.rotation = -90;
+                const wall: Wall = this.parent;
+                const point = wall.getPosition(WallSide.in, 1, -1.5);
+                this.anchor = offset(point, [0.6, 0]);
+              },
+            }),
+            new AppSVG({
+              filename: "induction.svg",
+              onUpdate: function (this: AppSVG) {
+                this.rotation = 180;
+                const wall: Wall = this.parent;
+                const point = wall.getPosition(WallSide.in, 1, 0.6);
+                this.anchor = offset(point, [1.2 + 0.6, 0]);
               },
             }),
           ],

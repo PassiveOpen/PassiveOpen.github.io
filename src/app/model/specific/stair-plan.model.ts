@@ -5,7 +5,7 @@ import { Stair, Stringers } from "src/app/house/stairs.model";
 import {
   angleBetween,
   angleXY,
-  getDiagonal,
+  distanceBetweenPoints,
   lineIntersect,
   multiLineIntersect,
 } from "src/app/shared/global-functions";
@@ -68,7 +68,7 @@ export class AppStairPlan extends BaseSVG {
       this.stringerXY,
       farOuterStingerXY,
     ])
-      .map((x) => ({ xy: x, d: getDiagonal(x, this.stringerXY) }))
+      .map((x) => ({ xy: x, d: distanceBetweenPoints(x, this.stringerXY) }))
       .sort((a, b) => a.d - b.d)
       .map((x) => x.xy)[0];
 
@@ -76,7 +76,7 @@ export class AppStairPlan extends BaseSVG {
       this.nextStingerXY,
       nextFarOuterStingerXY,
     ])
-      .map((x) => ({ xy: x, d: getDiagonal(x, this.nextStingerXY) }))
+      .map((x) => ({ xy: x, d: distanceBetweenPoints(x, this.nextStingerXY) }))
       .sort((a, b) => a.d - b.d)
       .map((x) => x.xy)[0];
 

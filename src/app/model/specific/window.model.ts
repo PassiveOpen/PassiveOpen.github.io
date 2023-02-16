@@ -16,6 +16,7 @@ export class Window extends BaseSVG {
   parent: Wall;
   width = 2;
   height = 2;
+  elevation = 1;
   origin = [0, 0];
   scale = [1, 1];
   rotate = 0;

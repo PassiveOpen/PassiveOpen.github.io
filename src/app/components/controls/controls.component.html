@@ -25,6 +25,14 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
             <mat-icon style="font-family:'Material Icons Outlined';">density_large</mat-icon>
           </button>
 
+          <button mat-mini-fab (click)="appService.setState(States.examplePlan)"
+            [class.active]="checkState(States.examplePlan)">
+            <label>
+              Example Plan
+            </label>
+            <mat-icon style="font-family:'Material Icons Outlined';">table_bar</mat-icon>
+          </button>
+
 
           <button mat-mini-fab (click)="appService.setState(States.grid)" [class.active]="checkState(States.grid)">
             <label>
@@ -220,6 +228,29 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
       </button>
     </ng-container>
 
+
+    <ng-container *ngIf="scroll.graphic === Graphic.House3D">
+
+      <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end end" fxLayoutGap="8px">
+
+        <ng-container *ngFor="let house3DPart of house3DParts">
+          <button mat-mini-fab class="house3D" (click)="appService.setState(house3DPart)" color="accent"
+            [class.active]="checkState(house3DPart)">
+            <label>
+              {{house3DPart.replace("house3D-","")}}
+            </label>
+          </button>
+
+        </ng-container>
+
+
+      </div>
+
+      <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
+        <mat-icon style.transform="rotate({{extra?20:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
+        </mat-icon>
+      </button>
+    </ng-container>
 
 
     <button mat-mini-fab (click)="fullscreen = !fullscreen" color="accent">

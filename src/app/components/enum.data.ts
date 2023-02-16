@@ -120,16 +120,15 @@ export enum Section {
   costsFinishes = "costs-finishes",
   costsOuterFinishes = "costs-outer-finishes",
   costsTotals = "costs-totals",
-  
 
   //planning
 
-  planningPreps = 'planningPreps',
-  planningFoundation = 'planningFoundation',
-  planningFraming = 'planningFraming',
-  planningOutside = 'planningOutside',
-  planningInstallations = 'planningInstallations',
-  planningFinishing = 'planningFinishing',
+  planningPreps = "planningPreps",
+  planningFoundation = "planningFoundation",
+  planningFraming = "planningFraming",
+  planningOutside = "planningOutside",
+  planningInstallations = "planningInstallations",
+  planningFinishing = "planningFinishing",
 
   //Extra
   House3D = "House3D",
@@ -186,6 +185,7 @@ export enum SensorType {
 export enum State {
   doors = "doors",
   stats = "stats",
+  examplePlan = "examplePlan",
   theoreticalWalls = "theoreticalWalls",
   silhouette = "silhouette",
   measure = "measure",
@@ -202,8 +202,24 @@ export enum CableType {
   OutsidePOE = "OutsidePOE",
   SharedEthernet = "SharedEthernet",
 }
-export type StatesExtended = State | SensorType | CableType | ConstructionParts;
-
+export type StatesExtended =
+  | State
+  | SensorType
+  | CableType
+  | ConstructionParts
+  | House3DParts;
+export enum House3DParts {
+  foundation = "foundation",
+  groundFloor = "groundFloor",
+  topFloor = "topFloor",
+  roof = "roof",
+  innerWall = "innerWall",
+  outerWall = "outerWall",
+  studs = "studs",
+  lvl = "lvl",
+  debug = "debug",
+  tower = "tower",
+}
 export enum ConstructionParts {
   foundation = "A1-construction-foundation",
   crawlerSpace = "A2-construction-crawler-space",
@@ -233,4 +249,13 @@ export enum ConstructionParts {
   serviceBeams = "E1-construction-serviceBeams",
   serviceInsulation = "E2-construction-serviceInsulation",
   gips = "E3-construction-gips",
+}
+
+export enum Axis {
+  red = "red",
+  green = "green",
+  blue = "blue",
+  x = "x",
+  y = "y",
+  z = "z",
 }

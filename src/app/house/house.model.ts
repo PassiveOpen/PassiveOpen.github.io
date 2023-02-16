@@ -5,7 +5,7 @@ import { Wall, WallSide, WallType } from "../model/specific/wall.model";
 import { AppPolyline } from "src/app/model/polyline.model";
 import {
   angleXY,
-  getDiagonal,
+  distanceBetweenPoints,
   offset,
   round,
   sum,
@@ -19,6 +19,7 @@ import { Windrose } from "../model/specific/windrose.model";
 import { AppPolygon } from "../model/polygon.model";
 import { Construction } from "./construction.model";
 import { AppDistance } from "../model/distance.model";
+import { AppSVG } from "../model/svg.model";
 export type xy = [number, number];
 export type xyz = [number, number, number];
 export interface Stramien {
@@ -843,6 +844,7 @@ export class House extends HouseUser {
     const loop = (theme, parent) => {
       parent.parts.forEach(async (part: BaseSVG) => {
         if (part === undefined) return;
+
         await part.update(theme, floor, meterPerPixel, redrawAll);
         if (part.parts !== undefined) loop(theme, part);
       });

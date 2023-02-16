@@ -3,7 +3,7 @@ import { fromEvent, Subscription } from "rxjs";
 import { AppService } from "../app.service";
 import { HouseService } from "../house/house.service";
 import * as d3 from "d3";
-import { getDiagonal, round } from "../shared/global-functions";
+import { distanceBetweenPoints, round } from "../shared/global-functions";
 import { Graphic } from "../components/enum.data";
 import { AppDistance } from "../model/distance.model";
 import { BaseSVG } from "../model/base.model";
@@ -47,6 +47,7 @@ export class D3DistanceService {
 
   mousemove(e: MouseEvent) {
     const [mouseX, mouseY] = d3.pointer(e);
+    console.log(this.distanceSVG.visible);
 
     let mouse: xy = [round(mouseX), round(mouseY)];
     let threshold = 0.2;
@@ -57,14 +58,16 @@ export class D3DistanceService {
         .find((x: HTMLElement) => x.tagName === "svg") as SVGElement;
       const meterPerPixel = Number(x.getAttribute("meterPerPixel"));
       threshold = meterPerPixel * 10;
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
 
     const arr = this.coords
       .filter((x) => x)
       .map((coords) => {
         return {
           coords,
-          d: getDiagonal(mouse, coords),
+          d: distanceBetweenPoints(mouse, coords),
         };
       })
       .filter((x) => x.d <= threshold)
@@ -132,6 +135,8 @@ export class D3DistanceService {
     this.isDistance = true;
 
     this.distanceSVG.visible = true;
+    console.log(this.distanceSVG.visible);
+
     this.distanceSubscriptions.push(
       ...[
         fromEvent(g, "mousemove").subscribe((e: MouseEvent) => {
@@ -145,5 +150,7 @@ export class D3DistanceService {
         }),
       ]
     );
+
+    console.log(this.distanceSVG);
   }
 }

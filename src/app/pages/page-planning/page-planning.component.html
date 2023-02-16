@@ -3,30 +3,33 @@
 
 <p>
   todo
+  <br>
+  {{minFirstDate | date:'dd-LL-YYYY'}}
+  <br>
+  {{maxLastDate | date:'dd-LL-YYYY' }}
+  <br>
+  {{totalWeeks}} weeks ||
+  {{totalDays}} days
 </p>
 
 <h3>
   This page is still under construction.
-  <br>
-  {{minFirstDate}}
-  <br>
-  {{maxLastDate}}
-  <br>
-  {{totalWeeks}} weeks ||
-  {{totalDays}} days
 </h3>
 
-<div style="width:100%;overflow-x:scroll; background:blueviolet">
+<div style="width: 100%;overflow-x:scroll;" cdkScrollable #scrollContainer>
 
-  <ng-container *ngFor="let data of tables">
+  <ng-container *ngFor=" let data of tables">
     <section [id]="data.section">
 
       <h2 (click)="data.sectionFold  = !data.sectionFold">
         <mat-icon>{{!data.sectionFold?'expand_less':'expand_more'}}
         </mat-icon>
         {{data.alias}}
+        <span style="font-size: 1rem;">(
+          {{data.firstDate | date:'dd-LL-YYYY'}} -
+          {{data.lastDate | date:'dd-LL-YYYY'}})</span>
       </h2>
-      <div [class.folded]="data.sectionFold">
+      <div [class.folded]="data.sectionFold" style="width: fit-content;">
 
 
         <!-- 
@@ -36,7 +39,7 @@
         </span> -->
 
 
-        <app-table-planning [columns]="columns" [data]="data"></app-table-planning>
+        <app-table-planning [columns]="columns" [data]="data" [scrollContainer]="scrollContainer"></app-table-planning>
 
 
       </div>

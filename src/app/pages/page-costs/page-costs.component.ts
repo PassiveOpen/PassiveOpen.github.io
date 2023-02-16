@@ -308,6 +308,14 @@ export class PageCostsComponent {
       alias: "Preparations",
       costs: [
         new Cost({
+          name: "Förhandsbesked",
+          price: 2000, // 20000 sek
+        }),
+        new Cost({
+          name: "Bygglov",
+          price: 3000, // 30000 sek
+        }),
+        new Cost({
           name: "Dirt work",
           price: 1000,
         }),

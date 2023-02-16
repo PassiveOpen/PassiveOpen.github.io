@@ -150,7 +150,7 @@
     <label>
       <span>South extension
       </span>
-      <mat-slider min="0" max="4" [ngModel]="house.studAmountSouth"
+      <mat-slider min="0" max="6" [ngModel]="house.studAmountSouth"
         (input)="update('house','studAmountSouth',$event.value, tags.extensionToSouth)" thumbLabel
         [displayWith]="studLabel" tickInterval="1">
       </mat-slider>

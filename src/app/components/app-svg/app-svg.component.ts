@@ -19,7 +19,6 @@ export class AppSVGComponent implements OnInit {
   @Input() @HostBinding("style.fill") fillColor;
   @Input() @HostBinding("style.height") height = `32px`;
   @Input() @HostBinding("style.width") width = `32px`;
-
   @Input() url;
   @Input() set color(x) {
     if (x === "primary") {

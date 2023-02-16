@@ -34,6 +34,7 @@ export class Measure extends BaseSVG {
     return [a[0] + (b[0] - a[0]) / 2, a[1] + (b[1] - a[1]) / 2];
   }
   async draw(floor: Floor) {
+
     if (this.svg === undefined) {
       this.svg = d3.select(`#${this.selector}`);
       this.setClass(this.svg);

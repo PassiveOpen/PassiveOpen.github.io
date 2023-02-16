@@ -98,12 +98,12 @@
   z-index: 500;
   transition: 1s;
   &.floating-right {
-    left: 50vw;
-    width: 50vw;
+    left: 50%;
+    width: 50%;
   }
   &.floating-left {
-    right: 50vw;
-    width: 50vw;
+    right: 50%;
+    width: 50%;
   }
   & > * {
     overflow: hidden;

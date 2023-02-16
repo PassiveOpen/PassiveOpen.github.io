@@ -21,6 +21,8 @@ import { xy } from "src/app/house/house.model";
 import { ContextMenuService } from "src/app/components/context-menu/context-menu.service";
 import { D3Service, SvgLoader } from "../d3.service";
 import { D3DistanceService } from "../d3Distance.service";
+import html2canvas from "html2canvas";
+import printJS from "print-js";
 
 @Component({
   selector: "app-svg-plan",
@@ -30,6 +32,60 @@ import { D3DistanceService } from "../d3Distance.service";
 export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
   @ViewChild("render") renderEl: ElementRef<HTMLImageElement>;
 
+  @HostListener("window:keydown", ["$event"])
+  async handleKeyboardEvent(event: KeyboardEvent) {
+    const key = event.key;
+    if (event.ctrlKey && key === "p") {
+      console.clear();
+      console.log("Printing the SVG");
+
+      event.preventDefault();
+
+      html2canvas(this.host.nativeElement, {}).then((canvas) => {
+        const printable = canvas.toDataURL(`image/png`, 1.0);
+        printJS({ printable, type: "image", imageStyle: "width:100%" });
+      });
+
+      // // const svg = this.svg.node().innerHTML;
+      // // //xmlns="http://www.w3.org/2000/svg"
+      // // // const blob = new Blob([svg], { type: "image/svg+xml" });
+
+      // // var canvas = document.createElement("canvas"); // Create a Canvas element.
+      // // var ctx = canvas.getContext("2d"); // For Canvas returns 2D graphic.
+      // // console.log(1);
+
+      // // await Canvg.from(ctx, svg); // Render SVG on Canvas.
+      // // var base64 = canvas.toDataURL("image/png"); // toDataURL return DataURI as Base64 format.
+      // // console.log(base64);
+
+      // // // pdfWindow.print();
+
+      // const svgAsXML = new DOMSerializer().serializeToString(this.svg.node());
+
+      // // Encode it as a data string:
+      // const svgData = `data:image/svg+xml,${encodeURIComponent(svgAsXML)}`;
+      // const loadImage = async (url) => {
+      //   const $img = document.createElement("img");
+      //   $img.src = url;
+      //   return new Promise((resolve, reject) => {
+      //     $img.onload = () => resolve($img);
+      //     $img.onerror = reject;
+      //     $img.src = url;
+      //   });
+      // };
+
+      // const img: any = await loadImage(svgData);
+      // const $canvas = document.createElement("canvas");
+      // const [w, h] = [
+      //   this.svg.node().clientWidth,
+      //   this.svg.node().clientHeight,
+      // ];
+      // $canvas.width = w;
+      // $canvas.height = h;
+      // $canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      // console.log(dataURL);
+    }
+  }
   marginInMeters = [0, 0, 0, 0];
   marginInPixels = [16 + 56, 64, 64, 8];
 
@@ -41,6 +97,7 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
   wallKeys = this.houseService.wallKeys;
   windowKeys = this.houseService.windowKeys;
   sensorKeys = this.houseService.sensorKeys;
+  exampleKeys = this.houseService.exampleKeys;
 
   SensorTypes = Object.values(SensorType);
 
@@ -67,7 +124,7 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
       host,
       d3Service,
       d3DistanceService,
-      contextMenuService,
+      contextMenuService
     );
   }
 

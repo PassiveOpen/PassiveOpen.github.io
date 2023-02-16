@@ -10,7 +10,7 @@ import { Water } from "src/app/model/specific/sensors/water.model";
 import { Wall, WallSide, WallType } from "src/app/model/specific/wall.model";
 import { Window, WindowForm } from "src/app/model/specific/window.model";
 import {
-  getDiagonal,
+  distanceBetweenPoints,
   mixPoints,
   offset,
   round,
@@ -412,7 +412,10 @@ export const lindeLundUpstairs = [
           this.ceiling = house.cross.ceilingHeight;
           const room = this.parent;
           this.origin = room.coords[2];
-          this.innerWallLength = getDiagonal(room.coords[3], room.coords[2]);
+          this.innerWallLength = distanceBetweenPoints(
+            room.coords[3],
+            room.coords[2]
+          );
           this.sides = {
             [WallSide.out]: [
               offset(this.origin, [0, house.wallInnerThickness]),
@@ -463,7 +466,10 @@ export const lindeLundUpstairs = [
           this.thickness = house.wallInnerThickness;
           const room = this.parent;
           this.origin = room.coords[3];
-          this.innerWallLength = getDiagonal(room.coords[4], room.coords[3]);
+          this.innerWallLength = distanceBetweenPoints(
+            room.coords[4],
+            room.coords[3]
+          );
 
           this.sides = {
             [WallSide.out]: [
@@ -493,7 +499,10 @@ export const lindeLundUpstairs = [
           this.ceiling = house.cross.ceilingHeight;
           const room = this.parent;
           this.origin = room.coords[4];
-          this.innerWallLength = getDiagonal(room.coords[5], room.coords[4]);
+          this.innerWallLength = distanceBetweenPoints(
+            room.coords[5],
+            room.coords[4]
+          );
           this.sides = {
             [WallSide.out]: [
               offset(this.origin, [
@@ -619,7 +628,10 @@ export const lindeLundUpstairs = [
           this.ceiling = house.cross.ceilingHeight;
           const room = this.parent;
           this.origin = room.coords[5];
-          this.innerWallLength = getDiagonal(room.coords[5], room.coords[6]);
+          this.innerWallLength = distanceBetweenPoints(
+            room.coords[5],
+            room.coords[6]
+          );
           this.sides = {
             [WallSide.out]: [
               offset(room.coords[5], [0, house.wallInnerThickness]),
@@ -657,7 +669,7 @@ export const lindeLundUpstairs = [
           }),
           new Water<Wall>({
             sensorType: SensorType.drain,
-            size:50,
+            size: 50,
             onUpdate: function (this: Sensor<Wall>, house: House) {
               const wall = this.parent;
               const room = wall.parent;
@@ -686,7 +698,10 @@ export const lindeLundUpstairs = [
           this.ceiling = house.cross.ceilingHeight;
           const room = this.parent;
           this.origin = room.coords[6];
-          this.innerWallLength = getDiagonal(room.coords[6], room.coords[7]);
+          this.innerWallLength = distanceBetweenPoints(
+            room.coords[6],
+            room.coords[7]
+          );
           this.sides = {
             [WallSide.out]: [
               offset(room.coords[6], [
@@ -715,7 +730,10 @@ export const lindeLundUpstairs = [
           this.ceiling = house.cross.ceilingHeight;
           const room = this.parent;
           this.origin = room.coords[5];
-          this.innerWallLength = getDiagonal(room.coords[7], room.coords[8]);
+          this.innerWallLength = distanceBetweenPoints(
+            room.coords[7],
+            room.coords[8]
+          );
           this.sides = {
             [WallSide.out]: [
               offset(room.coords[7], [
@@ -788,7 +806,10 @@ export const lindeLundUpstairs = [
           this.ceiling = house.cross.ceilingHeight;
           const room = this.parent;
           this.origin = room.coords[8];
-          this.innerWallLength = getDiagonal(room.coords[8], room.coords[0]);
+          this.innerWallLength = distanceBetweenPoints(
+            room.coords[8],
+            room.coords[0]
+          );
           this.sides = {
             [WallSide.out]: [
               offset(room.coords[8], [

@@ -6,13 +6,13 @@ import { Floor } from "../components/enum.data";
 import {
   angleBetween,
   centerBetweenPoints,
-  getDiagonal,
+  distanceBetweenPoints,
   offset,
   round,
 } from "../shared/global-functions";
 
 export class AppDistance extends BaseSVG {
-  selector = "distance";
+  selector = "g-distance";
   point1: xy = [-999, -999];
   point2: xy = undefined;
 
@@ -24,6 +24,7 @@ export class AppDistance extends BaseSVG {
 
   constructor() {
     super();
+    this.floor = Floor.all;
   }
   onUpdate = () => {}; // not used
   async draw(floor: Floor) {
@@ -72,7 +73,7 @@ export class AppDistance extends BaseSVG {
     this.svgCircle2.attr("cx", this.point2[0]).attr("cy", this.point2[1]);
     this.svgLine.attr("points", [this.point1, this.point2].join(" "));
 
-    const meter = getDiagonal(this.point1, this.point2);
+    const meter = distanceBetweenPoints(this.point1, this.point2);
 
     const toMeasure = (meter) => {
       if (meter < 1200) {

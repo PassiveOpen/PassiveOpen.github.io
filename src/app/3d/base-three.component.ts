@@ -15,11 +15,12 @@ import * as THREE from "three";
 import gsap from "gsap";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { HouseService } from "../house/house.service";
-import { ThreeService } from "./three-window.service";
+import { Material, ThreeService } from "./three.service";
 import { AppService } from "../app.service";
 import { CookieService } from "ngx-cookie-service";
 import { round } from "../shared/global-functions";
 import { MeshLambertMaterial } from "three";
+import { TransformControls } from "three/examples/jsm/controls/TransformControls";
 
 @Component({
   selector: "app-three-house-base",
@@ -38,6 +39,7 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   scene = new THREE.Scene();
   controls: OrbitControls;
+  transformControls: TransformControls;
   camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
 
   keys: string[];
@@ -51,6 +53,11 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
   house: House;
   cross: Cross;
   construction: Construction;
+  center: { x: number; y: number; z: number };
+  animationDuration = 1.5;
+  clipHeight = 2;
+  clipEnabled = false;
+  clipMesh: THREE.Mesh;
 
   constructor(
     public threeService: ThreeService,
@@ -67,18 +74,14 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
   }
 
   AfterViewInitCallback() {}
+  OnSectionChangeCallback() {}
   ngAfterViewInit(): void {
-    // Create empty array and new timeline
-    Object.values(this.keys).forEach((key: any) => {
-      this.subModels[key] = [];
-      this.animations[key] = gsap.timeline();
-    });
-
     this.house = this.house$.value;
     this.cross = this.house.cross;
     this.construction = this.house.construction;
 
     this.createScene();
+    this.clearScene();
 
     // resize
     this.observer = new ResizeObserver((x) => this.resize$.next(x));
@@ -86,6 +89,9 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
 
     this.subscriptions.push(
       ...[
+        this.appService.states$.subscribe((states) => {
+          this.setVisibility(states, this.animationDuration);
+        }),
         this.resize$.subscribe(() => {
           this.onResize();
         }),
@@ -93,12 +99,89 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
           this.onResize();
           this.controls.enableZoom = fullscreen;
         }),
+        this.appService.tag$.subscribe(() => {
+          this.tag = this.appService.tag$.value;
+        }),
+        this.appService.scroll$.subscribe(() => {
+          const scroll = this.appService.scroll$.value;
+          const previous = this.section;
+          if (this.section !== scroll.section) {
+            this.section = scroll.section;
+            if (
+              previous === undefined ||
+              this.orbitControlsCookie !== undefined
+            )
+              return;
+            this.OnSectionChangeCallback();
+          }
+        }),
       ]
     );
+    this.draw();
+  }
+
+  clearScene() {
+    // Create empty array and new timeline
+    this.keys.forEach((key: any) => {
+      this.subModels[key] = [];
+      this.animations[key] = gsap.timeline();
+    });
+    this.scene.children.forEach((c) => {
+      this.scene.remove(c);
+    });
+  }
+  draw() {
+    // this.clearScene();
+
+    if (this.clipEnabled) {
+      this.clipMesh = this.threeService.createCube({
+        whd: [15, 10, 15],
+        xyz: [0, this.clipHeight, 0],
+        material: Material.wireFrame,
+      });
+      this.scene.add(this.clipMesh);
+      this.transformControls = new TransformControls(
+        this.camera,
+        this.renderer.domElement
+      );
+      this.transformControls.addEventListener("dragging-changed", (event) => {
+        const start = event["value"];
+        this.controls.enabled = !start;
+        if (!start) {
+          console.log("moved clip");
+          this.draw();
+        }
+      });
+      this.transformControls.attach(this.clipMesh);
+      this.scene.add(this.transformControls);
+    }
+    const states = this.appService.states$.value;
+
     this.AfterViewInitCallback();
 
-    Object.values(this.keys).forEach((key: any) => {
-      this.subModels[key].forEach((x) => this.scene.add(x));
+    this.scene.traverse(function (child) {
+      // @ts-ignore
+      if (child.isMesh) {
+        child.castShadow = true;
+      }
+    });
+
+    Object.values(this.keys).forEach((key) => {
+      this.subModels[key].forEach((obj) => {
+        // try {
+        if (this.clipEnabled) {
+          if (obj instanceof THREE.Mesh) {
+            obj = this.clip(obj, this.clipMesh);
+          } else if (obj instanceof THREE.Group) {
+            obj = this.clipGroup(obj, this.clipMesh);
+          } else {
+            console.log(obj);
+          }
+        }
+        // } catch (e) {}
+        this.scene.add(obj);
+      });
+      this.animations[key].progress(states[key] === true ? 0 : 1);
     });
   }
 
@@ -126,7 +209,6 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
 
   createScene(): void {
     this.cookiesAndCamera();
-    this.lights();
     this.scene.background = null;
     this.renderer.shadowMap.enabled = true;
     this.renderer.localClippingEnabled = true;
@@ -136,14 +218,9 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
     (window as any).renderer = this.renderer;
     (window as any).scene = this.scene;
   }
-  yoyo(key: T){
-    
+  yoyo(key: T) {
     setTimeout(() => {
-      this.animations[key as any]
-        .yoyo(true)
-        .repeat(-1)
-        .repeatDelay(0.3)
-        .play();
+      this.animations[key as any].yoyo(true).repeat(-1).repeatDelay(0.3).play();
     }, 1000);
   }
 
@@ -197,42 +274,151 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
     );
   }
 
-  add(key:  T, arr: any[]) {
-    this.subModels[key as any].push(...arr);
+  /**
+   * Adds an array of meshes to the scene
+   */
+  add(key: T, arr: (THREE.Mesh | THREE.Group)[]) {
+    this.subModels[key as any].push(...arr.filter((x) => x));
   }
 
-  lights() {
-    const glight = new THREE.AmbientLight(0xffffff, 0.8);
-    this.scene.add(glight);
-
-    const light = new THREE.DirectionalLight(0xffffff, 0.4);
-    light.position.set(30, 30, 30);
-    light.target.position.set(0, 0, 0);
-    light.castShadow = true;
-
-    light.shadow.mapSize.width = 512 * 2; // default
-    light.shadow.mapSize.height = 512 * 2; // default
-    light.shadow.camera.near = 0.5; // default
-    light.shadow.camera.far = 500; // default
-
-    this.scene.add(light);
-  }
-
-  
   // CSG
-  clip(mesh, clip) {
+  clip(mesh: THREE.Mesh, clip: THREE.Mesh): THREE.Mesh {
     mesh.updateMatrix();
     clip.updateMatrix();
-    return CSG.subtract(mesh, clip) as THREE.Mesh<
-      THREE.BoxGeometry,
-      MeshLambertMaterial[]
-    >;
+    return CSG.subtract(mesh, clip) as THREE.Mesh;
+  }
+
+  clipGroup(group: THREE.Group, clip: THREE.Mesh): THREE.Group {
+    const newGroup = group.clone();
+    const children = group.children;
+    newGroup.children = children.map((mesh) => {
+      if (mesh instanceof THREE.Mesh) {
+        return this.clip(mesh as THREE.Mesh, clip);
+      }
+      if (mesh instanceof THREE.Group) {
+        return this.clipGroup(mesh as THREE.Group, clip);
+      }
+    });
+    return newGroup;
+  }
+
+  mergeAll(meshes: THREE.Mesh[]) {
+    let mergedMesh = meshes[0];
+    meshes.forEach((mesh, i) => {
+      if (i === 0) return;
+      mergedMesh = this.merge(mergedMesh, mesh);
+    });
+    return mergedMesh;
+  }
+
+  merge(mesh, mesh2) {
+    mesh.updateMatrix();
+    mesh2.updateMatrix();
+    return CSG.union(mesh, mesh2) as THREE.Mesh;
+  }
+  translate(item: THREE.Mesh | THREE.Group, x, y, z) {
+    item.applyMatrix4(new THREE.Matrix4().makeTranslation(x, y, z));
   }
 
   // GSAP
   pauseAll() {
-    Object.values(ConstructionParts).forEach((key) => {
+    this.keys.forEach((key) => {
       this.animations[key].pause();
+    });
+  }
+
+  /** Sets defaults visibility based on states */
+  setVisibility(states, duration = 1.2) {
+    this.pauseAll();
+    this.keys.forEach((key) => {
+      const anim = this.animations[key];
+      const show = states[key] === true;
+      const visible = anim.progress() === 0;
+      const hidden = anim.progress() === 1;
+      if (show) {
+        if (hidden || duration === 0) {
+          anim.timeScale(1).reverse(); // add
+        } else {
+          gsap.to(anim, { progress: 0, duration });
+        }
+      } else {
+        if (visible || duration === 0) {
+          anim.timeScale(2).play(); // remove
+        } else {
+          gsap.to(anim, { progress: 1, duration });
+        }
+      }
+    });
+  }
+  group(meshes: THREE.Mesh[]) {
+    const group = new THREE.Group();
+    meshes.forEach((mesh) => {
+      if (mesh) group.add(mesh);
+    });
+    return group;
+  }
+
+  scaleZInOut(key, mesh, duration = 0.3, ease = "power3") {
+    this.animations[key].to(mesh.position, {
+      z: 0,
+      duration,
+      ease,
+    });
+    this.animations[key].to(
+      mesh.scale,
+      {
+        z: 0,
+        x: 0,
+        duration,
+        ease,
+      },
+      `<`
+    );
+    this.animations[key].to(mesh, {
+      visible: false,
+      duration: 0,
+    });
+  }
+  scaleYInOut(key, mesh, duration = 0.3, ease = "power3") {
+    this.animations[key].to(mesh.position, {
+      y: 0,
+      duration,
+      ease,
+    });
+    this.animations[key].to(
+      mesh.scale,
+      {
+        y: 0,
+        z: 0,
+        duration,
+        ease,
+      },
+      `<`
+    );
+    this.animations[key].to(mesh, {
+      visible: false,
+      duration: 0,
+    });
+  }
+  scaleXInOut(key, mesh, duration = 0.3, ease = "power3") {
+    this.animations[key].to(mesh.position, {
+      x: 0,
+      duration,
+      ease,
+    });
+    this.animations[key].to(
+      mesh.scale,
+      {
+        z: 0,
+        x: 0,
+        duration,
+        ease,
+      },
+      `<`
+    );
+    this.animations[key].to(mesh, {
+      visible: false,
+      duration: 0,
     });
   }
 }

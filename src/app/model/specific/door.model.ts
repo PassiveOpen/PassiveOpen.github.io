@@ -9,6 +9,7 @@ import { Floor } from "../../components/enum.data";
 export class Door extends BaseSVG {
   parent: Wall;
   width = 0.8;
+  height = 2.3;
   origin = [0, 0];
   scale = [1, 1];
   rotate = 0;
