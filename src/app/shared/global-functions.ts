@@ -42,7 +42,31 @@ export const angleBetween = (p1: xy, p2: xy, decimals = 3) => {
     decimals
   );
 };
+export function angles3D(
+  p1: THREE.Vector3,
+  p2: THREE.Vector3,
+  decimals = 3
+): [number, number] {
+  // Calculate vertical angle
+  const verticalAngle = Math.atan2(
+    p2.y - p1.y,
+    Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.z - p1.z, 2))
+  );
+  const verticalAngleDegrees = verticalAngle * (180 / Math.PI);
 
+  // Calculate horizontal angle
+  const horizontalAngle = Math.atan2(p2.x - p1.x, p2.z - p1.z);
+  let horizontalAngleDegrees = horizontalAngle * (180 / Math.PI);
+
+  if (horizontalAngleDegrees < 0) {
+    horizontalAngleDegrees = 360 + horizontalAngleDegrees;
+  }
+
+  return [
+    round(-verticalAngleDegrees, decimals),
+    round(horizontalAngleDegrees, decimals),
+  ];
+}
 export const findCircleLineIntersections = (r, m, n, h = 0, k = 0) => {
   // circle: (x - h)^2 + (y - k)^2 = r^2
   // line: y = m * x + n
@@ -117,11 +141,23 @@ export const mixPoints = (coords1: xy, coords2: xy, flip = true): xy => {
     return [coords2[0], coords1[1]];
   }
 };
+export const ptToScale = (
+  pt: number,
+  meterPerPixel: number,
+  print: boolean = false
+): number => {
+  let mm;
+  if (print) {
+    mm = (pt * 0.3528) / 10;
+  } else {
+    mm = pt * meterPerPixel;
+  }
+  return round(mm, 3);
+};
 
 String.prototype.toTitleCase = function (): string {
   return this.replace(/\b\w/g, (first) => first.toLocaleUpperCase());
 };
-
 export function toDegrees(angle) {
   return angle * (180 / Math.PI);
 }

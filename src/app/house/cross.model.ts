@@ -38,6 +38,7 @@ export enum Elevation {
   groundFloor = "groundFloor",
   ceiling = "ceiling",
   topFloor = "topFloor",
+  towerTop = "towerTop",
 }
 
 export enum RoofType {
@@ -167,6 +168,7 @@ export class Cross {
       [Elevation.groundFloor]: 0,
       [Elevation.ceiling]: topFloorBottom,
       [Elevation.topFloor]: topFloorTop,
+      [Elevation.towerTop]: topFloorTop + 8, // beetje raar dit
     };
 
     this.roofCenter = [
@@ -227,19 +229,19 @@ export class Cross {
     this.minimumHeightRoomWidth = round(
       this.getIntersectionWithRoof(this.minimumHeightRoom)[0]
     );
-    
+
     this.lowerAngle = round(
       angleBetween(
         this.roofPoints[RoofPoint.lowestOutside],
         this.roofPoints[RoofPoint.bendOutside]
-      ) ,
+      ),
       3
     );
     this.upperAngle = round(
       angleBetween(
         this.roofPoints[RoofPoint.bendOutside],
         this.roofPoints[RoofPoint.topOutside]
-      ) ,
+      ),
       3
     );
   }
@@ -704,7 +706,6 @@ export class Cross {
     const h30 = half - h70;
     const v30 = h30 * Math.tan(degToRad(30));
     const vMid = v30 + v70;
-
 
     return [
       // Outside left-to-right:

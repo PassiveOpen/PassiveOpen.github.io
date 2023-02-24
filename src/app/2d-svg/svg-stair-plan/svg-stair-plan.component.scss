@@ -1,0 +1,95 @@
+:host {
+  ::ng-deep .floor-clip {
+    clip-path: inherit;
+  }
+}
+::ng-deep {
+  svg.stairs-plan {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: 0.4s;
+
+    .left-corner-line,
+    .right-corner-line,
+    .middleLine {
+      stroke: var(--primary-color);
+    }
+    .step-plan-rise,
+    .outline,
+    .step-plan-lines {
+      fill: none;
+      // transition: 0.4s;
+      stroke: var(--color-50);
+    }
+    .outline {
+      stroke: var(--color-10);
+    }
+
+    .step-plan-rise,
+    .step-stinger,
+    .walk-line-dot,
+    .walk-line,
+    .step-plan-text {
+      display: none;
+    }
+  }
+
+  //<============== Sections ===============>//
+
+  .section-stair-plan {
+    .step-plan-rise,
+    .step-stinger,
+    .walk-line-dot,
+    .walk-line,
+    .step-plan-text {
+      display: initial !important;
+    }
+    .walk-line-dot {
+      opacity: 0;
+      fill: var(--first-color);
+    }
+    #walk-line {
+      fill: none;
+      transition: 0s;
+      opacity: 0;
+      stroke: var(--first-color);
+    }
+    .step-stinger {
+      opacity: 0;
+      fill: var(--third-color);
+    }
+    .step-plan-text {
+      display: initial;
+    }
+    .step-plan-rise {
+      stroke-dasharray: 1%;
+    }
+  }
+  //<============== Sections ===============>//
+
+  //<============== Tags ===============>//
+  .tag-half-circle {
+    .g-h-circle-roof {
+      opacity: 1 !important;
+    }
+  }
+  .tag-bend-point {
+    .g-h-bend-point {
+      opacity: 1 !important;
+    }
+  }
+  //<============== Tags ===============>//
+}
+
+//<============== States ===============>//
+::ng-deep {
+  .state-walkLine {
+    .walk-line-dot,
+    .step-stinger,
+    #walk-line {
+      opacity: 1;
+    }
+  }
+}
+//<============== States ===============>//

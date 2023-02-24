@@ -2,7 +2,7 @@ import { ComponentPortal } from "@angular/cdk/portal";
 import { AppContextMenuComponent } from "./context-menu.component";
 import { Injectable } from "@angular/core";
 import { Overlay, OverlayRef } from "@angular/cdk/overlay";
-import { D3DistanceService } from "src/app/svg/d3Distance.service";
+import { D3DistanceService } from "src/app/2d-svg/d3Distance.service";
 import { xy } from "src/app/house/house.model";
 import { take } from "rxjs";
 

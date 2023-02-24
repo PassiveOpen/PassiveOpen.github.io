@@ -4,7 +4,7 @@ import { House, xy } from "../../house/house.model";
 import { Cross } from "../../house/cross.model";
 import { Wall } from "./wall.model";
 import { BaseSVG } from "../base.model";
-import { angleXY, round } from "../../shared/global-functions";
+import { angleXY, ptToScale, round } from "../../shared/global-functions";
 import { Floor } from "../../components/enum.data";
 
 export class Measure extends BaseSVG {
@@ -14,7 +14,7 @@ export class Measure extends BaseSVG {
   svgArrow2: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
 
   textRotate = 0;
-  fontSize = 14;
+  fontSize = 12;
   a: xy = [0, 0];
   b: xy = [4, 4];
   offsetPixels = 0;
@@ -34,7 +34,6 @@ export class Measure extends BaseSVG {
     return [a[0] + (b[0] - a[0]) / 2, a[1] + (b[1] - a[1]) / 2];
   }
   async draw(floor: Floor) {
-
     if (this.svg === undefined) {
       this.svg = d3.select(`#${this.selector}`);
       this.setClass(this.svg);
@@ -135,12 +134,21 @@ export class Measure extends BaseSVG {
 
   redraw(floor: Floor) {
     if (this.svgArrow2) {
-      this.svgArrow2.attr("font-size", this.meterPerPixel * 16);
-      this.svgArrow1.attr("font-size", this.meterPerPixel * 16);
+      this.svgArrow2.attr(
+        "font-size",
+        ptToScale(16, this.meterPerPixel, this.svgUpdate.print)
+      );
+      this.svgArrow1.attr(
+        "font-size",
+        ptToScale(16, this.meterPerPixel, this.svgUpdate.print)
+      );
     }
     if (this.svgText) {
       this.svgText
-        .attr("font-size", this.meterPerPixel * this.fontSize)
+        .attr(
+          "font-size",
+          ptToScale(this.fontSize, this.meterPerPixel, this.svgUpdate.print)
+        )
         .attr("stroke-width", this.meterPerPixel * 6);
     }
     if (this.svgLine) {

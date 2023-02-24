@@ -1,4 +1,4 @@
-import { House } from "../house/house.model";
+import { House, SvgUpdate } from "../house/house.model";
 import * as d3 from "d3";
 import { Cross } from "../house/cross.model";
 import { SafeHtml } from "@angular/platform-browser";
@@ -10,7 +10,7 @@ import { Sensor } from "./specific/sensors/sensor.model";
 let ids = {};
 
 export class BaseSVG {
-  floor: Floor = Floor.ground;
+  floor: Floor; // no default, block inheritance
   name;
   parts: BaseSVG[];
   svg: d3.Selection<SVGGElement, unknown, HTMLElement, undefined>;
@@ -25,6 +25,7 @@ export class BaseSVG {
   outOfDesign = false;
   theoretic = false;
   loaded = false;
+  svgUpdate: SvgUpdate;
 
   _lineThickness = 1;
   get lineThickness(): number {
@@ -44,36 +45,36 @@ export class BaseSVG {
 
   show(floor): boolean {
     return (
-      (this.floor === floor || this.floor === Floor.all) &&
+      (this.floor === this.svgUpdate.floor || this.floor === Floor.all) &&
       !this.theoretic &&
       this.visible &&
       !this.outOfDesign
     );
   }
 
-  async update(theme, floor: Floor, meterPerPixel: number, redrawAll = true) {
-    // Caclulated as defined in the user file
-    this.onUpdate(theme);
+  async update(svgUpdate: SvgUpdate) {
+    this.svgUpdate = svgUpdate;
+    // Calculated as defined in the user file
+    this.onUpdate(this.svgUpdate.theme);
 
-    if (theme.showTower !== undefined) {
+    const activeFloor = this.svgUpdate.floor;
+
+    this.meterPerPixel = this.svgUpdate.meterPerPixel;
+
+    if (this.svgUpdate.redrawAll) {
       // aka instance of House (House is based on this class! dont use instanceof).
-      // if (this.selector === "L1-Upper-east-NorthWall-ethernet-15")
-      //   console.log(1,this.floor, this);
-      if (this.floor === undefined && this.parent && this.parent.floor) {
-        this.floor = this.parent.floor;
+      if ((this.svgUpdate.theme as House).showTower !== undefined) {
+        if (this.floor === undefined && this.parent && this.parent.floor) {
+          this.floor = this.parent.floor;
+        }
+      } else {
+        this.floor = Floor.all;
       }
-    } else {
-      this.floor = Floor.all;
+      this.init(activeFloor, this.svgUpdate.theme);
+      await this.draw(activeFloor); // This draws all for the first time
     }
-
-    this.meterPerPixel = meterPerPixel;
-
-    if (redrawAll) {
-      this.init(floor, theme);
-      await this.draw(floor); // This draws all for the first time
-    }
-    if (this.show(floor)) {
-      await this.redraw(floor); // this updates all the sizes after a zoom.
+    if (this.show(activeFloor)) {
+      await this.redraw(activeFloor); // this updates all the sizes after a zoom.
     }
   }
 
@@ -93,7 +94,7 @@ export class BaseSVG {
     } else {
       let key = this.constructor.name;
       if ("sensorType" in this) {
-        key = this["sensorType"];
+        key = this["sensorType"] as string;
       }
       if (!(key in ids)) {
         ids[key] = 0;

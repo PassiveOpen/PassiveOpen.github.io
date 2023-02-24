@@ -1,9 +1,9 @@
-import { SafeHtml } from '@angular/platform-browser';
-import * as d3 from 'd3';
-import { House, xy } from '../../house/house.model';
-import { Floor } from '../../components/enum.data';
-import { BaseSVG } from '../base.model';
-import { offset, round } from 'src/app/shared/global-functions';
+import { SafeHtml } from "@angular/platform-browser";
+import * as d3 from "d3";
+import { House, xy } from "../../house/house.model";
+import { Floor } from "../../components/enum.data";
+import { BaseSVG } from "../base.model";
+import { offset, ptToScale, round } from "src/app/shared/global-functions";
 export class Room extends BaseSVG {
   coords: xy[] = [];
   floor = Floor.ground;
@@ -12,9 +12,16 @@ export class Room extends BaseSVG {
   centralElectricity: xy = [0, 0];
   theoretic = false;
 
+  function: string;
+
   northWestCorner: xy;
   width = 0;
   height = 0;
+  fontSize = 14;
+  svgText: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
+  svgText1: d3.Selection<SVGTSpanElement, unknown, HTMLElement, any>;
+  svgText2: d3.Selection<SVGTSpanElement, unknown, HTMLElement, any>;
+  svgRoom: d3.Selection<SVGPolygonElement, unknown, HTMLElement, any>;
 
   constructor(data: Partial<Room>) {
     super();
@@ -25,20 +32,41 @@ export class Room extends BaseSVG {
   async draw(floor: Floor) {
     if (this.svg === undefined) {
       this.svg = d3.select(`#${this.selector}`);
+      this.svgRoom = this.svg.append("polygon");
+      if (this.function) {
+        this.svgText = this.svg.append("text");
+        this.svgText1 = this.svgText.append("tspan");
+        this.svgText2 = this.svgText.append("tspan");
+      }
       if (!this.name) this.name = this.selector;
       this.classes = [`floor-${this.floor}`];
       if (this.hole) {
-        this.classes.push('room-hole');
-        this.svg.attr('filter', 'url(#inset-shadow)');
+        this.classes.push("room-hole");
+        this.svg.attr("filter", "url(#inset-shadow)");
       }
-      this.classes.push('bg-fill');
+      this.classes.push("bg-fill");
     }
 
     if (!this.show(floor)) {
-      this.svg.attr('points', '');
+      this.svgRoom.attr("points", "");
+      this.svgText1.text("");
+      this.svgText2.text("");
       return;
     }
-    this.svg.attr('points', this.coords.join(' '));
+    this.svgRoom.attr("points", this.coords.join(" "));
+
+    const textOrigin = this.center;
+
+    if (this.function) {
+      this.svgText
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "middle")
+        .attr("transform", `translate(${textOrigin[0]} ${textOrigin[1]}) `);
+
+      this.svgText1.attr("x", 0).attr("dy", "0em").text(`${this.function}`);
+      this.svgText2.attr("x", 0).attr("dy", "1.2em").text(`${this.area()} m²`);
+    }
+
     this.setClass(this.svg);
   }
 
@@ -59,7 +87,7 @@ export class Room extends BaseSVG {
     if (this.coords.length === 0 || this.hole) {
       return 0;
     }
-    return Math.abs(round(d3.polygonArea(this.coords),1) );
+    return Math.abs(round(d3.polygonArea(this.coords), 1));
   };
   volume = () => {
     // todo
@@ -84,4 +112,17 @@ export class Room extends BaseSVG {
     this.center = offset(this.northWestCorner, [width / 2, height / 2]);
     this.centralElectricity = this.center;
   };
+
+  redraw(floor: Floor) {
+    if (this.svgRoom) {
+    }
+    if (this.svgText) {
+      this.svgText
+        .attr(
+          "font-size",
+          ptToScale(this.fontSize, this.meterPerPixel, this.svgUpdate.print)
+        )
+        .attr("stroke-width", this.meterPerPixel * 6);
+    }
+  }
 }

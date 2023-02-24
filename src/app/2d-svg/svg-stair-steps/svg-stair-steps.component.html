@@ -1,0 +1,29 @@
+<svg #svg class="stairs-step" preserveAspectRatio="xMidYMid meet">
+  <g>
+
+    <g class="g-building">
+      <polygon id="floor-groundfloor"></polygon>
+      <polygon id="floor-topfloor-shadow"></polygon>
+      <polygon id="floor-topfloor"></polygon>
+    </g>
+    <g class="g-step">
+      <g id="step-{{i}}" *ngFor="let item of [].constructor(25); let i = index;">
+        <polygon class="step-run"></polygon>
+        <polygon class="step-rise"></polygon>
+        <text class="step-text"></text>
+      </g>
+    </g>
+
+    <g class="g-helper">
+      <path id="nose-line"></path>
+      <path id="back-line"></path>
+      <g class="measure" id="run-size"></g>
+      <g class="measure" id="rise-size"></g>
+      <g class="measure" id="total-run-size"></g>
+      <g class="measure" id="total-rise-size"></g>
+    </g>
+
+    <g id="distance"></g>
+  </g>
+
+</svg>

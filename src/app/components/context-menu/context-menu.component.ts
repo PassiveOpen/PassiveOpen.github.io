@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit } from "@angular/core";
 
 import { AppService } from "src/app/app.service";
 import { xy } from "src/app/house/house.model";
-import { D3DistanceService } from "src/app/svg/d3Distance.service";
+import { D3DistanceService } from "src/app/2d-svg/d3Distance.service";
 import { ContextMenuService } from "./context-menu.service";
 
 @Component({

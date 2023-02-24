@@ -22,19 +22,20 @@ import { AppDistance } from "../model/distance.model";
 import { AppSVG } from "../model/svg.model";
 export type xy = [number, number];
 export type xyz = [number, number, number];
-export interface Stramien {
-  we: {
-    a: number;
-    b: number;
-    c: number;
-    d: number;
-  };
-  ns: {
-    a: number;
-    b: number;
-    c: number;
-    d: number;
-  };
+
+export enum Stramien {
+  a = "a",
+  b = "b",
+  c = "c",
+  d = "d",
+  toilet = "toilet",
+  hall = "hall",
+  walkway = "walkway",
+}
+
+export interface StramienGroup {
+  we: { [key in Stramien]?: number };
+  ns: { [key in Stramien]?: number };
 }
 
 export class HouseUser {
@@ -78,6 +79,15 @@ export interface Tower {
   footprintVisible: boolean;
 }
 
+export interface SvgUpdate {
+  theme: Cross | House | Stair;
+  floor: Floor;
+  meterPerPixel: number;
+  redrawAll: boolean;
+  graphic: Graphic;
+  print: boolean;
+}
+
 export class House extends HouseUser {
   outerBase = undefined;
   extensionToNorth = undefined;
@@ -88,12 +98,21 @@ export class House extends HouseUser {
   houseLength = undefined;
   gridSizeY = undefined;
   gridSizeX = undefined;
-  balconyWidth = undefined;
 
-  balconyEdge = 0.3;
+  balconyEdge = -0.3;
+  balconyDepth = 2.5;
+
+  westRoomWidth = 4;
+  midRoomExtended = true;
+  eastRoomExtended = true;
 
   serverRoom: xy = [undefined, undefined];
-  stramien: { in: Stramien; out: Stramien };
+  stramien: {
+    in: StramienGroup;
+    out: StramienGroup;
+    ground: StramienGroup;
+    top: StramienGroup;
+  };
   partsFlatten: BaseSVG[];
 
   cross = new Cross();
@@ -436,14 +455,21 @@ export class House extends HouseUser {
   }
   createStramien() {
     const margin = 3 * this.studDistance;
-    for (let side of ["in", "out"]) {
+
+    const floor = (side: string): Floor => {
+      if (side === "in") return Floor.all;
+      if (side === "out") return Floor.all;
+      if (side === "ground") return Floor.ground;
+      if (side === "top") return Floor.top;
+    };
+    for (let side of ["in", "out", "ground", "top"]) {
       for (let d of ["we", "ns"]) {
-        for (let i of ["a", "b", "c", "d"]) {
+        for (let i of Object.keys(Stramien)) {
           const id = `house-stramien-${side}-${d}-${i}`;
           if (d === "ns") {
             this.parts.push(
               new AppPolyline({
-                floor: Floor.all,
+                floor: floor(side),
                 selector: id,
                 lineThickness: 1.5,
                 onUpdate: function (this: AppPolyline, house: House) {
@@ -457,7 +483,7 @@ export class House extends HouseUser {
           } else {
             this.parts.push(
               new AppPolyline({
-                floor: Floor.all,
+                floor: floor(side),
                 selector: id,
                 lineThickness: 1.5,
                 onUpdate: function (this: AppPolyline, house: House) {
@@ -608,7 +634,7 @@ export class House extends HouseUser {
       this.tower.houseIncrement = 0;
     }
 
-    const inObj: Stramien = {
+    const inObj: StramienGroup = {
       we: {
         a: this.wallOuterThickness,
         b: this.extensionToWest + this.wallOuterThickness * 1,
@@ -635,6 +661,9 @@ export class House extends HouseUser {
       },
     };
 
+    const hallStramienWE =
+      inObj.we.b + (this.stair.totalWidth - this.stair.walkWidth);
+    const hallStramienNS = inObj.ns.b - 5;
     this.stramien = {
       in: inObj,
       out: {
@@ -651,7 +680,26 @@ export class House extends HouseUser {
           d: inObj.ns.d + this.wallOuterThickness,
         },
       },
+      top: {
+        we: {
+          toilet: inObj.we.b + this.stair.totalWidth - this.stair.walkWidth,
+          hall: inObj.we.b + this.stair.totalWidth + 1,
+        },
+        ns: {
+          hall: hallStramienNS + 1.5,
+          walkway: inObj.ns.b + 1 + 0.5,
+        },
+      },
+      ground: {
+        we: {
+          hall: hallStramienWE,
+        },
+        ns: {
+          hall: hallStramienNS,
+        },
+      },
     };
+    this.stair.stairOrigin = [hallStramienNS, hallStramienWE];
 
     this.serverRoom = [
       this.stramien.in.we.c - 1,
@@ -833,32 +881,27 @@ export class House extends HouseUser {
   }
 
   /* Main draw function, which loops through parts */
-  redrawHouse(
-    floor: Floor,
-    graphic: Graphic,
-    meterPerPixel: number,
-    redrawAll
-  ) {
+  redrawHouse(obj: SvgUpdate) {
     // console.log("redrawHouse:", redrawAll);
 
     const loop = (theme, parent) => {
       parent.parts.forEach(async (part: BaseSVG) => {
         if (part === undefined) return;
 
-        await part.update(theme, floor, meterPerPixel, redrawAll);
+        await part.update({ ...obj, theme });
         if (part.parts !== undefined) loop(theme, part);
       });
     };
 
-    if (graphic === Graphic.plan) {
+    if (obj.graphic === Graphic.plan) {
       loop(this, this);
       loop(this.stair, this.stair);
     }
-    if (graphic === Graphic.cross) {
+    if (obj.graphic === Graphic.cross) {
       loop(this.cross, this.cross);
     }
 
-    if ([Graphic.stairCross, Graphic.stairPlan].includes(graphic)) {
+    if ([Graphic.stairCross, Graphic.stairPlan].includes(obj.graphic)) {
       loop(this.stair, this.stair);
     }
   }

@@ -3,7 +3,7 @@ import { Subscription } from "rxjs";
 import { AppService } from "src/app/app.service";
 import { Section, Tag } from "src/app/components/enum.data";
 import { HouseService } from "src/app/house/house.service";
-import { ThreeService } from "../../3d/three.service";
+import { ThreeService } from "../../3d-three/three.service";
 
 @Component({
   selector: "app-page-facade",

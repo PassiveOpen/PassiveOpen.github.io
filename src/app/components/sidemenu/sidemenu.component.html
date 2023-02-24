@@ -11,10 +11,15 @@
       <mat-icon style="opacity:0;transition: 0;">gite</mat-icon>
       <span>{{title}}</span>
     </button>
-    <button mat-list-item routerLink="/house" [disabled]="house.isActive" #house="routerLinkActive"
+    <button mat-list-item routerLink="/house" [disabled]="house2d.isActive" #house2d="routerLinkActive"
       routerLinkActive="active" (click)="click()">
       <mat-icon style="font-family:'Material Icons Outlined';">home</mat-icon>
-      <span>The house</span>
+      <span>The house 2D</span>
+    </button>
+    <button mat-list-item routerLink="/house3d" [disabled]="house3d.isActive" #house3d="routerLinkActive"
+      routerLinkActive="active" (click)="click()">
+      <mat-icon style="font-family:'Material Icons Outlined';">home</mat-icon>
+      <span>The house 3D</span>
     </button>
     <button mat-list-item routerLink="/stairs" [disabled]="stairs.isActive" #stairs="routerLinkActive"
       routerLinkActive="active" (click)="click()">

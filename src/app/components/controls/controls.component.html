@@ -233,6 +233,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
       <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end end" fxLayoutGap="8px">
 
+
         <ng-container *ngFor="let house3DPart of house3DParts">
           <button mat-mini-fab class="house3D" (click)="appService.setState(house3DPart)" color="accent"
             [class.active]="checkState(house3DPart)">
@@ -249,6 +250,21 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
       <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
         <mat-icon style.transform="rotate({{extra?20:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
         </mat-icon>
+      </button>
+      <button mat-mini-fab *ngIf="(floor$ |async) as floor" (click)="setFloor()" color="accent">
+        <mat-icon *ngIf="floor === Floor.top">exposure_plus_1</mat-icon>
+        <mat-icon *ngIf="floor === Floor.ground">exposure_zero</mat-icon>
+      </button>
+
+      <button mat-mini-fab (click)="swapCamera( )" color="accent">
+        <mat-icon [ngStyle]="{
+          'transform': camera?'':'perspective(10px) rotateX(9deg)  translate(0px, -2px)',
+          'font-family': 'Material Icons Outlined'
+        }">
+          rectangle</mat-icon>
+        <label>
+          {{!camera?'Persective':'Ortho'}}
+        </label>
       </button>
     </ng-container>
 

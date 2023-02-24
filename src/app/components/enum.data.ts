@@ -138,6 +138,7 @@ export enum Floor {
   ground = "ground",
   ceiling = "ceiling",
   all = "all",
+  tower = "tower",
   none = "none",
 }
 export enum GraphicSide {

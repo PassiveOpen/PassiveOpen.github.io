@@ -5,6 +5,7 @@ import { faTemperatureHigh, faMound } from "@fortawesome/free-solid-svg-icons";
 
 import { CookieService } from "ngx-cookie-service";
 import { filter } from "rxjs";
+import { ThreeService } from "src/app/3d-three/three.service";
 import { AppService } from "src/app/app.service";
 import { HouseService } from "src/app/house/house.service";
 import { animationSlideInOut } from "../animations";
@@ -46,7 +47,6 @@ export class ControlsComponent implements OnInit {
   constructionParts = Object.values(ConstructionParts);
   ConstructionParts = ConstructionParts;
 
-  
   house3DParts = Object.values(House3DParts);
   House3DParts = House3DParts;
 
@@ -62,17 +62,26 @@ export class ControlsComponent implements OnInit {
     this.cookieService.set("fullscreen", `${state}`);
     this.appService.fullscreen$.next(state);
   }
+
+  get camera() {
+    return this.threeService.cameraPerspective;
+  }
+
   constructor(
     public appService: AppService,
     private elementRef: ElementRef,
     private houseService: HouseService,
     private cookieService: CookieService,
-    private router: Router
+    private router: Router,
+    private threeService: ThreeService
   ) {}
 
   ngOnInit(): void {}
 
   checkState(state: StatesExtended): boolean {
     return this.states$.value[state] === true;
+  }
+  swapCamera() {
+    this.threeService.swapCamera();
   }
 }

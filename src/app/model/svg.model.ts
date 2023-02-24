@@ -1,7 +1,6 @@
 import * as d3 from "d3";
 import { Floor } from "../components/enum.data";
 import { xy } from "../house/house.model";
-import { D3Service, SvgLoader } from "../svg/d3.service";
 import { BaseSVG } from "./base.model";
 
 export class AppSVG extends BaseSVG {
