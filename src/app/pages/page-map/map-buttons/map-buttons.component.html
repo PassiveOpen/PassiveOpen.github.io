@@ -1,0 +1,28 @@
+<div fxLayout="column" fxLayoutAlign="end" fxLayoutGap="8px" @slideInOut>
+
+
+  <button mat-mini-fab (click)="zoomToHouse()" color="accent">
+    <label>
+      House
+    </label>
+    <mat-icon>house</mat-icon>
+  </button>
+
+
+  <button mat-mini-fab (click)="olMeasureService.activate()" color="accent">
+    <label>
+      Measurements
+    </label>
+    <mat-icon style="font-family:'Material Icons Outlined';">square_foot</mat-icon>
+  </button>
+
+  <button mat-mini-fab (click)="olBaseMapService.nextBasemap()" color="accent">
+    <label>
+      {{basemap$ | async}}
+    </label>
+    <mat-icon style="font-family:'Material Icons Outlined';">map</mat-icon>
+  </button>
+
+
+
+</div>

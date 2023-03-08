@@ -5,7 +5,9 @@ import {
   OnInit,
   Renderer2,
 } from "@angular/core";
+import { NavigationEnd, Router } from "@angular/router";
 import { faDiscord, faGithub } from "@fortawesome/free-brands-svg-icons";
+import { distinct, filter, map } from "rxjs";
 import { AppService } from "./app.service";
 
 @Component({
@@ -14,16 +16,24 @@ import { AppService } from "./app.service";
   styleUrls: ["./app.component.scss"],
 })
 export class AppComponent implements OnInit, AfterViewInit {
-  year = new Date().getFullYear();
-  discord = this.appService.discord;
-  github = this.appService.github;
+  onStart = true;
 
-  faDiscord = faDiscord;
-  faGithub = faGithub;
+  constructor(private appService: AppService, private router: Router) {}
 
-  constructor(private appService: AppService) {}
-
-  ngOnInit(): void {}
-
+  ngOnInit() {
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        map((e) => e.urlAfterRedirects.split("?")[0]),
+        distinct()
+      )
+      .subscribe((evt) => {
+        if (this.onStart) {
+          this.onStart = false;
+          return;
+        }
+        window.scrollTo(0, 0);
+      });
+  }
   ngAfterViewInit(): void {}
 }

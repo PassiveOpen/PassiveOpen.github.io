@@ -16,6 +16,7 @@ import {
   ThreeMaterialService,
 } from "./three-material.service";
 import { AppService } from "../app.service";
+import { BufferGeometry } from "three";
 
 export interface CubeProperties {
   material?: Material;
@@ -59,30 +60,6 @@ export class ThreeService {
       }
     });
   }
-  lights(scene: THREE.Scene, scale = 1) {
-    const glight = new THREE.AmbientLight(0xffffff, 0.8 * scale);
-    scene.add(glight);
-
-    const light = new THREE.DirectionalLight(0xffffff, 0.4 * scale);
-    light.position.set(30, 30, 30);
-    light.target.position.set(0, 0, 0);
-    light.castShadow = true;
-
-    const i = 3;
-    light.shadow.mapSize.width = 512 * 4; // default
-    light.shadow.mapSize.height = 512 * 4; // default
-    light.shadow.camera.near = 0.5; // default
-    light.shadow.camera.far = 500; // default
-
-    var side = 30;
-    light.shadow.camera.top = side;
-    light.shadow.camera.bottom = -side;
-    light.shadow.camera.left = side;
-    light.shadow.camera.right = -side;
-
-    scene.add(light);
-  }
-
   unionAll(meshes: THREE.Mesh<any>[]): THREE.Mesh<any> {
     let union = meshes[0];
     meshes.forEach((mesh) => {
@@ -94,6 +71,12 @@ export class ThreeService {
     return union;
   }
 
+  flatShapeCross(coords: xy[], z, material) {
+    const mesh = this.flatShape(coords, z, material, z);
+    this.rotateAroundAxis(mesh, degToRad(-90), Axis.blue);
+    this.rotateAroundAxis(mesh, degToRad(-90), Axis.red);
+    return mesh;
+  }
   flatShape(
     coords: xy[],
     z = 0,
@@ -117,19 +100,17 @@ export class ThreeService {
     const material = materials.flatMap((x) =>
       this.threeMaterialService.getMaterial(x, materials.length > 1)
     );
-
     const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
     const mesh = new THREE.Mesh(geometry, material);
     mesh.rotateX(Math.PI / 2);
     mesh.receiveShadow = true;
     mesh.castShadow = true;
     this.translate(mesh, start[0], z, start[1]);
-
     return mesh;
   }
 
-  translate(item: THREE.Object3D, x, y, z) {
-    item.applyMatrix4(new THREE.Matrix4().makeTranslation(x, y, z));
+  translate(mesh: THREE.Object3D, x, y, z) {
+    mesh.applyMatrix4(new THREE.Matrix4().makeTranslation(x, y, z));
   }
 
   createPane(planeProperties: PlaneProperties) {
@@ -151,7 +132,10 @@ export class ThreeService {
     return mesh;
   }
 
-  createCube(cubeProperties: CubeProperties) {
+  /**
+   * Creates a wrong textured cube, but allows for texutre mapping
+   */
+  createBox(cubeProperties: CubeProperties): THREE.Mesh<BufferGeometry> {
     const { material, whd, xyz } = cubeProperties;
     const [width, height, depth] = whd;
     const [x, y, z] = xyz || [0, 0, 0];
@@ -162,25 +146,38 @@ export class ThreeService {
       this.threeMaterialService.getMaterial(material)
     );
     mesh.position.set(width / 2 + x, height / 2 + y, depth / 2 + z);
-
     mesh.castShadow = true;
     mesh.receiveShadow = true;
+    return mesh as any;
+  }
 
-    // var uvAttribute = geometry.attributes["uv"];
-    // for (var i = 0; i < uvAttribute.count; i++) {
-    //   var u = uvAttribute.getX(i);
-    //   var v = uvAttribute.getY(i);
-    //   v *= 2;
-    //   uvAttribute.setXY(i, u, v);
-    // }
-    // uvAttribute.needsUpdate = true;
-    return mesh;
+  /**
+   * Creates a right textured cube
+   */
+  createCube(cubeProperties: CubeProperties): THREE.Mesh<BufferGeometry> {
+    const { material, whd, xyz } = cubeProperties;
+    const [width, height, depth] = whd;
+    const [x, y, z] = xyz || [0, 0, 0];
+
+    const coords: xy[] = [
+      [0, 0],
+      [width, 0],
+      [width, depth],
+      [0, depth],
+    ];
+
+    const mesh = this.flatShape(coords, 0, [material], height);
+    mesh.position.set(x, y + height, z);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    return mesh as any;
   }
 
   //threejstest.glb
   importGLTF(name, callback) {
     var loader = new GLTFLoader();
     loader.load(`/assets/models/${name}`, (gltf: GLTF) => {
+      console.log("import dude");
       const mesh = gltf.scene;
       mesh.children.forEach((c) => {
         c.castShadow = true;

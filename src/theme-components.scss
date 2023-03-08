@@ -12,6 +12,11 @@
 
   $bg: mat-color($background, background);
   $txt: mat-color($foreground, base);
+
+  --primary: #{mat-color($primary)};
+  --accent: #{mat-color($accent)};
+  --foreground: #{mat-color($foreground)};
+  --background: #{mat-color($background)};
   --color-0: #{mix($bg, $txt, 100%)};
   --color-5: #{mix($bg, $txt, 95%)};
   --color-10: #{mix($bg, $txt, 90%)};

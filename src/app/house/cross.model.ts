@@ -168,7 +168,7 @@ export class Cross {
       [Elevation.groundFloor]: 0,
       [Elevation.ceiling]: topFloorBottom,
       [Elevation.topFloor]: topFloorTop,
-      [Elevation.towerTop]: topFloorTop + 8, // beetje raar dit
+      [Elevation.towerTop]: topFloorTop + 5, // beetje raar dit
     };
 
     this.roofCenter = [

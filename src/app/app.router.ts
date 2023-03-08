@@ -28,7 +28,8 @@ export const routes: Routes = [
       { path: "construction", component: PageConstructionComponent },
       { path: "house3d", component: Page3dHouseComponent },
       { path: "wired", component: PageWiredComponent },
+      { path: "**", redirectTo: "house", pathMatch: "full" },
     ],
   },
-  { path: "**", redirectTo: "", pathMatch: "full" },
+  { path: "**", redirectTo: "/house", pathMatch: "full" },
 ];

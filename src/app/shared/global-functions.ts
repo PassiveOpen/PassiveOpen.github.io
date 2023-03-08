@@ -1,5 +1,5 @@
 import { Axis } from "../components/enum.data";
-import { xy } from "../house/house.model";
+import { xy, xyz } from "../house/house.model";
 import * as THREE from "three";
 
 export const phi = 1.61803398874989;
@@ -26,11 +26,33 @@ export const sum = (a: any[], decimals = 4) => {
   );
 };
 
-export const angleXY = (deg, r, offset: xy = [0, 0], decimals = 4): xy => {
-  const rad = (deg * Math.PI) / 180;
-  const x = r * Math.cos(rad);
-  const y = r * Math.sin(rad);
+/**
+ * Plots a point at a angle
+ */
+export const angleXY = (
+  degree,
+  radius,
+  offset: xy = [0, 0],
+  decimals = 4
+): xy => {
+  const rad = (degree * Math.PI) / 180;
+  const x = radius * Math.cos(rad);
+  const y = radius * Math.sin(rad);
   return [round(x + offset[0], decimals), round(y + offset[1], decimals)];
+};
+
+/**
+ * Rotate a point around a center
+ */
+export const rotateXY = (xy, center, angle): xy => {
+  const [x, y] = xy;
+  const [cx, cy] = center;
+  var radians = (Math.PI / 180) * angle,
+    cos = Math.cos(radians),
+    sin = Math.sin(radians),
+    nx = cos * (x - cx) + sin * (y - cy) + cx,
+    ny = cos * (y - cy) - sin * (x - cx) + cy;
+  return [nx, ny];
 };
 
 /**
@@ -132,6 +154,9 @@ export const distanceBetweenPoints = (
 
 export const offset = (coords: xy, offset: xy): xy => {
   return [coords[0] + offset[0], coords[1] + offset[1]];
+};
+export const offsetXYZ = (coords: xyz, offset: xyz): xyz => {
+  return [coords[0] + offset[0], coords[1] + offset[1], coords[2] + offset[2]];
 };
 
 export const mixPoints = (coords1: xy, coords2: xy, flip = true): xy => {

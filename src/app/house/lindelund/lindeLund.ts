@@ -44,9 +44,9 @@ export const lindeLund: HouseUser = {
   name: "Lindelund",
 
   orientation: {
-    lat: 52,
-    log: 5.2,
-    rotation: 180,
+    lat: 55.9198711,
+    lng: 13.6533175,
+    rotation: 10,
   },
   parts: [
     //// Outerwalls ////
@@ -503,6 +503,25 @@ export const lindeLund: HouseUser = {
                             side,
                             1 / 2,
                             -this.width / 2
+                          );
+                        },
+                      }),
+                      new Window({
+                        rotate: 45 + 90,
+                        scale: [1, 1],
+                        floor: Floor.top,
+                        width: 0.8,
+                        elevation: 1,
+                        height: 2.0,
+                        onUpdate: function (this: Window, house: House) {
+                          this.outOfDesign = !house.showTower;
+                          if (this.outOfDesign) return;
+                          const side = WallSide.out;
+                          const wall = this.parent;
+                          this.origin = wall.getPosition(
+                            side,
+                            1 / 2,
+                            this.width / 2
                           );
                         },
                       }),

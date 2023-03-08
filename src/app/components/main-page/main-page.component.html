@@ -30,7 +30,7 @@
         <app-svg-cross *ngIf="graphic === Graphic.cross" class="svg-cross"></app-svg-cross>
       </div>
       <div class="floating floating-right">
-        <ng-container *ngIf="graphic === Graphic.plan">
+        <ng-container *ngIf="graphic === Graphic.house2D">
           <app-svg-stair-plan [isChild]="true" class="svg-plan-stair-plan" fxFlex="0 0 0">
           </app-svg-stair-plan>
           <app-svg-plan class="svg-plan"></app-svg-plan>
@@ -59,3 +59,5 @@
 <div class="goal-marker" [ngStyle]="{'top': goalLine*100+'vh' }">
 
 </div>
+
+<app-footer></app-footer>

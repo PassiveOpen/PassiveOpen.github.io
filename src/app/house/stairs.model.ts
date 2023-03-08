@@ -92,7 +92,7 @@ export class Stair {
     // console.log(this.totalRun);
 
     this.groundFloorTop = 0;
-    this.topFloorTop = -this.house.cross.elevations[Elevation.groundFloor]; // 0
+    this.topFloorTop = this.house.cross.elevations[Elevation.topFloor];
 
     this.totalRise = this.topFloorTop - this.groundFloorTop;
     this.stairOrigin = [

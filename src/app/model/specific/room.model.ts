@@ -17,7 +17,7 @@ export class Room extends BaseSVG {
   northWestCorner: xy;
   width = 0;
   height = 0;
-  fontSize = 14;
+  fontSize = 12;
   svgText: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
   svgText1: d3.Selection<SVGTSpanElement, unknown, HTMLElement, any>;
   svgText2: d3.Selection<SVGTSpanElement, unknown, HTMLElement, any>;
@@ -37,6 +37,7 @@ export class Room extends BaseSVG {
         this.svgText = this.svg.append("text");
         this.svgText1 = this.svgText.append("tspan");
         this.svgText2 = this.svgText.append("tspan");
+        this.svgText.attr("class", "room-function-text");
       }
       if (!this.name) this.name = this.selector;
       this.classes = [`floor-${this.floor}`];
@@ -49,14 +50,24 @@ export class Room extends BaseSVG {
 
     if (!this.show(floor)) {
       this.svgRoom.attr("points", "");
-      this.svgText1.text("");
-      this.svgText2.text("");
+      if (this.function) {
+        this.svgText1.text("");
+        this.svgText2.text("");
+      }
       return;
     }
     this.svgRoom.attr("points", this.coords.join(" "));
 
-    const textOrigin = this.center;
-
+    const getCenter = () => {
+      const x = this.coords.map((c) => c[0]);
+      const y = this.coords.map((c) => c[1]);
+      const xMin = Math.min(...x);
+      const xMax = Math.max(...x);
+      const yMin = Math.min(...y);
+      const yMax = Math.max(...y);
+      return [(xMin + xMax) / 2, (yMin + yMax) / 2];
+    };
+    const textOrigin = this.center ? this.center : getCenter();
     if (this.function) {
       this.svgText
         .attr("text-anchor", "middle")
@@ -64,7 +75,12 @@ export class Room extends BaseSVG {
         .attr("transform", `translate(${textOrigin[0]} ${textOrigin[1]}) `);
 
       this.svgText1.attr("x", 0).attr("dy", "0em").text(`${this.function}`);
-      this.svgText2.attr("x", 0).attr("dy", "1.2em").text(`${this.area()} m²`);
+      if (this.area() > 5) {
+        this.svgText2
+          .attr("x", 0)
+          .attr("dy", "1.2em")
+          .text(`${this.area()} m²`);
+      }
     }
 
     this.setClass(this.svg);

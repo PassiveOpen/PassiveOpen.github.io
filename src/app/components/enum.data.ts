@@ -148,7 +148,7 @@ export enum GraphicSide {
 }
 
 export enum Graphic {
-  plan = "plan",
+  house2D = "house2D",
   cross = "cross",
   stairPlan = "stairPlan",
   stairCross = "stairCross",
@@ -196,7 +196,6 @@ export enum State {
   grid = "grid",
   walkLine = "walkLine",
   minimumHeight = "minimumHeight",
-  mirror = "mirror",
 }
 
 export enum CableType {
@@ -208,7 +207,13 @@ export type StatesExtended =
   | SensorType
   | CableType
   | ConstructionParts
-  | House3DParts;
+  | House3DParts
+  | Helpers3D;
+export enum Helpers3D {
+  clipBoxEnabled = "clipBoxEnabled",
+  clipBoxShow = "clipBoxShow",
+  mirror = "mirror",
+}
 export enum House3DParts {
   foundation = "foundation",
   groundFloor = "groundFloor",

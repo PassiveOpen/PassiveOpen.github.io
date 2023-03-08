@@ -61,7 +61,7 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
 
   SensorTypes = Object.values(SensorType);
 
-  graphic = Graphic.plan;
+  graphic = Graphic.house2D;
   transformOrigin = [0, 0];
 
   renderImg;
@@ -86,9 +86,6 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
       d3DistanceService,
       contextMenuService
     );
-    setTimeout(() => {
-      // this.printService.print(this);
-    }, 1000);
   }
 
   override svgSpecificUpdate() {
@@ -361,7 +358,6 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
 
     this.scaleRenderImage();
     d3.select("svg");
-    this.addLayout();
   }
 
   svgUpdateMarginAndSize() {
@@ -369,10 +365,11 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
     this.gridSizeY$.next(this.house.gridSizeY);
     const margin = this.house.studDistance * 3;
     this.marginInMeters = [margin, margin, margin, margin];
-    this.drawingSize = [
+    this.svgHouseSize = [
       [0, 0],
       [this.house.houseWidth, this.house.houseLength],
     ];
+
     this.scaleRenderImage();
     this.scaleStairs();
     this.svgLoaders.forEach((x) => x.update());

@@ -59,12 +59,12 @@ export class SvgStairsComponent extends BasicSVG implements AfterViewInit {
     const maxRun = this.stair.totalRise / Math.tan(30 * (Math.PI / 180));
 
     if ([Section.stairCheck, Section.stairPlan].includes(this.section)) {
-      this.drawingSize = [
+      this.svgHouseSize = [
         [this.stair.run * 5, -this.stair.rise * 9],
         [this.stair.run * 4, this.stair.rise * 4],
       ];
     } else {
-      this.drawingSize = [
+      this.svgHouseSize = [
         [-this.stair.run, -this.stair.totalRise],
         [maxRun, this.stair.totalRise + this.stair.floorThickness],
       ];

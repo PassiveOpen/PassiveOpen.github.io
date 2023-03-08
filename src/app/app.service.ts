@@ -60,8 +60,14 @@ export class AppService {
     this.getCookies();
   }
 
-  setStatesSilent(states: StatesExtended[], o?: boolean, c?: boolean) {
-    states.flatMap((state) => this.setState(state, o, c, false));
+  setStatesSilent(
+    states: StatesExtended[],
+    overrule?: boolean,
+    checkCookie?: boolean
+  ) {
+    states.flatMap((state) =>
+      this.setState(state, overrule, checkCookie, false)
+    );
   }
   hardSetStates(stateObj: StateObj) {
     const oldStates = this.states$.value;
@@ -71,25 +77,27 @@ export class AppService {
     this.commitState(oldStates);
   }
   setState(
-    key: StatesExtended,
+    keys: StatesExtended | StatesExtended[],
     overrule?: boolean,
     checkCookie?: boolean,
     commit = true
   ) {
     const states = this.states$.value;
 
-    if (checkCookie) {
-      states[key] = Boolean(this.cookieService.get("states"));
-    }
-    if (overrule) {
-      states[key] = overrule;
-    } else {
-      if (states[key] !== undefined) {
-        states[key] = !states[key];
-      } else {
-        states[key] = true;
+    (keys instanceof Array ? keys : [keys]).flatMap((key) => {
+      if (checkCookie) {
+        states[key] = Boolean(this.cookieService.get("states"));
       }
-    }
+      if (overrule !== undefined) {
+        states[key] = overrule;
+      } else {
+        if (states[key] !== undefined) {
+          states[key] = !states[key];
+        } else {
+          states[key] = true;
+        }
+      }
+    });
 
     if (commit) {
       this.commitState(states);

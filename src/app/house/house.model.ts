@@ -54,7 +54,7 @@ export class HouseUser {
   showTower: boolean;
   orientation: {
     lat: number;
-    log: number;
+    lng: number;
     rotation: number;
   };
   parts: BaseSVG[];
@@ -98,6 +98,7 @@ export class House extends HouseUser {
   houseLength = undefined;
   gridSizeY = undefined;
   gridSizeX = undefined;
+  centerHouse: xy = [undefined, undefined];
 
   balconyEdge = -0.3;
   balconyDepth = 2.5;
@@ -699,6 +700,11 @@ export class House extends HouseUser {
         },
       },
     };
+    this.centerHouse = [
+      inObj.we.c - (inObj.we.c - inObj.we.b) / 2,
+      inObj.ns.c - (inObj.ns.c - inObj.ns.b) / 2,
+    ];
+
     this.stair.stairOrigin = [hallStramienNS, hallStramienWE];
 
     this.serverRoom = [
@@ -893,7 +899,7 @@ export class House extends HouseUser {
       });
     };
 
-    if (obj.graphic === Graphic.plan) {
+    if (obj.graphic === Graphic.house2D) {
       loop(this, this);
       loop(this.stair, this.stair);
     }

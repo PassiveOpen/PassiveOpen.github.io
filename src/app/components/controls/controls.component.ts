@@ -13,6 +13,7 @@ import {
   ConstructionParts,
   Floor,
   Graphic,
+  Helpers3D,
   House3DParts,
   SensorType,
   State,
@@ -31,6 +32,7 @@ type SensorIcon = {
   animations: [animationSlideInOut],
 })
 export class ControlsComponent implements OnInit {
+  extra = false;
   house$ = this.houseService.house$;
   Floor = Floor;
   floor$ = this.appService.floor$;
@@ -50,10 +52,11 @@ export class ControlsComponent implements OnInit {
   house3DParts = Object.values(House3DParts);
   House3DParts = House3DParts;
 
+  Helpers3D = Helpers3D;
+  helpers3D = Object.values(Helpers3D);
+
   faTemperatureHigh = faTemperatureHigh;
   faMound = faMound;
-
-  extra = true;
 
   get fullscreen() {
     return this.appService.fullscreen$.value;

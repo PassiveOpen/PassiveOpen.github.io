@@ -22,11 +22,13 @@ export enum Material {
   foam = "foam",
   hollowCoreSlap = "hollowCoreSlap",
   concrete = "concrete",
+  white = "white",
   whiteWood = "whiteWood",
   ral9016 = "ral9016",
   normals = "normals",
   unknown = "unknown",
   window = "window",
+  floor = "floor",
   roof = "roof",
   wireFrame = "wireFrame",
 }
@@ -34,7 +36,6 @@ export enum Material {
 export enum Texture {
   hollowCoreSlap = "hollowCoreSlap",
   hollowCoreSlapSide = "hollowCoreSlapSide",
-  hollowCoreSlapPlain = "hollowCoreSlapPlain",
   foam = "foam",
   gips = "gips",
   pine = "pine",
@@ -43,14 +44,21 @@ export enum Texture {
   whiteWood = "whiteWood",
   insulation = "insulation",
   roof = "roof",
+  fishbone = "fishbone",
 }
 
-const textures = [
+const textures: {
+  key: Texture;
+  url: string;
+  offset?: xy;
+  scale?: xy;
+  rotation?: number;
+}[] = [
   {
     key: Texture.hollowCoreSlap,
-    url: "assets/textures/hollowCoreSlapPlain.jpg",
+    url: "assets/textures/hollowCoreSlap.jpg",
     offset: [0, 0],
-    scale: [0.3, 0.3],
+    scale: [0.7, 1],
   },
   {
     key: Texture.hollowCoreSlapSide,
@@ -79,6 +87,12 @@ const textures = [
   {
     key: Texture.osb,
     url: "assets/textures/osb.jpg",
+  },
+  {
+    key: Texture.fishbone,
+    url: "assets/textures/fishbone.jpg",
+    rotation: 90,
+    scale: [0.6, 0.6],
   },
   {
     key: Texture.insulation,
@@ -129,7 +143,6 @@ export class ThreeMaterialService {
         texture.needsUpdate = true;
       };
       this.textures[obj.key] = texture;
-
       this.httpClient
         .get(obj.url, {
           responseType: "arraybuffer",
@@ -159,14 +172,29 @@ export class ThreeMaterialService {
         new THREE.MeshLambertMaterial({ map: this.textures[Texture.pine] }),
       ];
     }
+    if (material === Material.floor) {
+      mat = [
+        new THREE.MeshLambertMaterial({ map: this.textures[Texture.fishbone] }),
+      ];
+    }
     if (material === Material.ral9016) {
       mat = [
         new THREE.MeshLambertMaterial({
-          color: 0xedede6,
+          color: 0xf1f0ea,
           bumpMap: this.textures[Texture.pine],
           bumpScale: 0.05,
         }),
-      ]; //0xedede6
+      ]; //0xf1f0ea
+    }
+    if (material === Material.white) {
+      mat = [
+        new THREE.MeshLambertMaterial({
+          color: 0xffffff,
+          bumpMap: this.textures[Texture.pine],
+          bumpScale: 0.05,
+          // side: THREE.DoubleSide,
+        }),
+      ]; //0xf1f0ea
     }
 
     if (material === Material.normals) {
@@ -202,33 +230,24 @@ export class ThreeMaterialService {
       ];
     }
     if (material === Material.hollowCoreSlap) {
-      const side = this.textures[Texture.hollowCoreSlapSide].clone();
-      side.wrapS = THREE.RepeatWrapping;
-      side.wrapT = THREE.RepeatWrapping;
-      side.rotation = degToRad(90);
-      side.offset.set(0.2, 1);
-      side.repeat.set(4, 4);
-
-      const top = new THREE.TextureLoader().load(
-        "assets/textures/hollowCoreSlapPlain.jpg"
-      );
-      top.wrapS = THREE.RepeatWrapping;
-      top.wrapT = THREE.MirroredRepeatWrapping;
-      top.repeat.set(1, 1.8);
+      const side = this.textures[Texture.hollowCoreSlapSide];
+      const top = this.textures[Texture.concrete];
+      const ends = this.textures[Texture.hollowCoreSlap];
+      const foam = this.textures[Texture.foam];
       mat = [
         new THREE.MeshLambertMaterial({
-          map: this.textures[Texture.hollowCoreSlapSide],
+          map: side,
         }), // left
         new THREE.MeshLambertMaterial({
-          map: this.textures[Texture.hollowCoreSlapSide],
+          map: side,
         }), //right
         new THREE.MeshLambertMaterial({ map: top }), // top
-        new THREE.MeshLambertMaterial({ map: this.textures[Texture.foam] }), //bottom
+        new THREE.MeshLambertMaterial({ map: foam }), //bottom
         new THREE.MeshLambertMaterial({
-          map: this.textures[Texture.hollowCoreSlap],
+          map: ends,
         }), //back
         new THREE.MeshLambertMaterial({
-          map: this.textures[Texture.hollowCoreSlap],
+          map: ends,
         }), //front
       ];
     }
@@ -241,9 +260,11 @@ export class ThreeMaterialService {
       mat = [new THREE.MeshLambertMaterial({ color: this.colors[10] })];
     }
     if (material === Material.concrete) {
+      this.textures[Texture.concrete];
+
       mat = [
         new THREE.MeshLambertMaterial({
-          map: this.textures[Texture.hollowCoreSlapPlain],
+          map: this.textures[Texture.concrete],
         }),
       ];
     }
@@ -265,29 +286,29 @@ export class ThreeMaterialService {
     if (material === Material.window) {
       mat = [
         new THREE.MeshPhysicalMaterial({
-          // metalness: 0,
-          // roughness: 0,
+          // // metalness: 0,
+          // // roughness: 0,
+          // // color: 0xffffff,
+          // // envMap: this.envTexture,
+          // envMapIntensity: 1,
+
+          // // alphaMap: texture,
+          // // envMap: hdrEquirect,
+          // // envMapIntensity: 0.3,
+          // // transparent: true,
+          // // transmission: 0.96,
+          // // opacity: 0.7,
+          // reflectivity: 0.2,
+          // // depthWrite: false,
+          // // ior: 1.33,
+          // // side: THREE.FrontSide,
+
           // color: 0xffffff,
-          // envMap: this.envTexture,
-          envMapIntensity: 1,
-
-          // alphaMap: texture,
-          // envMap: hdrEquirect,
-          // envMapIntensity: 0.3,
-          // transparent: true,
-          // transmission: 0.96,
-          // opacity: 0.7,
-          reflectivity: 0.2,
-          // depthWrite: false,
-          // ior: 1.33,
-          // side: THREE.FrontSide,
-
-          color: 0xffffff,
           // transmission: 0.9,
           opacity: 0.5,
-          metalness: 0,
-          roughness: 0,
-          ior: 1.5,
+          // metalness: 0,
+          // roughness: 0,
+          // ior: 1.5,
           transparent: true,
           // specularIntensity: 1,
           // specularColor: new THREE.Color(0xffffff),

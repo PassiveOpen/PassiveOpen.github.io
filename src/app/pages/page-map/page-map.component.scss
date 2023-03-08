@@ -1,9 +1,16 @@
+@import "~ol/ol.css";
+
 :host {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  ::ng-deep {
+    .ol-attribution {
+      display: none;
+    }
+  }
 }
 
 .map {

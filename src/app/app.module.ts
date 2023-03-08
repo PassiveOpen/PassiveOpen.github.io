@@ -45,10 +45,15 @@ import { CommonModule } from "@angular/common";
 import { PagePlanningComponent } from "./pages/page-planning/page-planning.component";
 import { AppTablePlanningComponent } from "./pages/page-planning/table-planning/table-planning.component";
 import { PageFacadeComponent } from "./pages/page-facade/page-facade.component";
+import { AppFooterComponent } from "./components/footer/footer.component";
+import { MapButtonsComponent } from "./pages/page-map/map-buttons/map-buttons.component";
+import { AppColorComponent } from "./components/color/color.component";
 
 @NgModule({
   declarations: [
     AppComponent,
+    AppColorComponent,
+    AppFooterComponent,
     SideMenuComponent,
     ThreeConstructionComponent,
     ThreeHouseComponent,
@@ -79,6 +84,7 @@ import { PageFacadeComponent } from "./pages/page-facade/page-facade.component";
     AppTableComponent,
     AppTablePlanningComponent,
     AppContextMenuComponent,
+    MapButtonsComponent,
   ],
   imports: [
     BrowserModule,
@@ -94,7 +100,7 @@ import { PageFacadeComponent } from "./pages/page-facade/page-facade.component";
     RouterModule.forRoot(routes, {
       anchorScrolling: "enabled",
       // onSameUrlNavigation: "reload",
-      // scrollPositionRestoration: "enabled",
+      scrollPositionRestoration: "disabled",
     }),
   ],
   providers: [CookieService],

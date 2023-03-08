@@ -39,6 +39,7 @@
 :host {
   display: flex;
   flex-direction: row;
+  z-index: 9999;
   &.collapsed > .side {
     max-width: 50px;
     .mat-list-item {

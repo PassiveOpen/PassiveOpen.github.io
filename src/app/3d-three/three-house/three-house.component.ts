@@ -7,7 +7,12 @@ import {
 } from "@angular/core";
 import { CookieService } from "ngx-cookie-service";
 import { AppService } from "src/app/app.service";
-import { Cross, Elevation, RoofPoint } from "src/app/house/cross.model";
+import {
+  Cross,
+  Elevation,
+  RoofPoint,
+  RoofStyle,
+} from "src/app/house/cross.model";
 import { xy, xyz } from "src/app/house/house.model";
 import { HouseService } from "src/app/house/house.service";
 import {
@@ -49,12 +54,16 @@ const enum ClipPart {
   bottomRight = "bottomRight",
 }
 enum RoofClip {
-  inside = "inside",
-  outside = "outside",
+  below = "below",
+  above = "above",
+  inner = "inner",
+  outer = "outer",
   roof = "roof",
-  roofTiles = "roofTiles",
-  roofAndUnder = "roofAndUnder",
+  roofAndBelow = "roofAndBelow",
+  inBetweenAndBelow = "inBetweenAndBelow",
+  roofAndAbove = "roofAndAbove",
 }
+
 enum RoofOrientation {
   northSouth = "northSouth",
   westEast = "westEast",
@@ -74,17 +83,13 @@ interface WindowGenerator {
   templateUrl: "./three-house.component.html",
   styleUrls: ["./three-house.component.scss"],
 })
-export class ThreeHouseComponent
-  extends BaseThreeComponent<House3DParts>
-  implements AfterViewInit, OnDestroy
-{
+export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
   modelName = "House3D";
-  keys = Object.keys(House3DParts);
+  keys = Object.values(House3DParts);
   roofMeshes: { [key in RoofClip]?: THREE.Mesh } = {};
-  tower: THREE.Mesh;
+  towerClip: THREE.Mesh;
   animationDuration = 0.1;
   windowParts: { [key in ClipPart]?: THREE.Object3D } = {};
-
   windows: WindowGenerator[] = [];
 
   @HostListener("document:keydown", ["$event"])
@@ -119,27 +124,24 @@ export class ThreeHouseComponent
       cookieService,
       threeMaterialService
     );
+    this.appService.fullscreen$.next(true);
     this.preLoadWindow();
   }
 
   AfterViewInitCallback() {
-    // this.threeService.basicGround(
-    //   this.scene,
-    // this.house.cross.elevations[Elevation.ground]
-    // );
-    this.threeService.lights(this.scene, 1);
-    this.clipPlane();
+    this.threeService.basicGround(
+      this.scene,
+      this.house.cross.elevations[Elevation.ground]
+    );
+    this.lights(1);
     this.createTowerClip();
     this.createRoofShape();
     this.createFloors();
     this.createWalls();
     // this.hexagonWindows();
-
-    // this.debugMeasureBlock();
+    this.debugMeasureBlock();
     // this.createAllStuds();
-
     const axesHelper = new THREE.AxesHelper(10);
-
     axesHelper.position.set(0, 0, 0);
     this.scene.add(axesHelper);
   }
@@ -201,29 +203,6 @@ export class ThreeHouseComponent
     ) {
       this.focusCamera("subGround");
     }
-  }
-  debug(mesh) {
-    const key = House3DParts.debug;
-    mesh = mesh.clone();
-    //@ts-ignore
-    mesh.material = new THREE.MeshLambertMaterial({
-      color: 0x00ff00,
-      opacity: 0.5,
-      transparent: true,
-      side: THREE.DoubleSide,
-    });
-    this.add(key, [mesh]);
-    this.scaleFromSomewhere(key, mesh, 0.5);
-  }
-
-  debugMeasureBlock() {
-    const x = 300 / 1000;
-    const mesh = this.threeService.createCube({
-      material: Material.unknown,
-      whd: [x, x, x],
-      // xyz: [10, this.house.cross.elevations[Elevation.groundFloor], 10],
-    });
-    this.scene.add(mesh);
   }
 
   getWindow(window: WindowGenerator) {
@@ -291,8 +270,13 @@ export class ThreeHouseComponent
     return group;
   }
   preLoadWindow() {
+    const material = this.threeMaterialService.getMaterial(Material.white);
     this.threeService.importGLTF("window.glb", (mesh: THREE.Group) => {
       this.windowParts = {};
+      mesh.children.forEach((child: THREE.Mesh) => {
+        child.material = material;
+      });
+
       [...Array(3).keys()].forEach((i) => {
         [...Array(3).keys()].forEach((j) => {
           const x = mesh.clone();
@@ -318,31 +302,23 @@ export class ThreeHouseComponent
           this.threeService.rotateAroundAxis(m, degToRad(-90), Axis.green);
 
           // this.threeService.translate(m, 0.08, -0.06, -0.06);
+
           this.windowParts[part] = m;
           // this.scene.add(clipBox);
         });
       });
 
       // Done loading
-      const mainOuterWall = this.subModels[House3DParts.outerWall][0];
-      console.log(mainOuterWall);
+      const mainOuterWall = this.subModels[House3DParts.outerWall][0]; // get Group
       this.windows.map((obj) => {
         if (obj.selector === "L0-outer-SouthWall-2-Window-14") return;
-        const frame = this.getWindow(obj);
-        mainOuterWall.add(frame);
+        // const frame = this.getWindow(obj);
+        // mainOuterWall.add(frame);
       });
     });
   }
   // =================== CREATE ============================
 
-  clipPlane() {
-    // this.renderer.localClippingEnabled = true;
-    // const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), this.clipHeight);
-    // // this.renderer.clippingPlanes = [plane];
-    // const helper = new THREE.PlaneHelper(plane, 10, 0xffff00);
-    // helper.position.set(0, this.clipHeight, 0);
-    // this.scene.add(helper);
-  }
   createTowerClip() {
     const key = House3DParts.tower;
     const coords = this.house.tower.outerCoords;
@@ -350,56 +326,111 @@ export class ThreeHouseComponent
     const mesh = this.threeService.flatShape(coords, z, [Material.concrete], z);
     this.add(key, [mesh]);
     this.scaleFromSomewhere(key, mesh, 0.1);
-    this.tower = mesh;
+    this.towerClip = mesh;
   }
   createRoofShape() {
     const key = House3DParts.roof;
     const p = this.cross.roofPoints;
+    const stramienWE = this.house.stramien.out.we;
+    const stramienNS = this.house.stramien.out.ns;
+    const overhang = 0.8;
+    const roofHalfMeshes = {};
+
+    // Basic Coords
+
     const outsideCoords = [p.topOutside, p.bendOutside, p.lowestOutside];
     const insideCoords = [p.topInside, p.bendInside, p.lowestInside];
-    const roofTilesCoords = [
+    const betweenCoords = [
       centerBetweenPoints(p.topOutside, p.topInside, 0.8),
       centerBetweenPoints(p.bendOutside, p.bendInside, 0.8),
       centerBetweenPoints(p.lowestOutside, p.lowestInside, 0.8),
-    ].map((xy) => [round(xy[0]), round(xy[1])] as xy);
-    const topOffset = distanceBetweenPoints(roofTilesCoords[0], p.topOutside);
+    ];
+    const aboveCoords = [
+      offset(p.topOutside, [0, 3]),
+      offset(p.bendOutside, [-1, 3]),
+      offset(p.lowestOutside, [0, 0]),
+    ];
+    const topOffset = distanceBetweenPoints(betweenCoords[0], p.topOutside);
 
     const mirror = (coords: xy[]) => {
       const f = coords[0];
       return [
         ...coords,
-        ...coords.map((xy) => [-xy[0] + f[0] * 2, xy[1]] as xy).reverse(),
+        ...coords
+          .map((xy) => [-xy[0] + f[0] * 2, xy[1]] as xy)
+          .slice()
+          .reverse(),
       ].map((xy) => [f[0] - xy[0], f[1] - xy[1]] as xy);
     };
 
-    const coordsRoof = mirror([...roofTilesCoords, ...insideCoords.reverse()]);
-    const coordsOutside = mirror([
-      ...outsideCoords,
-      ...[
-        offset(p.topOutside, [0, 3]),
-        offset(p.bendOutside, [-1, 3]),
-        offset(p.lowestOutside, [-1, 0]),
-      ].reverse(),
-    ]);
-    const coordsInside = mirror([
-      ...insideCoords.reverse(),
-      offset(p.lowestInside, [0, -1]),
-    ]);
-    const coordsRoofTiles = mirror([
-      ...outsideCoords,
-      ...roofTilesCoords.reverse(),
-    ]);
+    const roofCoords: { [key in RoofClip]: xy[] } = {
+      [RoofClip.below]: mirror([
+        ...insideCoords,
+        offset(p.lowestInside, [0, -1]),
+      ]),
+      [RoofClip.above]: mirror([
+        ...outsideCoords,
+        ...aboveCoords.slice().reverse(),
+      ]),
+      [RoofClip.outer]: mirror([
+        ...outsideCoords,
+        ...betweenCoords.slice().reverse(),
+      ]),
+      [RoofClip.inner]: mirror([
+        ...insideCoords,
+        ...betweenCoords.slice().reverse(),
+      ]),
+      [RoofClip.roof]: mirror([
+        ...insideCoords,
+        ...outsideCoords.slice().reverse(),
+      ]),
+      [RoofClip.roofAndAbove]: mirror([
+        ...insideCoords,
+        ...aboveCoords.slice().reverse(),
+      ]),
+      [RoofClip.roofAndBelow]: mirror([
+        ...outsideCoords,
+        offset(p.lowestOutside, [0, -1]),
+      ]),
+      [RoofClip.inBetweenAndBelow]: mirror([
+        ...betweenCoords,
+        offset(p.lowestOutside, [0, -1]),
+      ]),
+    };
 
-    const stramienWE = this.house.stramien.out.we;
-    const stramienNS = this.house.stramien.out.ns;
+    const diagonalClipNS = this.threeService.flatShape(
+      [
+        offset(this.house.centerHouse, [10, 10]),
+        offset(this.house.centerHouse, [-10, 10]),
+        this.house.centerHouse,
+        offset(this.house.centerHouse, [-10, -10]),
+        offset(this.house.centerHouse, [10, -10]),
+        this.house.centerHouse,
+      ],
+      10,
+      [Material.concrete],
+      10
+    );
+    const diagonalClipWE = this.threeService.flatShape(
+      [
+        offset(this.house.centerHouse, [10, 10]),
+        offset(this.house.centerHouse, [10, -10]),
+        this.house.centerHouse,
+        offset(this.house.centerHouse, [-10, -10]),
+        offset(this.house.centerHouse, [-10, 10]),
+        this.house.centerHouse,
+      ],
+      10,
+      [Material.concrete],
+      10
+    );
 
-    const overhang = 0.8;
-    const roofMeshesParts = {};
-
+    // Generate half meshes
     Object.values(RoofOrientation).map((roofOrientation) => {
-      roofMeshesParts[roofOrientation] = {};
+      roofHalfMeshes[roofOrientation] = {};
       Object.values(RoofClip).map((roofClip, i) => {
-        let coords, elevation;
+        let elevation;
+        const coords = roofCoords[roofClip];
         const length =
           roofOrientation === RoofOrientation.northSouth
             ? stramienNS.d - stramienNS.a
@@ -410,30 +441,25 @@ export class ThreeHouseComponent
             ? stramienWE.b + (stramienWE.c - stramienWE.b) / 2
             : stramienNS.b + (stramienNS.c - stramienNS.b) / 2;
 
-        if (roofClip === RoofClip.inside) coords = coordsInside;
-        if (roofClip === RoofClip.outside) coords = coordsOutside;
-        if (roofClip === RoofClip.roof) coords = coordsRoof;
-        if (roofClip === RoofClip.roofTiles) coords = coordsRoofTiles;
-        if (roofClip === RoofClip.roofAndUnder) coords = coordsRoofTiles;
-
-        if (roofClip === RoofClip.inside)
+        if (
+          [
+            RoofClip.below,
+            RoofClip.inner,
+            RoofClip.roof,
+            RoofClip.roofAndAbove,
+          ].includes(roofClip)
+        ) {
           elevation = this.cross.elevations[RoofPoint.topInside];
-        if (roofClip === RoofClip.outside)
-          elevation = this.cross.elevations[RoofPoint.topOutside];
-        if (roofClip === RoofClip.roof)
+        } else if (roofClip === RoofClip.inBetweenAndBelow) {
           elevation = this.cross.elevations[RoofPoint.topOutside] - topOffset;
-        if (roofClip === RoofClip.roofTiles)
+        } else {
           elevation = this.cross.elevations[RoofPoint.topOutside];
+        }
 
         const mesh = this.threeService.flatShape(
           coords,
           0,
-          [
-            [Material.unknown],
-            [Material.concrete],
-            [Material.ral9016],
-            [Material.roof],
-          ][i],
+          roofClip === RoofClip.outer ? [Material.roof] : [Material.white],
           length + overhang * 2
         );
         this.threeService.rotateAroundAxis(mesh, degToRad(90), Axis.red);
@@ -452,119 +478,85 @@ export class ThreeHouseComponent
             : move
         );
 
-        roofMeshesParts[roofOrientation][roofClip] = mesh;
+        roofHalfMeshes[roofOrientation][roofClip] = this.clip(
+          mesh,
+          roofOrientation === RoofOrientation.westEast
+            ? diagonalClipNS
+            : diagonalClipWE
+        );
       });
     });
 
-    const halfTowerTopFloor = this.threeService.flatShape(
-      [
-        this.house.tower.outerCoords[0],
-        ...this.house.tower.outerCoords.slice(3),
-      ],
-      this.cross.elevations[Elevation.towerTop],
-      [Material.concrete],
-      this.cross.elevations[Elevation.towerTop] -
-        this.cross.elevations[RoofPoint.wallOutside]
-    );
-    // this.threeService.translate
-    // this.debug(halfTowerTopFloor);
-    //  Merge two roof parts
-    let roofInnerMesh = this.merge(
-      roofMeshesParts[RoofOrientation.northSouth][RoofClip.inside],
-      roofMeshesParts[RoofOrientation.westEast][RoofClip.inside]
-    );
-    let roofMesh = this.merge(
-      roofMeshesParts[RoofOrientation.northSouth][RoofClip.roof],
-      roofMeshesParts[RoofOrientation.westEast][RoofClip.roof]
-    );
-    let roofOuterMesh = this.merge(
-      roofMeshesParts[RoofOrientation.northSouth][RoofClip.outside],
-      roofMeshesParts[RoofOrientation.westEast][RoofClip.outside]
-    );
-    let roofTilesMesh = this.merge(
-      roofMeshesParts[RoofOrientation.northSouth][RoofClip.roofTiles],
-      roofMeshesParts[RoofOrientation.westEast][RoofClip.roofTiles]
-    );
-    // Done with merging
-    let towerRoofInlay = this.towerRoofInlay();
+    Object.values(RoofClip).map((key, i) => {
+      this.roofMeshes[key] = this.merge(
+        roofHalfMeshes[RoofOrientation.northSouth][key],
+        roofHalfMeshes[RoofOrientation.westEast][key]
+      );
+    });
 
-    this.roofMeshes[RoofClip.roofAndUnder] = this.mergeAll([
-      roofInnerMesh,
-      roofMesh,
-      roofInnerMesh,
-      roofTilesMesh,
-      towerRoofInlay,
-    ]);
+    let [towerRoofInlay, towerRoofInlayClip] = this.towerRoofInlay();
+    const loweredTowerRoofInlayClip = towerRoofInlayClip.clone();
+    this.threeService.translate(loweredTowerRoofInlayClip, 0, -0.3, 0);
+    const towerRoofMesh = this.towerRoof();
 
-    // The roof (remove inside)
-    roofInnerMesh = this.merge(roofInnerMesh, this.tower);
-    const [towerRoofInlayInnerRoof, towerRoofInlayOuterRoof] =
-      this.splitTowerRoofInlay(towerRoofInlay, roofInnerMesh);
-    this.roofMeshes[RoofClip.roof] = this.merge(
-      this.clip(roofMesh, this.merge(roofInnerMesh, towerRoofInlay)),
-      towerRoofInlayInnerRoof
+    const clipOther = (meshKey: RoofClip, mesh: THREE.Mesh) => {
+      this.roofMeshes[meshKey] = this.clip(
+        this.roofMeshes[meshKey].clone(),
+        mesh.clone()
+      );
+    };
+
+    clipOther(RoofClip.outer, towerRoofInlayClip);
+    clipOther(RoofClip.inner, towerRoofInlayClip);
+    clipOther(RoofClip.above, towerRoofInlayClip);
+    clipOther(RoofClip.roofAndAbove, loweredTowerRoofInlayClip);
+
+    clipOther(RoofClip.roofAndAbove, this.towerClip);
+    clipOther(RoofClip.above, this.towerClip);
+    clipOther(RoofClip.outer, this.towerClip);
+    clipOther(RoofClip.inner, this.towerClip);
+
+    this.roofMeshes[RoofClip.roofAndBelow] = this.merge(
+      this.roofMeshes[RoofClip.roofAndBelow],
+      towerRoofInlayClip
     );
-    // The roof tiles (remove inside)
-    this.roofMeshes[RoofClip.roofTiles] = this.merge(
-      this.clip(
-        roofTilesMesh,
-        this.mergeAll([roofInnerMesh, roofMesh, towerRoofInlay])
-      ),
-      towerRoofInlayOuterRoof
-    );
-    // The inside of the roof
-    this.roofMeshes[RoofClip.inside] = roofInnerMesh;
+    // this.roofMeshes[RoofClip.roofAndAbove] = this.merge(
+    //   this.roofMeshes[RoofClip.roofAndAbove],
+    //   halfTowerTopFloor
+    // );
 
-    const totalRoofGroup = this.group([
-      this.roofMeshes[RoofClip.roof],
-      this.roofMeshes[RoofClip.roofTiles],
-    ]);
-    const totalRoofMesh = this.merge(
-      this.roofMeshes[RoofClip.roof],
-      this.roofMeshes[RoofClip.roofTiles]
-    );
+    // Create a group for the roof and add it to the scene
 
-    const roofAndOutside = this.mergeAll([
-      this.roofMeshes[RoofClip.inside],
-      this.roofMeshes[RoofClip.roof],
-      this.roofMeshes[RoofClip.roofTiles],
-    ]);
-
-    this.roofMeshes[RoofClip.outside] = this.merge(
-      this.clip(
-        this.merge(this.clip(roofOuterMesh, roofAndOutside), totalRoofMesh),
-        this.tower
-      ),
-      halfTowerTopFloor
-    );
-
+    const totalRoofGroup = new THREE.Group();
+    totalRoofGroup.add(this.roofMeshes[RoofClip.inner]);
+    totalRoofGroup.add(this.roofMeshes[RoofClip.outer]);
+    totalRoofGroup.add(towerRoofInlay);
+    totalRoofGroup.add(towerRoofMesh);
     this.scaleFromSomewhere(key, totalRoofGroup, 1, undefined, true);
-    this.add(key, [
-      // roofInnerMesh,
-      totalRoofGroup,
-      // this.roofMeshes[RoofClip.roof],
-      // this.roofMeshes[RoofClip.roofTiles],
-      // this.roofMeshes[RoofClip.outside]
-    ]);
-    // this.debug(this.roofMeshes[RoofClip.roofAndUnder]);
-
-    // this.debugMeasureBlock();
+    this.add(key, [totalRoofGroup]);
+  }
+  towerRoof() {
+    const depth = 0.2;
+    const mesh = this.threeService.flatShape(
+      this.house.tower.outerCoords,
+      this.cross.elevations[Elevation.towerTop] + depth,
+      [Material.roof],
+      depth
+    );
+    return mesh;
   }
 
-  splitTowerRoofInlay(
-    towerRoofInlayInnerRoof: THREE.Mesh,
-    roofInnerMesh: THREE.Mesh
-  ): THREE.Mesh[] {
+  splitTowerRoofInlay(towerRoofInlayInnerRoof: THREE.Mesh): THREE.Mesh[] {
     const lower = towerRoofInlayInnerRoof.clone();
     this.threeService.translate(lower, 0, -0.1, 0);
     const outer = this.clip(towerRoofInlayInnerRoof, lower);
     this.threeService.translate(lower, 0, -0.4, 0);
-
     const inner = this.clip(this.clip(towerRoofInlayInnerRoof, lower), outer);
-
-    return [inner, outer].map((x) => this.clip(x, roofInnerMesh));
+    return [inner, outer].map((x) =>
+      this.clip(x, this.roofMeshes[RoofClip.inBetweenAndBelow])
+    );
   }
-  towerRoofInlay() {
+  towerRoofInlay(): [THREE.Group, THREE.Mesh] {
     // const depth = 5;
     const z = 0;
     const h = 1;
@@ -607,7 +599,16 @@ export class ThreeHouseComponent
       this.cross.elevations[RoofPoint.topInside] - h,
       centerRoof[1]
     );
-    return mesh;
+    // Create group, with inner and outer part
+    const group = new THREE.Group();
+    const [inner, outer] = this.splitTowerRoofInlay(
+      this.clip(mesh.clone(), this.towerClip)
+    );
+    inner.material = this.threeMaterialService.getMaterial(Material.white);
+    outer.material = this.threeMaterialService.getMaterial(Material.roof);
+    group.add(inner);
+    group.add(outer);
+    return [group, mesh];
   }
 
   createAllStuds() {
@@ -695,6 +696,7 @@ export class ThreeHouseComponent
   }
 
   createFloors() {
+    const ratio = 0.8;
     [
       {
         floor: Floor.ground,
@@ -709,40 +711,86 @@ export class ThreeHouseComponent
         t: this.cross.topFloorThickness,
       },
     ].forEach((obj) => {
-      const key = obj.key;
-      const z = this.cross.elevations[obj.z];
-      const t = obj.t;
+      const group = new THREE.Group();
+      [true, false].forEach((upper) => {
+        const t = obj.t * (upper ? 1 - ratio : ratio);
+        const elevation = this.cross.elevations[obj.z];
+        const z = upper ? elevation : elevation - obj.t * (1 - ratio);
 
-      const footprint = this.house.partsFlatten.find(
-        (x) => x instanceof Footprint
-      ) as Footprint;
+        const footprint = this.house.partsFlatten.find(
+          (x) => x instanceof Footprint
+        ) as Footprint;
 
-      let mesh: THREE.Mesh<any> = this.threeService.flatShape(
-        footprint.coords,
-        z,
-        [Material.concrete],
-        t
-      );
-
-      const holes = this.house.partsFlatten.filter(
-        (x) =>
-          x instanceof Room && x.hole === true && [obj.floor].includes(x.floor)
-      ) as Room[];
-
-      holes.forEach((opening) => {
-        const clipCube = this.threeService.flatShape(
-          opening.coords,
-          z + 1,
-          [Material.unknown],
-          t + 2
+        let mesh: THREE.Mesh<any> = this.threeService.flatShape(
+          footprint.coords,
+          z,
+          upper ? [Material.floor] : [Material.ral9016],
+          t
         );
 
-        // this.subModels[key].push(clipCube);
-        mesh = this.clip(mesh, clipCube);
+        const holes = this.house.partsFlatten.filter(
+          (x) =>
+            x instanceof Room &&
+            x.hole === true &&
+            [obj.floor].includes(x.floor)
+        ) as Room[];
+
+        holes.forEach((opening) => {
+          const clipCube = this.threeService.flatShape(
+            opening.coords,
+            z + 1,
+            [Material.unknown],
+            t + 2
+          );
+          mesh = this.clip(mesh, clipCube);
+
+          if (
+            obj.floor === Floor.top &&
+            opening.selector === "L1-void" &&
+            !upper
+          ) {
+            const w = opening.coords[1][0] - opening.coords[0][0];
+            const clipEdge = this.threeService.flatShape(
+              [
+                [0, 0],
+                [0, -t],
+                [Math.tan(degToRad(90 - 34)) * t, 0],
+              ],
+              w,
+              [Material.unknown],
+              w
+            );
+            this.threeService.rotateAroundAxis(
+              clipEdge,
+              degToRad(90),
+              Axis.red
+            );
+            this.threeService.rotateAroundAxis(
+              clipEdge,
+              degToRad(90),
+              Axis.green
+            );
+            this.translate(
+              clipEdge,
+              opening.coords[0][0],
+              z - t,
+              opening.coords[0][1]
+            );
+            // this.scene.add(clipEdge);
+            mesh = this.clip(mesh, clipEdge);
+          }
+        });
+        group.add(mesh);
       });
 
-      this.scaleFromSomewhere(key, mesh, 1, undefined, obj.floor === Floor.top);
-      this.add(key, [mesh]);
+      this.scaleFromSomewhere(
+        obj.key,
+        group,
+        1,
+        undefined,
+        obj.floor === Floor.top
+      );
+      this.add(obj.key, [group]);
     });
   }
   createWalls() {
@@ -755,6 +803,16 @@ export class ThreeHouseComponent
     const innerWallParts = [];
     const outerWallParts = [];
     const openingParts = [];
+    const halfTowerTopFloor = this.threeService.flatShape(
+      [
+        this.house.tower.outerCoords[0],
+        ...this.house.tower.outerCoords.slice(3),
+      ],
+      this.cross.elevations[Elevation.towerTop],
+      [Material.concrete],
+      this.cross.elevations[Elevation.towerTop] -
+        this.cross.elevations[RoofPoint.wallInside]
+    );
     walls.forEach((wall) => {
       let coords: xy[] = wall.getFootPrint();
       if (coords.length < 4) return;
@@ -772,9 +830,9 @@ export class ThreeHouseComponent
       if (higherTower) elevation = this.cross.elevations[RoofPoint.wallInside];
 
       let height = wall.ceiling - elevation;
-      if (wall.gable || tower || [Floor.top, Floor.all].includes(wall.floor))
+      if (wall.gable || [Floor.top, Floor.all].includes(wall.floor))
         height = this.cross.elevations[RoofPoint.topInside] - elevation;
-      if (higherTower)
+      if (higherTower || tower)
         height = this.cross.elevations[Elevation.towerTop] - elevation;
       height = Math.max(height, 0);
 
@@ -798,13 +856,16 @@ export class ThreeHouseComponent
         [Material.ral9016],
         height
       );
+
       if (higherTower) {
-        this.debug(this.roofMeshes[RoofClip.outside]);
-        wallMesh = this.clip(wallMesh, this.roofMeshes[RoofClip.roofAndUnder]);
-        return;
+        // this.debug(this.roofMeshes[RoofClip.outside]);
+        wallMesh = this.clip(wallMesh, this.roofMeshes[RoofClip.roofAndBelow]);
+      } else if (tower) {
+        wallMesh = this.clip(wallMesh, halfTowerTopFloor);
       } else {
-        wallMesh = this.clip(wallMesh, this.roofMeshes[RoofClip.outside]);
+        wallMesh = this.clip(wallMesh, this.roofMeshes[RoofClip.roofAndAbove]);
       }
+
       let wallOuter;
       if (outer) {
         wallOuter = this.threeService.flatShape(
@@ -817,14 +878,17 @@ export class ThreeHouseComponent
         if (higherTower) {
           wallOuter = this.clip(
             wallOuter,
-            this.roofMeshes[RoofClip.roofAndUnder]
+            this.roofMeshes[RoofClip.roofAndBelow]
           );
+        } else if (tower) {
+          wallOuter = this.clip(wallOuter, halfTowerTopFloor);
         } else {
-          wallOuter = this.clip(wallOuter, this.roofMeshes[RoofClip.outside]);
+          wallOuter = this.clip(
+            wallOuter,
+            this.roofMeshes[RoofClip.roofAndAbove]
+          );
         }
       }
-      // const wallClip
-
       const openings = wall.parts
         ? (wall.parts.filter(
             (x) => x instanceof Window || x instanceof Door
@@ -852,7 +916,7 @@ export class ThreeHouseComponent
         }
         const size = 2;
         let clipCube: THREE.Mesh = this.threeService.createCube({
-          material: Material.tape,
+          material: Material.white,
           whd: [size, height, width],
           xyz: [-size / 2, 0, origin],
         });
@@ -885,7 +949,7 @@ export class ThreeHouseComponent
             rotate: opening.rotate,
             selector: opening.selector,
           });
-          openingParts.push(this.createWindowPlane(opening, x, y, z));
+          // openingParts.push(this.createWindowPlane(opening, x, y, z));
         }
       });
 
@@ -902,13 +966,14 @@ export class ThreeHouseComponent
       }
     });
 
-    const pillar = this.cornerPillars();
+    const pillar = this.createPilasters();
 
     const totalOuterWall = this.group([
       ...outerWallParts,
       ...pillar,
       ...openingParts,
     ]);
+
     this.scaleFromSomewhere(House3DParts.outerWall, totalOuterWall);
     this.add(House3DParts.outerWall, [totalOuterWall]);
     const totalInnerWall = this.group(innerWallParts);
@@ -977,7 +1042,7 @@ export class ThreeHouseComponent
     return mesh;
   }
 
-  cornerPillars() {
+  createPilasters() {
     const s = this.house.stramien.out;
     const corners = [
       [s.we.b, s.ns.a, 0],
@@ -995,7 +1060,7 @@ export class ThreeHouseComponent
     const cornerMeshes: THREE.Object3D[] = [];
     corners.forEach(([x, y, rotate]) => {
       let mesh1: THREE.Mesh = this.threeService.createCube({
-        material: Material.ral9016,
+        material: Material.white,
         whd: [plankThickness, 7, plankSize + plankThickness],
         xyz: [
           -plankThickness,
@@ -1013,7 +1078,7 @@ export class ThreeHouseComponent
       this.threeService.rotateAroundAxis(merge, degToRad(rotate), Axis.green);
       this.translate(merge, x, 0, y);
 
-      merge = this.clip(merge, this.roofMeshes[RoofClip.outside]);
+      merge = this.clip(merge, this.roofMeshes[RoofClip.roofAndAbove]);
       cornerMeshes.push(merge);
     });
 

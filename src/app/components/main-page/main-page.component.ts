@@ -174,7 +174,7 @@ export class AppMainPageComponent implements AfterViewInit {
         Section.wiredWater,
       ].includes(section)
     ) {
-      graphic = Graphic.plan;
+      graphic = Graphic.house2D;
     }
     if (
       [
@@ -254,15 +254,11 @@ export class AppMainPageComponent implements AfterViewInit {
     ) {
       graphic = Graphic.construction;
     }
-    
-    if (
-      [
-        Section.House3D,
-      ].includes(section)
-    ) {
+
+    if ([Section.House3D].includes(section)) {
       graphic = Graphic.House3D;
     }
-    
+
     if (
       [
         Section.installationDrinkWater,

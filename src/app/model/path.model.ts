@@ -1,11 +1,11 @@
-import { Cross } from '../house/cross.model';
-import { House } from '../house/house.model';
-import * as d3 from 'd3';
-import { BaseSVG } from './base.model';
-import { Floor } from '../components/enum.data';
+import { Cross } from "../house/cross.model";
+import { House } from "../house/house.model";
+import * as d3 from "d3";
+import { BaseSVG } from "./base.model";
+import { Floor } from "../components/enum.data";
 
 export class AppPath extends BaseSVG {
-  d: string = '';
+  d: string = "";
 
   constructor(data: Partial<AppPath>) {
     super();
@@ -18,9 +18,9 @@ export class AppPath extends BaseSVG {
       this.svg = d3.select(`#${this.selector}`);
     }
     this.svg
-      .attr('d', this.d)
-      .attr('stroke-width', this.meterPerPixel * this.lineThickness)
-      .attr('transform', this.transform);
+      .attr("d", this.d)
+      .attr("stroke-width", this.meterPerPixel * this.lineThickness)
+      .attr("transform", this.transform);
     this.setClass(this.svg);
   }
   setClass(svg) {

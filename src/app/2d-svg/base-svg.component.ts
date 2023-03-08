@@ -121,7 +121,7 @@ export class BasicSVG {
   subscriptions: Subscription[] = [];
   observer: ResizeObserver;
 
-  drawingSize = [
+  svgHouseSize = [
     [0, 0],
     [200, 100],
   ];
@@ -194,9 +194,11 @@ export class BasicSVG {
               this.house = house;
               this.cross = house.cross;
               this.stair = house.stair;
+              console.log(111, this.stair.totalRise);
             })
           )
           .subscribe((x) => {
+            console.log("2");
             this.updateSVG(true);
           }),
         merge(
@@ -218,9 +220,8 @@ export class BasicSVG {
           )
         )
           .pipe(
-            filter((x) => {
-              return this.house !== undefined;
-            })
+            filter((x) => this.house !== undefined),
+            first()
           )
           .subscribe((x) => {
             this.updateSVG();
@@ -249,26 +250,32 @@ export class BasicSVG {
     this.tooltipService.updateOverlay();
     this.svgUpdateMarginAndSize();
 
-    const [[x, y], [maxX, maxY]] = this.drawingSize;
+    const [[x, y], [maxX, maxY]] = this.svgHouseSize;
     const minX = -this.marginInMeters[3] + x;
     const minY = -this.marginInMeters[0] + y;
     const widthMeter = maxX + this.marginInMeters[3] + this.marginInMeters[1];
     const heightMeter = maxY + this.marginInMeters[0] + this.marginInMeters[2];
 
+    const hasZoom = this.g.attr("transform") === "translate(0,0) scale(1)";
+    const windowWidth =
+      this.showingImage || hasZoom
+        ? window.outerWidth / 2
+        : this.svgEl.nativeElement.clientWidth;
+    const windowHeight =
+      this.showingImage || hasZoom
+        ? window.outerHeight / 2
+        : this.svgEl.nativeElement.clientHeight;
+
     const svgW = Math.abs(
-      round(this.svgEl.nativeElement.clientWidth, 0) -
-        this.marginInPixels[1] -
-        this.marginInPixels[3]
+      round(windowWidth, 0) - this.marginInPixels[1] - this.marginInPixels[3]
     );
     const svgH = Math.abs(
-      round(this.svgEl.nativeElement.clientHeight, 0) -
-        this.marginInPixels[0] -
-        this.marginInPixels[2]
+      round(windowHeight, 0) - this.marginInPixels[0] - this.marginInPixels[2]
     );
     const scaleW = round(widthMeter / svgW);
     const scaleH = round(heightMeter / svgH);
     const meterPerPixel = Math.max(scaleW, scaleH) / this.getScale();
-    const zoomed = this.meterPerPixel !== meterPerPixel;
+    const zoomMotion = this.meterPerPixel !== meterPerPixel;
     this.meterPerPixel = meterPerPixel;
     this.svgEl.nativeElement.setAttribute("meterPerPixel", `${meterPerPixel}`);
 
@@ -306,7 +313,7 @@ export class BasicSVG {
     const redrawAll =
       this.stringCache !== stringCache || this.stringCache === "";
     this.stringCache = stringCache;
-    if (forceUpdate === false && !(redrawAll || zoomed)) return;
+    if (forceUpdate === false && !(redrawAll || zoomMotion)) return;
     // console.log(stringCache, zoomed, forceUpdate);
 
     this.svgSpecificUpdate();

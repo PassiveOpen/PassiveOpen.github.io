@@ -5,7 +5,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
 
 
-    <ng-container *ngIf="scroll.graphic === Graphic.plan">
+    <ng-container *ngIf="scroll.graphic === Graphic.house2D">
 
       <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end end" fxLayoutGap="8px">
         <ng-container *ngIf="(page$| async).startsWith('house')|| (page$| async).startsWith('?')">
@@ -87,13 +87,13 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
       </div>
 
-      <button mat-mini-fab (click)="appService.setState(States.theoreticalWalls)"
+      <!-- <button mat-mini-fab (click)="appService.setState(States.theoreticalWalls)"
         [class.active]="checkState(States.theoreticalWalls)">
         <label>
           Theoretic walls
         </label>
         <mat-icon style="font-family:'Material Icons Outlined';">density_large</mat-icon>
-      </button>
+      </button> -->
 
       <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
         <mat-icon style.transform="rotate({{extra?20:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
@@ -195,8 +195,8 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
 
         </ng-container>
-        <button mat-mini-fab (click)="appService.setState(States.mirror)" color="accent"
-          [class.active]="checkState(States.mirror)">
+        <button mat-mini-fab (click)="appService.setState(Helpers3D.mirror)" color="accent"
+          [class.active]="checkState(Helpers3D.mirror)">
           <label>
             Mirror
           </label>
@@ -246,6 +246,22 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
 
       </div>
+
+      <button mat-mini-fab [class.active]="checkState(Helpers3D.clipBoxEnabled)" (click)="
+        appService.setState(Helpers3D.clipBoxEnabled)" color="accent">
+        <mat-icon>crop</mat-icon>
+        <label>
+          Clipped
+        </label>
+      </button>
+      <button mat-mini-fab [class.active]="checkState(Helpers3D.clipBoxShow)" (click)="
+        appService.setState(Helpers3D.clipBoxShow)" color="accent">
+        <mat-icon>view_in_ar_new</mat-icon>
+        <label>
+          show
+        </label>
+      </button>
+
 
       <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
         <mat-icon style.transform="rotate({{extra?20:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down

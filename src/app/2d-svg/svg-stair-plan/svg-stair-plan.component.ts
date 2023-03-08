@@ -52,10 +52,11 @@ export class SvgStairPlanComponent extends BasicSVG implements AfterViewInit {
   }
 
   svgUpdateMarginAndSize() {
-    this.drawingSize = [
+    this.svgHouseSize = [
       this.stair.stairOrigin,
       [this.stair.totalWidth, this.stair.totalHeight],
     ];
+
     this.marginInMeters = [
       this.stair.run * 2,
       this.stair.run * 2,

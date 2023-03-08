@@ -117,7 +117,7 @@ export class D3DistanceService {
       const cross = this.houseService.house$.value.cross;
       this.getParts(cross.parts);
     }
-    if (graphic === Graphic.plan) {
+    if (graphic === Graphic.house2D) {
       const house = this.houseService.house$.value;
       this.getParts(house.parts);
     }

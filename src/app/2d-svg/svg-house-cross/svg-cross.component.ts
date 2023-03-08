@@ -90,7 +90,7 @@ export class SvgCrossComponent
 
   svgUpdateMarginAndSize() {
     const low = this.cross.elevations[Elevation.crawlerFloor];
-    this.drawingSize = [
+    this.svgHouseSize = [
       [0, -this.cross.elevations[RoofPoint.topOutside]],
       [
         this.house.outerBase,

@@ -34,7 +34,5 @@ export class Window {
 
     this.roughTop = this.top + this.gap;
     this.roughTopOSB = this.roughTop + this.thicknessOSB;
-
-    console.log(this);
   }
 }
