@@ -40,6 +40,7 @@ export class AppMainPageComponent implements AfterViewInit {
   GraphicSide = GraphicSide;
   Graphic = Graphic;
   graphic;
+  showFooter = true;
 
   sectionScroll: { [key in Section]?: any } = {};
   goalLine = 0.4;
@@ -108,6 +109,12 @@ export class AppMainPageComponent implements AfterViewInit {
     this.loaded = true;
   }
 
+  checkFooter() {
+    let flag = true;
+    if ([Graphic.House3D].includes(this.graphic)) flag = false;
+    this.showFooter = flag;
+  }
+
   calcSection() {
     this.section = this.getSection();
     if (this.section === undefined) {
@@ -122,6 +129,7 @@ export class AppMainPageComponent implements AfterViewInit {
         .classList.add("section-active");
     }
 
+    this.checkFooter();
     this.appService.scroll$.next({
       scroll: round(window.pageYOffset, 0),
       percentage: this.getVerticalScrollPercentage(document.body),

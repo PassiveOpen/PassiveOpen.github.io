@@ -26,17 +26,11 @@ import { CSG } from "three-csg-ts";
 import * as THREE from "three";
 import gsap from "gsap";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { DragControls } from "three/examples/jsm/controls/DragControls.js";
 import { HouseService } from "../house/house.service";
 import { ThreeService } from "./three.service";
 import { AppService } from "../app.service";
 import { CookieService } from "ngx-cookie-service";
-import {
-  angleBetween,
-  angles3D,
-  distanceBetweenPoints,
-  round,
-} from "../shared/global-functions";
+import { angles3D } from "../shared/global-functions";
 import { MeshLambertMaterial, PMREMGenerator, Vector3 } from "three";
 import { TransformControls } from "three/examples/jsm/controls/TransformControls";
 import { Material, ThreeMaterialService } from "./three-material.service";
@@ -53,7 +47,6 @@ import Stats from "three/addons/libs/stats.module.js";
 // @ts-ignore
 import { Sky } from "three/addons/objects/Sky.js";
 import { ClipBox } from "./clip-box";
-import { el } from "date-fns/locale";
 
 enum ViewSide {
   East = "East",
@@ -69,6 +62,7 @@ const ViewSideAngles = {
   [ViewSide.South]: 180,
   [ViewSide.East]: 270,
 };
+
 @Component({
   selector: "app-three-house-base",
   template: "",
@@ -127,10 +121,15 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
     this.observer.unobserve(this.host.nativeElement);
+    this.gui.destroy();
   }
 
   AfterViewInitCallback() {}
   OnSectionChangeCallback() {}
+  defaultCamera() {
+    this.camera.position.set(10, 10, 10);
+    this.controls.target.set(1, 1, 1);
+  }
 
   loadManager() {}
   ngAfterViewInit(): void {
@@ -470,11 +469,6 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
         `${this.modelName}_orbitControls`
       );
 
-      const defaultCamera = () => {
-        this.camera.position.set(10, 10, 10);
-        this.controls.target.set(1, 1, 1);
-      };
-
       try {
         if (this.orbitControlsCookie !== "") {
           const cookie = JSON.parse(this.orbitControlsCookie)[0];
@@ -486,15 +480,16 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
           );
           this.controls.target.fromArray(cookie.target);
         } else {
-          defaultCamera();
+          this.defaultCamera();
         }
       } catch (e) {
         console.error(e);
-        defaultCamera();
+        this.defaultCamera();
       }
     } else {
       this.orthographicCameraSnap(ViewSide.North, false);
     }
+    this.controls.update();
   }
   setControls() {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);

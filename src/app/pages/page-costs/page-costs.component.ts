@@ -416,8 +416,8 @@ export class PageCostsComponent {
           ["width", "height", "windowForm"],
           (x) => ({
             name: "Window",
-            sizeOrVersion: `${x.height}x${x.width}`,
-            price: x.width * 800,
+            sizeOrVersion: `${x.height * 1000}mm x ${x.width * 1000}mm`,
+            price: x.width * x.height * 800,
             other: `${x.windowForm}`,
           }),
           (x) => ![WindowForm.windowWall].includes(x.windowForm)
@@ -427,7 +427,7 @@ export class PageCostsComponent {
           ["width", "height", "windowForm"],
           (x) => ({
             name: "Window wall",
-            sizeOrVersion: `${x.height}x${x.width}`,
+            sizeOrVersion: `Custom`,
             price: 60000,
             other: `main window wall`,
           }),

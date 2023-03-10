@@ -126,6 +126,21 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
     );
     this.appService.fullscreen$.next(true);
     this.preLoadWindow();
+    this.appService.states$.next({
+      ...this.appService.states$.value,
+      [House3DParts.roof]: true,
+      [House3DParts.outerWall]: true,
+      [House3DParts.innerWall]: true,
+      [House3DParts.topFloor]: true,
+      [House3DParts.groundFloor]: true,
+    });
+  }
+  defaultCamera() {
+    const x = this.house.houseWidth / 2;
+    const y = 2;
+    const z = this.house.houseLength / 2;
+    this.camera.position.set(-10, 10, -10);
+    this.controls.target.set(x, y, z);
   }
 
   AfterViewInitCallback() {
@@ -141,7 +156,7 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
     // this.hexagonWindows();
     this.debugMeasureBlock();
     // this.createAllStuds();
-    const axesHelper = new THREE.AxesHelper(10);
+    const axesHelper = new THREE.AxesHelper(1);
     axesHelper.position.set(0, 0, 0);
     this.scene.add(axesHelper);
   }

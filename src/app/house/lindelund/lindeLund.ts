@@ -208,6 +208,7 @@ export const lindeLund: HouseUser = {
                           rotate: -90,
                           floor: Floor.all,
                           elevation: 0,
+                          windowForm: WindowForm.windowWall,
                           onUpdate: function (this: Window, house: House) {
                             this.height =
                               house.cross.elevations[RoofPoint.topInside];
