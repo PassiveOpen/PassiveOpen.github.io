@@ -122,10 +122,6 @@ export class AppStairPlan extends BaseSVG {
       .attr("transform", `translate(${textXY[0]}, ${textXY[1]})`)
       .text(this.index);
 
-    // this.svg.attr(
-    //   'transform',
-    //   `translate(${this.walkLineXY[0]}, ${this.walkLineXY[1]})`
-    // );
     this.setClass(this.svg);
   }
 

@@ -1,5 +1,11 @@
 <section [id]="Section.wiredWelcome">
   <h1>Smart home</h1>
+  <p>
+    In addition to being a regular home, this house is also a smart home that employs a lot of domotics. This involves
+    the use of many sensors and lights that can be controlled remotely. Wired -cloudless- connections are typically more
+    reliable and affordable than wireless options such as Wi-Fi, which means that the setup may differ from what you're
+    familiar with.
+  </p>
 </section>
 
 
@@ -15,14 +21,15 @@
     <span>Normal - 230v</span>
   </h3>
   <p>
-    The standard in Sweden is 10amps per group (1.5mm2). In Netherlands that would be 16amps and 2.5mm2
+    In Europe (230v), sockets usually share a breaker or a group that is rated at either 16 or 10 amperes. The rating
+    depends on the load and wire thickness, which is 2.5mm2 and 1.5mm2, respectively.
   </p>
 
   <label class="technical">
     <span>Technical </span>
+    Amount: {{getOutlets(SensorType.socket)}} sockets<br>
+    Group numbers: [ {{getGroups(SensorType.socket)}} ]<br>
     Total cable length: {{getCable(SensorType.socket)}}m<br>
-    Groups: {{getGroups(SensorType.socket)}}<br>
-    Amount: {{getOutlets(SensorType.socket)}}<br>
   </label>
 
   <h3>
@@ -31,16 +38,18 @@
     <span>3Phase - 400v</span>
   </h3>
   <p>
-    This weird symbol is a <tag>perilex</tag> plug. It has 3-phase (or sometimes just two). The main goal is the devide
-    the load over 3 wires instead of one. It requires more wires though. Think induction in the kitchen, or e-car (not
-    this connector).
+    The unusual symbol you're seeing is a <tag>perilex</tag> plug, which typically contains three phases, though some
+    models may only have two. The main objective of this plug is to distribute the load over three wires, rather than
+    one, which requires the use of more wires. This type of plug is commonly used for high-power appliances such as
+    induction cookers in the kitchen. Electric cars do not utilize this plug, but they do require three-phase power in
+    most cases.
   </p>
 
   <label class=" technical">
     <span>Technical </span>
+    Amount: {{getOutlets(SensorType.perilex)}} socket<br>
     Total cable length: {{getCable(SensorType.perilex)}}m<br>
-    Groups: {{getGroups(SensorType.perilex)}}<br>
-    Amount: {{getOutlets(SensorType.perilex)}}<br>
+    Group numbers: [ {{getGroups(SensorType.perilex)}} ]<br>
   </label>
 
 </section>
@@ -55,8 +64,9 @@
     <span>Lamps</span>
   </h3>
   <p>
-    Lamps can come in 230v and 24v.
-    Most lamps should be dimmable and wires run back to the PLC
+    Lamp outlets are available in both 230V and 24V variants. Typically, most lamps can be dimmed, and their wiring runs
+    back to the server room.
+    They are controlled by a <tag>hub</tag> that is connected to the home automation system.
   </p>
 
   <h3>
@@ -64,8 +74,9 @@
     <span>Double switch </span>
   </h3>
   <p>
-    Double pulse switches. Allows for 6 options. Single, double and long press.
-    They are 24v and wires run back to the PLC.
+    The double pulse switches have six different options available. You can program actions for two single presses, two
+    double presses, and two long presses. The switches operate at 24V, and their wiring runs back to the <tag>hub</tag>
+    .
   </p>
 
   <h3>
@@ -73,18 +84,20 @@
     <span>Dimmer</span>
   </h3>
   <p>
-    All dimmable lights have a dim level that became less bright during the evening. Following the
-    <a href="https://community.home-assistant.io/t/circadian-lighting-custom-component/61246">circadian lightning.</a>.
-    This button is only to overrule and switch on or off
+
+    The dimmer switch enables you to adjust the brightness of the room's lighting. However, the smart-home system should
+    automatically select the appropriate dimming level based on the time of day, see <a
+      href="https://community.home-assistant.io/t/circadian-lighting-custom-component/61246">circadian lightning.</a>.
+    You can override this automation by using the dimmer switch.
   </p>
 
   <h3>
     <app-svg class="sensor-{{SensorType.dlc}}" url="assets/svg/{{SensorType.dlc}}.svg"></app-svg>
-    <span>DLC, or light plugs</span>
+    <span>DLC, or light-socket</span>
   </h3>
   <p>
-    Completely strange for outstanders. but every fixed light has a seperate miniplug. In Sweden they had a old one, and
-    since 2019 they follow the EU standard of DLC.
+    To outsiders, it may seem strange, but each fixed light in the house has its own separate mini-socket. In Sweden, an
+    old standard was in use, but since 2019, they have followed the EU standard of DLC.
   </p>
 
 </section>
@@ -100,8 +113,9 @@
     <span>Ethernet (rj45)</span>
   </h3>
   <p>
-    If you work home, you need reliable internet. A wall outlet for a normal internet cable works the best.
-    Not limited to computers, many devices can have them as well. Like speakers, television etc.
+    Reliable internet is essential when working from home, and the best option is to have a wall outlet for a regular
+    internet cable. These outlets are not limited to computers and can be used for other devices like speakers,
+    televisions, and more.
   </p>
   <label class=" technical">
     <span>Technical </span>
@@ -114,15 +128,16 @@
     <app-svg class="sensor-{{SensorType.poe}}" url="assets/svg/{{SensorType.poe}}.svg"></app-svg>
     <span>Power-over-Ethernet </span>
   </h3>
-  <p>Its a internet cable with (often) 48volts. So you can power up a device with only the internet cable. Perfect for a
-    ring-doorbel, security camera or even wifi-access-points
+  <p>With a voltage of 48 volts, internet cables can be used to power certain devices without requiring additional
+    wiring. This capability makes them a convenient option for devices like ring doorbells, security cameras, and Wi-Fi
+    access points.
   </p>
 
   <h3>
     <app-svg class="sensor-{{SensorType.wifi}}" url="assets/svg/{{SensorType.wifi}}.svg"></app-svg>
     <span>Wifi</span>
   </h3>
-  <p>Maybe most important for any mobile device, or guests
+  <p>Needs no introduction. Know that you can have more complex wifi solutions than your internet provider can provide.
   </p>
   <label class=" technical">
     <span>Technical </span>
@@ -138,14 +153,12 @@
   <h2>
     Safety
   </h2>
-
-
   <h3>
     <app-svg class="sensor-{{SensorType.smoke}}" url="assets/svg/{{SensorType.smoke}}.svg"></app-svg>
     <span>Smoke/heat detectors</span>
   </h3>
-  <p>We have a firefighter in the family. On a serious note, everyone should have multiple of smoke sensors. A heat
-    sensor in the kitchen.
+  <p>For safety purposes, it is advisable to install several smoke sensors throughout the house, along with a heat
+    sensor specifically in the kitchen.
   </p>
   <label class=" technical">
     <span>Technical </span>
@@ -159,8 +172,8 @@
     <span>Camera's</span>
   </h3>
   <p>
-    The most optional step. Gives a bit of comfort, security wise. It does allow you to monitor your house, when you are
-    away (via your own VPN of course)
+    While not necessary, installing a security monitoring system in your home can offer added convenience and security.
+    With your own VPN, you can remotely monitor your house from anywhere.
   </p>
   <label class=" technical">
     <span>Technical </span>
@@ -176,7 +189,8 @@
     <span>Window/Door sensors/Motion detection</span>
   </h3>
   <p>
-    Extends the alarm functoin
+    The alarm function is expanded and fortified with window/door sensors and motion detection to provide added
+    security.
   </p>
 
 
@@ -195,7 +209,9 @@
     <span>Sun blinds / screens</span>
   </h3>
   <p>
-    Essential to a passive house, because the sun radiation is to much during the summer.
+    To protect against high sun radiation in summer, a passive house must be equipped with sun blinds/screens. The
+    screens can be passive or automatically controlled by the smart-home system. External screens are more effective
+    than internal screens.
   </p>
 
   <h3>
@@ -203,7 +219,8 @@
     <span>Motion sensors</span>
   </h3>
   <p>
-    Fun addon to help to automate the smart-home. Lights can be turned on/off automatically.
+    Motion sensors can be a fun addition to your smart-home setup, allowing for automated control of lights turning on
+    and off. They can also enhance home security by supporting the alarm system.
   </p>
 
 
@@ -211,8 +228,8 @@
     <app-svg class="sensor-{{SensorType.temperature}}" url="assets/svg/{{SensorType.temperature}}.svg"></app-svg>
     <span>Temperature</span>
   </h3>
-  <p>
-    Help to regulate the heat/cooling and ventilation in certain area's of the house
+  <p>Temperature sensors play a important role in regulating the heating, cooling, and ventilation in specific areas of
+    the house.
   </p>
 
 </section>
@@ -228,8 +245,8 @@
     <span>Ventilation in</span>
   </h3>
   <p>
-    Fresh air is needed in the bedrooms and main living rooms. It flows to the other parts of the house. Mainly because
-    the air-intake in other rooms
+    Due to the airtightness of the house, fresh air is necessary in the bedrooms and main living rooms to ensure proper
+    ventilation. The airflow will then circulate to other areas of the house.
   </p>
 
   <h3>
@@ -237,13 +254,10 @@
     <span>Ventilation out</span>
   </h3>
   <p>
-    The air intakes are in the rooms with 'dirty' air. Of course the toilets, but also the bathroom/kitchen due to
-    moisture and smells.
+    Air exhausts are installed in the bathroom, kitchen, and toilets to remove moisture and unpleasant smells, as they
+    are the rooms with "dirty" air.
   </p>
 
-  <p>
-    Read more about ventilation on the installation page!
-  </p>
 
 </section>
 
@@ -265,7 +279,9 @@
     <span>Rainwater non-drinkable & cold</span>
   </h3>
   <p>
-    Best for plants, and garden
+    This water has low calcium levels, making it ideal for watering plants and gardens. It can also be used for flushing
+    toilets and washing machines, reducing the amount of soap required. While it doesn't need to be drinkable, it's
+    still a valuable resource that shouldn't be wasted.
   </p>
 
   <h3>
@@ -273,7 +289,7 @@
     <span>Water, Drinkable Both warm and cold</span>
   </h3>
   <p>
-    Used for daily water use. 
+    Used for daily water use.
   </p>
 
   <h3>
@@ -281,15 +297,17 @@
     <span>Shower, Drinkable Both warm and cold</span>
   </h3>
   <p>
-    If your water is coming from a water supply company you are not allowed to mix warm-drink water with cold rain water. Flow back is too high of a risk. Mixing in rain water has pro's like less water, you'll need less soap and you get softer hair.
+    The mixing of warm-drink water and cold rainwater is not permitted when using water from a supply company, due to
+    the high risk of flow back. However, the use of rainwater has benefits such as reducing the amount of water used,
+    requiring less soap, and resulting in softer hair.
   </p>
-  
+
   <h3>
     <app-svg class="sensor-{{SensorType.drain}}" url="assets/svg/{{SensorType.drain}}.svg"></app-svg>
     <span>Drainage</span>
   </h3>
   <p>
-    Every water tap has of course a drain. But sometimes they come in alone, like in the laundry room.
+    Every water tap has of course a drain. But sometimes they come separate , like in the laundry room.
   </p>
 
 

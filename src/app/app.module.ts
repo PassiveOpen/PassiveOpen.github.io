@@ -48,7 +48,9 @@ import { PageFacadeComponent } from "./pages/page-facade/page-facade.component";
 import { AppFooterComponent } from "./components/footer/footer.component";
 import { MapButtonsComponent } from "./pages/page-map/map-buttons/map-buttons.component";
 import { AppColorComponent } from "./components/color/color.component";
-
+import { ButtonStateComponent } from "./components/button-state/button-state.component";
+import { CheckboxStateComponent } from "./components/checkbox-state/checkbox-state.component";
+import { CheckboxTocComponent } from "./components/checkbox-toc/checkbox-toc.component";
 @NgModule({
   declarations: [
     AppComponent,
@@ -85,6 +87,9 @@ import { AppColorComponent } from "./components/color/color.component";
     AppTablePlanningComponent,
     AppContextMenuComponent,
     MapButtonsComponent,
+    CheckboxStateComponent,
+    CheckboxTocComponent,
+    ButtonStateComponent,
   ],
   imports: [
     BrowserModule,

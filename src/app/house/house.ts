@@ -26,6 +26,7 @@ export type xyz = [number, number, number];
 
 export class House extends HouseUser {
   outerBase = undefined;
+  innerBase = undefined;
   extensionToNorth = undefined;
   extensionToSouth = undefined;
   extensionToWest = undefined;
@@ -512,11 +513,11 @@ export class House extends HouseUser {
       );
     }
 
-    this.parts[".house-wind-rose"] = new Windrose({
+    this.parts[".house-wind-rose"] = new Windrose<House>({
       rotate: 0,
       floor: Floor.all,
       parent: this,
-      onUpdate: function (this: Windrose, house: House) {
+      onUpdate: function (this: Windrose<House>) {
         this.origin = [2, 0];
       },
     });
@@ -555,6 +556,7 @@ export class House extends HouseUser {
   /**Main calculations */
   calculateHouse() {
     this.outerBase = round(this.studAmount * this.studDistance); // 5.5m
+
     this.extensionToSouth = this.studAmountSouth * this.studDistance;
     this.extensionToNorth = this.studAmountNorth * this.studDistance;
     this.extensionToEast = this.studAmountEast * this.studDistance;
@@ -649,6 +651,7 @@ export class House extends HouseUser {
     // update
 
     this.cross.calculate(this);
+    this.innerBase = round(this.outerBase - this.wallOuterThickness * 2);
     this.stair.calculate(this);
     this.construction.calculate(this);
   }

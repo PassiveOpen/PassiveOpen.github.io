@@ -20,6 +20,10 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   constructor(private appService: AppService, private router: Router) {}
 
+  //@ts-ignore
+  isMobile = navigator.userAgentData.mobile;
+  readMobile = false;
+
   ngOnInit() {
     this.router.events
       .pipe(

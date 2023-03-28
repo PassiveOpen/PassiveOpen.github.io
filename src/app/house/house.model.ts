@@ -52,6 +52,12 @@ export class HouseUser {
   studAmountEast: number;
   balconyWidth: number;
   showTower: boolean;
+
+  ceilingHeight: number;
+  floorAboveGround: number;
+  crawlerHeight: number;
+  crawlerSpace: boolean;
+
   orientation: {
     lat: number;
     lng: number;
@@ -80,7 +86,7 @@ export interface Tower {
 }
 
 export interface SvgUpdate {
-  theme: Cross | House | Stair;
+  theme: House;
   floor: Floor;
   meterPerPixel: number;
   redrawAll: boolean;
@@ -90,6 +96,7 @@ export interface SvgUpdate {
 
 export class House extends HouseUser {
   outerBase = undefined;
+  innerBase = undefined;
   extensionToNorth = undefined;
   extensionToSouth = undefined;
   extensionToWest = undefined;
@@ -146,6 +153,11 @@ export class House extends HouseUser {
     super();
     Object.assign(this, house);
     (window as any).house = this;
+
+    this.cross.ceilingHeight = house.ceilingHeight;
+    this.cross.floorAboveGround = house.floorAboveGround;
+    this.cross.crawlerHeight = house.crawlerHeight;
+    this.cross.crawlerSpace = house.crawlerSpace;
 
     // Main calculations
     this.calculateHouse();
@@ -619,7 +631,8 @@ export class House extends HouseUser {
 
   /**Main calculations */
   calculateHouse() {
-    this.outerBase = round(this.studAmount * this.studDistance); // 5.5m
+    this.outerBase = round(this.studAmount * this.studDistance); // ~ 7.2m
+    this.innerBase = round(this.outerBase - this.wallOuterThickness * 2); // ~ 6.2m
     this.extensionToSouth = this.studAmountSouth * this.studDistance;
     this.extensionToNorth = this.studAmountNorth * this.studDistance;
     this.extensionToEast = this.studAmountEast * this.studDistance;
@@ -662,8 +675,10 @@ export class House extends HouseUser {
       },
     };
 
+    this.stair.totalWidth = this.innerBase / 2 + this.stair.walkWidth / 2;
+
     const hallStramienWE =
-      inObj.we.b + (this.stair.totalWidth - this.stair.walkWidth);
+      inObj.we.b + this.stair.totalWidth - this.stair.walkWidth;
     const hallStramienNS = inObj.ns.b - 5;
     this.stramien = {
       in: inObj,
@@ -683,8 +698,9 @@ export class House extends HouseUser {
       },
       top: {
         we: {
-          toilet: inObj.we.b + this.stair.totalWidth - this.stair.walkWidth,
-          hall: inObj.we.b + this.stair.totalWidth + 1,
+          toilet:
+            inObj.we.b + this.stair.totalWidth - this.stair.walkWidth - 0.2,
+          hall: inObj.we.b + this.stair.totalWidth + 0.2,
         },
         ns: {
           hall: hallStramienNS + 1.5,

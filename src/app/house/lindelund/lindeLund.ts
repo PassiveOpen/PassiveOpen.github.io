@@ -8,14 +8,7 @@ import {
 } from "../../model/specific/wall.model";
 import { Door } from "src/app/model/specific/door.model";
 import { CableType, Floor, SensorType } from "../../components/enum.data";
-import {
-  angleBetween,
-  angleXY,
-  distanceBetweenPoints,
-  mixPoints,
-  offset,
-  round,
-} from "../../shared/global-functions";
+import { mixPoints, offset } from "../../shared/global-functions";
 import { Window, WindowForm } from "../../model/specific/window.model";
 import { Sensor } from "../../model/specific/sensors/sensor.model";
 import { lindeLundUpstairs } from "./lindeLund.upstairs";
@@ -27,6 +20,7 @@ import { AppSVG } from "src/app/model/svg.model";
 import { RoofPoint } from "../cross.model";
 
 const groundToiletWidth = 0.8;
+const standardWindowWidth = 1.2;
 
 export const lindeLund: HouseUser = {
   studAmount: 12,
@@ -41,11 +35,16 @@ export const lindeLund: HouseUser = {
   studAmountEast: 8,
   showTower: true,
   balconyWidth: 6.2,
-  name: "Lindelund",
 
+  ceilingHeight: 3.0,
+  floorAboveGround: 0.7,
+  crawlerHeight: 1.0,
+  crawlerSpace: true,
+
+  name: "Lindelund",
   orientation: {
-    lat: 55.9198711,
-    lng: 13.6533175,
+    lat: 55.91821937,
+    lng: 13.654319808,
     rotation: 10,
   },
   parts: [
@@ -112,16 +111,20 @@ export const lindeLund: HouseUser = {
               },
               parts: [
                 ...(i === 16 // West-Wing-North-Wall
-                  ? [1, 2].map(
+                  ? [1].map(
                       (x) =>
-                        new Window({
+                        new Window<Wall>({
                           rotate: 90,
-                          width: 0.6,
+                          width: standardWindowWidth,
+                          elevation: 0.9,
                           onUpdate: function (this: Window, house: House) {
                             const wall = this.parent;
+                            this.height =
+                              house.cross.ceilingHeight - 0.4 - this.elevation;
+
                             this.origin = wall.getPosition(
                               WallSide.out,
-                              x / 3,
+                              x / 2,
                               this.width / 2
                             );
                           },
@@ -132,12 +135,16 @@ export const lindeLund: HouseUser = {
                 ...(i === 15 // West-wing-West-wall
                   ? [
                       new Window({
+                        // Top floor / gable
                         windowForm: WindowForm.hexagon,
                         floor: Floor.top,
                         rotate: 0,
-                        width: 1,
+                        width: standardWindowWidth,
+                        elevation: 0.9,
                         onUpdate: function (this: Window, house: House) {
                           const wall = this.parent;
+                          this.height =
+                            house.cross.ceilingHeight - 0.4 - this.elevation;
                           this.origin = wall.getPosition(
                             WallSide.out,
                             1 / 2,
@@ -149,9 +156,14 @@ export const lindeLund: HouseUser = {
                         (x) =>
                           new Window({
                             rotate: 0,
-                            width: 0.9,
+                            width: standardWindowWidth,
+                            elevation: 0.9,
                             onUpdate: function (this: Window, house: House) {
                               const wall = this.parent;
+                              this.height =
+                                house.cross.ceilingHeight -
+                                0.4 -
+                                this.elevation;
                               this.origin = wall.getPosition(
                                 WallSide.out,
                                 x / 3,
@@ -167,9 +179,12 @@ export const lindeLund: HouseUser = {
                       (x) =>
                         new Window({
                           rotate: -90,
+                          width: standardWindowWidth,
+                          elevation: 0.9,
                           onUpdate: function (this: Window, house: House) {
                             const wall = this.parent;
-
+                            this.height =
+                              house.cross.ceilingHeight - 0.4 - this.elevation;
                             if (wall.innerWallLength < 5) {
                               this.width = wall.innerWallLength / 3 - 0.2;
                             } else {
@@ -189,9 +204,12 @@ export const lindeLund: HouseUser = {
                       (x) =>
                         new Window({
                           rotate: 0,
-                          width: 0.6,
+                          width: standardWindowWidth,
+                          elevation: 0.9,
                           onUpdate: function (this: Window, house: House) {
                             const wall = this.parent;
+                            this.height =
+                              house.cross.ceilingHeight - 0.4 - this.elevation;
 
                             this.origin = offset(
                               wall.getPosition(WallSide.in, 1, -0.9),
@@ -229,10 +247,12 @@ export const lindeLund: HouseUser = {
                       (x) =>
                         new Window({
                           rotate: 180,
-                          width: 0.6,
-
+                          width: standardWindowWidth,
+                          elevation: 0.9,
                           onUpdate: function (this: Window, house: House) {
                             const wall = this.parent;
+                            this.height =
+                              house.cross.ceilingHeight - 0.4 - this.elevation;
 
                             this.origin = offset(
                               wall.getPosition(
@@ -251,9 +271,12 @@ export const lindeLund: HouseUser = {
                       (x) =>
                         new Window({
                           rotate: -90,
-                          width: 1.4,
+                          width: standardWindowWidth,
+                          elevation: 0.9,
                           onUpdate: function (this: Window, house: House) {
                             const wall = this.parent;
+                            this.height =
+                              house.cross.ceilingHeight - 0.4 - this.elevation;
                             this.origin = wall.getPosition(
                               WallSide.out,
                               x / 2,
@@ -269,9 +292,12 @@ export const lindeLund: HouseUser = {
                         windowForm: WindowForm.hexagon,
                         floor: Floor.top,
                         rotate: 180,
-                        width: 1,
+                        width: standardWindowWidth,
+                        elevation: 0.9,
                         onUpdate: function (this: Window, house: House) {
                           const wall = this.parent;
+                          this.height =
+                            house.cross.ceilingHeight - 0.4 - this.elevation;
                           this.origin = wall.getPosition(
                             WallSide.out,
                             1 / 2,
@@ -283,9 +309,14 @@ export const lindeLund: HouseUser = {
                         (x) =>
                           new Window({
                             rotate: 180,
-                            width: 0.8,
+                            width: standardWindowWidth,
+                            elevation: 0.9,
                             onUpdate: function (this: Window, house: House) {
                               const wall = this.parent;
+                              this.height =
+                                house.cross.ceilingHeight -
+                                0.4 -
+                                this.elevation;
                               this.origin = wall.getPosition(
                                 WallSide.out,
                                 x,
@@ -302,6 +333,7 @@ export const lindeLund: HouseUser = {
                             scale: [-1, x === 0 ? -1 : 1],
                             // width: 1,
                             outside: true,
+
                             onUpdate: function (this: Door, house: House) {
                               const side = WallSide.in;
                               const wall = this.parent;
@@ -322,9 +354,12 @@ export const lindeLund: HouseUser = {
                       (x) =>
                         new Window({
                           rotate: 90,
-                          width: 0.6,
+                          width: standardWindowWidth,
+                          elevation: 0.9,
                           onUpdate: function (this: Window, house: House) {
                             const wall = this.parent;
+                            this.height =
+                              house.cross.ceilingHeight - 0.4 - this.elevation;
                             this.origin = wall.getPosition(
                               WallSide.out,
                               1 / 2,
@@ -340,9 +375,12 @@ export const lindeLund: HouseUser = {
                       (x) =>
                         new Window({
                           rotate: 180,
-                          width: 0.9,
+                          width: standardWindowWidth,
+                          elevation: 0.9,
                           onUpdate: function (this: Window, house: House) {
                             const wall = this.parent;
+                            this.height =
+                              house.cross.ceilingHeight - 0.4 - this.elevation;
                             this.origin = wall.getPosition(
                               WallSide.out,
                               x / 3,
@@ -358,9 +396,12 @@ export const lindeLund: HouseUser = {
                         windowForm: WindowForm.hexagon,
                         floor: Floor.top,
                         rotate: 90,
-                        width: 1,
+                        width: standardWindowWidth,
+                        elevation: 0.9,
                         onUpdate: function (this: Window, house: House) {
                           const wall = this.parent;
+                          this.height =
+                            house.cross.ceilingHeight - 0.4 - this.elevation;
                           this.origin = wall.getPosition(
                             WallSide.out,
                             1 / 2,
@@ -372,9 +413,14 @@ export const lindeLund: HouseUser = {
                         (x) =>
                           new Window({
                             rotate: 90,
-                            width: 0.9,
+                            width: standardWindowWidth,
+                            elevation: 0.9,
                             onUpdate: function (this: Window, house: House) {
                               const wall = this.parent;
+                              this.height =
+                                house.cross.ceilingHeight -
+                                0.4 -
+                                this.elevation;
                               this.origin = wall.getPosition(
                                 WallSide.out,
                                 x / 3,
@@ -409,9 +455,14 @@ export const lindeLund: HouseUser = {
                         (x) =>
                           new Window({
                             rotate: 0,
-                            width: 0.9,
+                            width: standardWindowWidth,
+                            elevation: 0.9,
                             onUpdate: function (this: Window, house: House) {
                               const wall = this.parent;
+                              this.height =
+                                house.cross.ceilingHeight -
+                                0.4 -
+                                this.elevation;
                               this.origin = wall.getPosition(
                                 WallSide.out,
                                 (x + 1) / 8,

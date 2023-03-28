@@ -47,6 +47,7 @@ import Stats from "three/addons/libs/stats.module.js";
 // @ts-ignore
 import { Sky } from "three/addons/objects/Sky.js";
 import { ClipBox } from "./clip-box";
+import { environment } from "src/environments/environment";
 
 enum ViewSide {
   East = "East",
@@ -303,21 +304,19 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
     // console.log("draw");
     // this.clearScene();
     // this.env();
-    // if (this.clipBox.enabled) {
-    //   throw new Error("Bleghh");
-    // }
-    if (this.clipBox.enabled) {
-      this.scene.add(this.clipBox);
-      const el = Object.values(this.cross.elevations);
 
-      const clipCookie = this.cookieService.get(`${this.modelName}_clip-box`);
-      if (clipCookie !== "") {
-        const cookie = JSON.parse(clipCookie);
-        this.clipBox.setCookie(cookie);
-      } else {
-        this.clipBox.height = Math.max(...el) - Math.min(...el);
-        this.clipBox.xyz[1] = Math.min(...el);
-      }
+    this.scene.add(this.clipBox);
+    const el = Object.values(this.cross.elevations);
+
+    const clipCookie = this.cookieService.get(`${this.modelName}_clip-box`);
+    if (clipCookie !== "") {
+      const cookie = JSON.parse(clipCookie);
+      this.clipBox.setCookie(cookie);
+    } else {
+      this.clipBox.height = Math.max(...el) - Math.min(...el);
+      this.clipBox.xyz[1] = Math.min(...el);
+    }
+    if (this.clipBox.enabled) {
       this.clipBox.drawBox();
     }
 
@@ -394,7 +393,7 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
   }
 
   debug(mesh) {
-    const key = "debug";
+    const key = House3DParts.debug;
     mesh = mesh.clone();
     //@ts-ignore
     mesh.material = new THREE.MeshLambertMaterial({
@@ -411,7 +410,7 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
   animate(): void {
     window.requestAnimationFrame(() => this.animate());
 
-    this.stats.begin();
+    if (!environment.production) this.stats.begin();
     if (this.clipBox && !this.controlsAreActive)
       this.clipBox.onMouseOver(
         this.camera,
@@ -437,7 +436,8 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
         }
       );
     this.renderer.render(this.scene, this.camera);
-    this.stats.end();
+
+    if (!environment.production) this.stats.end();
   }
 
   setCamera() {
@@ -803,9 +803,11 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
     ssaoPass.maxDistance = 0.001;
     this.composer.addPass(ssaoPass);
 
-    this.stats = new Stats();
-    const statDiv = this.host.nativeElement.appendChild(this.stats.dom);
-    statDiv.style.left = "50px";
+    if (!environment.production) {
+      this.stats = new Stats();
+      const statDiv = this.host.nativeElement.appendChild(this.stats.dom);
+      statDiv.style.left = "50px";
+    }
 
     // Init gui
     this.gui = new GUI();
@@ -828,7 +830,10 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
     //   this.gui.add(ssaoPass, "maxDistance").min(0.0001).max(0.02);
 
     this.animate();
+    this.rendererContainer.nativeElement.querySelector(".loader").remove();
+    if (!environment.production) this.gui.hide();
   }
+
   yoyo(key: T) {
     setTimeout(() => {
       this.animations[key as any].yoyo(true).repeat(-1).repeatDelay(0.3).play();

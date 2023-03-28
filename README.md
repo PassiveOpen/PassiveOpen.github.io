@@ -1,5 +1,10 @@
 # Open Passive
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/G2G8JT2U9)<br>
+<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">
+<img alt="Creative Commons Licence" style="border-width:0"
+    src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a>
+
 ### A open source passive house Project
 
 <img src="./open_passive_website.png" style="max-height:500px" />

@@ -1,0 +1,14 @@
+<mat-label [class.float-left]="floatLeft" [class.float-right]="!floatLeft" [@stateSlideIn]="hover && !floatLeft">
+  <ng-content select="[label]"></ng-content>
+</mat-label>
+
+<!-- <button mat-mini-fab (click)="click" color="accent" >
+  <ng-content></ng-content>
+</button> -->
+
+<label (mouseenter)="mouseenter()" (mouseleave)="mouseleave()" class="container">
+  <ng-content select="[icon]"></ng-content>
+  <mat-slide-toggle [checked]="state" (change)="change()"></mat-slide-toggle>
+</label>
+<!-- <mat-checkbox class="example-margin" [checked]="state" (mouseenter)="mouseenter()" (click)="change()"
+  (mouseleave)="mouseleave()"></mat-checkbox> -->

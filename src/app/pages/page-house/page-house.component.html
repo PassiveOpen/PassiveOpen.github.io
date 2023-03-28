@@ -3,19 +3,16 @@
   <section [id]="Section.welcome">
     <h1>Welcome to {{house.name}}</h1>
     <p class="mat-caption">
-      A passiv-haus but in country style, and above all open-source.
-      We love to share our plans as a community. See it as free building plans for your own house or give it to your
-      constructor. Its truly free.
+      A Passive House, but in a classical style, and all open-source. We love to share our plans with the community.
+      Consider it as free building plans for your own house, or give them to your contractor. It's truly free.
     </p>
   </section>
 
   <section [id]="Section.passiv">
     <h2>Passiv? <span style="font-size: 0.7em;">(Its German)</span></h2>
     <p>Passive houses are the future. Feel free to <a href="https://passivehouse.com/" target="_blank">search online for
-        'Passiv
-        Haus'</a> (not really sexy or
-      anything). Therefor let us try to
-      explain it. Well, really short: </p>
+        'Passiv Haus'</a>. We thought it is not really inspiring and that is a shame. Therefore, let us try to explain
+      it briefly:</p>
     <ul>
       <li>
         <tag [tag]="tags.insulated" [overlayTemplate]="insulated" cdkOverlayOrigin>Great
@@ -41,7 +38,8 @@
       <li>Can be houses, but also offices etc</li>
       <li>Sustainable (well in our opinion)</li>
     </ul>
-    <p>Passiv Haus in one punchline:</p>
+
+    <p>Passiv Haus has one punchline:</p>
     <div fxLayoutAlign="center" style="margin:8px 0 32px;">
       <tag [tag]="tags.efficiency" [overlayTemplate]="efficiency" cdkOverlayOrigin>Efficiency first</tag>
       <ng-template #efficiency>
@@ -49,10 +47,16 @@
         Ofcourse we still need green energy! ). First insulation to the max, before thinking of solarpanels.
       </ng-template>
     </div>
+    <p>We dare to add one :</p>
+    <div fxLayoutAlign="center" style="margin:8px 0 32px;">
+      <tag [tag]="tags.simple" [overlayTemplate]="simple" cdkOverlayOrigin> Simplicity is key</tag>
+      <ng-template #simple>
+        Keeping the design simple, so we skip complex solutions. Therefore the costs will be lower.
+      </ng-template>
+    </div>
     <p>
-      Sometimes passive houses are often not so pretty. (maybe, if you like
-      form-follow-function). Effiency first, but style second for us! Therefore we try to combine old design styles with
-      this great concept.
+      While Passive Houses tend to prioritize function over form, we believe that style should also be a consideration.
+      For this reason, we are working on combining classic design elements with this innovative concept.
     </p>
 
 
@@ -61,15 +65,17 @@
   <section [id]="Section.basics">
     <h2>The basics</h2>
     <p>
-      The house is based on parametric design. So play with all the sliders, its interactive. Lets start at the very
-      basics. And why does it look like a church from above?
+      Using parametric design, we've created an interactive platform for designing this house. Play around with the
+      sliders to see how you can customize the design to your liking. Let's start with the basics.
     </p>
     <h3>Two axis</h3>
-    <p>The main house, seen from the south (up here) has two axis with a certain
-      <tag [tag]="tags.baseDimension" [overlayTemplate]="baseDimension" cdkOverlayOrigin>base
-        dimension</tag>. A design seen often in classical buildings. It comes often with great <tag
-        [tag]="tags.viewlines">viewlines</tag>. The higher the base-dimension is, the lower the extensions can be, the
-      more efficient near-cube shape we get.
+    <p>
+
+      The squared shape is the most efficient design for a Passive House, but a mansard roof can provide a classic
+      aesthetic. Unfortunately, it's not easy to incorporate a mansard roof into a squared house. To achieve a mansard
+      roof, this design follows two axes with a specific <tag [tag]="tags.baseDimension"
+        [overlayTemplate]="baseDimension" cdkOverlayOrigin>base dimension</tag>.
+      One of the advantages of this design is the stunning <tag [tag]="tags.viewlines">view lines</tag> it provides.
     </p>
 
     <ng-template #baseDimension>
@@ -87,68 +93,48 @@
 
     <label class="technical">
       <span>Technical </span>
-      We talk in studs, wooden columns in the wall. They are the core that follow a grid of
-      {{house.studDistance *100}} cm. The <tag [tag]="tags.baseDimension" [overlayTemplate]="baseDimension"
-        cdkOverlayOrigin>base
-        dimension</tag> wall has now {{house.studAmount}} studs.
-    </label>
-    <!-- <label class="technical">
-      <span>Design</span>
-      <ul>
-        <li>We follow <a href="https://en.wikipedia.org/wiki/Rule_of_thirds">Rule of thirds</a> </li>
-      </ul>
-    </label> -->
 
-    <!-- <label>
-      <span>
-        Distance between (meter)
-      </span>
-      <mat-slider min="0.60" max="0.62" [ngModel]="house.studDistance" (input)="update('studDistance',$event.value)" step="0.01"
-        thumbLabel  tickInterval="1"></mat-slider>
-    </label> -->
-
-    <label class="technical">
-      <span>Technical
-      </span>
-
+      When describing our house's construction, we use the term "studs" to refer to the wooden columns that make up the
+      walls. These studs are arranged in a grid pattern with a spacing of {{house.studDistance *100}} cm. At present,
+      the wall consists of {{house.studAmount}} studs.
+      <br>
+      <br>
       <table>
-
-
         <tr>
-          <td></td>
-          <td></td>
-          <td>total</td>
-          <td>{{ house.stats.floor.all?.area }} m2</td>
+          <td>Total area</td>
+          <td>{{ house.stats.floor.all?.area }} m<sup>2</sup></td>
         </tr>
-
+        <tr>
+          <td>Total volume</td>
+          <td>{{ house.stats.floor.all?.volume }} m<sup>3</sup></td>
+        </tr>
       </table>
-
     </label>
-
   </section>
 
 
   <section [id]="Section.extensions">
     <h2>Extensions</h2>
     <p>
-      Break boring lines on the southface and create more interesting view points with a <tag
-        [tag]="tags.extensionToSouth" [overlayTemplate]="extensionToSouth" cdkOverlayOrigin>south extension</tag>
-      <i></i>. The
-      colder, darker side (less windows by design) is located in the convenient <tag [tag]="tags.extensionToNorth"
-        [overlayTemplate]="extensionToNorth" cdkOverlayOrigin>north wing</tag>
+      The south-facing side of the house is designed with a <tag [tag]="tags.extensionToSouth"
+        [overlayTemplate]="extensionToSouth" cdkOverlayOrigin>south wing</tag> that breaks up the otherwise monotonous
+      lines and creates more interesting view points. The <tag [tag]="tags.extensionToNorth"
+        [overlayTemplate]="extensionToNorth" cdkOverlayOrigin>north wing</tag>, located for convenience, has fewer
+      windows due to its colder and darker nature.
     </p>
     <h3>Body parts </h3>
 
     <ng-template #extensionToSouth>
-      This extension is to greaten the three-part south facade, creates a bigger roof on the second floor.
+      The south wing is a design element that effectively breaks up the lengthy facade of the house's south side. If
+      desired, the design can be simplified by removing this feature.
     </ng-template>
     <ng-template #extensionToNorth>
-      <!-- - todo -->
-      Dont make this too long, it does not fit with the compact design, enlarge the base-dimension if you like.
+      To maintain the compact design of the house, avoid making the north wing too long. If you need more space,
+      consider increasing the base dimension.
     </ng-template>
 
     <label>
-      <span>South extension
+      <span>South wing
       </span>
       <mat-slider min="0" max="6" [ngModel]="house.studAmountSouth"
         (input)="update('house','studAmountSouth',$event.value, tags.extensionToSouth)" thumbLabel
@@ -248,8 +234,9 @@
 
   <section [id]="Section.tower" style="padding-bottom: 80px;">
     <h3>Tower</h3>
-    <p>This tower is a practical backdoor and allows you to walk from the kitchen to the rest of the house. It creates
-      also a viewpoint from the roof! We like the tower. </p>
+    <p>Not only does the tower provide a functional backdoor, but it also adds an intriguing feature to the house's
+      exterior. Additionally, the shower location within the tower is impressive and the tower itself could potentially
+      offer a rooftop viewpoint. </p>
     <mat-slide-toggle [ngModel]="house.showTower" (ngModelChange)="update('house','showTower',$event)">With a
       practical
       tower
@@ -280,44 +267,45 @@
     <h1>Cross section</h1>
 
     <h2>Slicing it, the basics</h2>
-    <p>High ceilings are nice and makes the house feel larger, they costs more but worth it. Heat problems are less with
-      floorheathing.</p>
+    <p>Although high ceilings can be more expensive, they add a lot of value by making a house feel more open and airy.
+    </p>
     <label>
       <span>Ceiling height: {{house.cross.ceilingHeight}} m</span>
-      <mat-slider min="1.9" max="3.6" [ngModel]="house.cross.ceilingHeight"
+      <mat-slider min="2.6" max="3.6" [ngModel]="house.cross.ceilingHeight"
         (input)="update('cross','ceilingHeight',$event.value)" step="0.1" tickInterval="1"></mat-slider>
     </label>
 
     <h3>Foundation: {{house.cross.crawlerSpace? 'crawler space':'flat foundation'}}</h3>
-    <p>Way too technical in this design fase! However a crawler space can raise the whole building, changing the overall
-      experience. It can protect more against climate change. Floodings or heavy rains. It is also more expensive and
-      takes more time to build.</p>
+    <p>It's important to consider a crawl space during the design phase, as it can have a significant impact on the
+      overall building experience. A crawl space can raise the building, offering more protection against climate
+      change, such as flooding or heavy rains. However, it is important to note that a crawl space can also be more
+      expensive and take more time to build.</p>
     <mat-slide-toggle [ngModel]="house.cross.crawlerSpace" (ngModelChange)="update('cross','crawlerSpace',$event)">With
       a
       {{house.cross.crawlerSpace? 'crawler space':'flat foundation'}}
     </mat-slide-toggle>
     <label>
-      <span>Ground floor above ground: {{house.cross.floorAboveGround}} m</span>
+      <span>Ground floor above ground: {{house.cross.crawlerSpace?house.cross.floorAboveGround:0}} m</span>
       <mat-slider min="0" [max]="house.cross.crawlerHeight+house.cross.groundFloorThickness"
         [ngModel]="house.cross.floorAboveGround" (input)="update('cross','floorAboveGround',$event.value)" step="0.1"
-        tickInterval="1"></mat-slider>
+        tickInterval="1" [disabled]="!house.cross.crawlerSpace"></mat-slider>
     </label>
 
 
   </section>
 
 
-  <section [id]="Section.roofCircle">
+  <section [id]=" Section.roofCircle">
 
     <h2>Roof style</h2>
-    <p><a href="https://en.wikipedia.org/wiki/Mansard_roof" target="_blank">Mansard or Gambrel roof</a> is gives a nice
-      classic countryside stylefull roof.There are three methods to create them. We check both the "circle" and
-      '70&deg;/30&deg;'</p>
+    <p><a href="https://en.wikipedia.org/wiki/Mansard_roof" target="_blank">Mansard or Gambrel roof</a> gives a nice
+      classic countryside style. There are three methods to create it. We will check both the "circle" and
+      '70°/30°'</p>
 
     <h2>Circle-based</h2>
-    <p>Draw a <tag [tag]="tags.halfCircle">half circle</tag> with 45&deg; lines to create the breakpoints. If you use
-      the slider to create more overhang, the circle moves with it, to keep proportions. The angles are resp: 67.5&deg;,
-      22.5&deg;
+    <p>Draw a <tag [tag]="tags.halfCircle">half circle</tag> and two lines extending from the center at a 45° angle. Be
+      aware that adjusting the overhang using the slider will cause the circle to move to maintain proportions. The
+      angles used in this technique are 67.5° and 22.5°.
     </p>
 
 
@@ -339,13 +327,12 @@
 
 
   <section [id]="Section.roof70">
-    <h2>The 70&deg;/30&deg; roof</h2>
-    <p>With this technique, draw a line 70&deg; until a <tag [tag]="tags.bendPoint" [overlayTemplate]="bendPoint"
-        cdkOverlayOrigin>bend point</tag>. After than follow
-      30&deg;. Think about the solar potential!
+    <h2>The 70°/30° roof</h2>
+    <p>With this technique, draw a line 70° until a <tag [tag]="tags.bendPoint" [overlayTemplate]="bendPoint"
+        cdkOverlayOrigin>bend point</tag>. then follow up with a 30° angle. The upper roof has great solor potential.
+      It is possible to extending the roof downwards.
+      Nevertheless, it's crucial to keep proportion in mind to prevent an unappealing appearance.
     </p>
-
-    . A common seen classical symmetrical design.
     <ng-template #bendPoint>
       A concept, how far is the bend-point of the roof, away from the outside wall.
     </ng-template>
@@ -372,14 +359,14 @@
 
 
   <section [id]="Section.roofChoice">
-    <h3>Roof, 70&deg; or Circle</h3>
-    <p>We should choose a roof. There are more possibilities in the end. But for now a mansard roof it is.
+    <h3>Roof, 70° or Circle</h3>
+    <p>In the end, the 70° based mansard roof is easier to design with. Click on the buttons to compare them.
     </p>
     <mat-button-toggle-group name="roofstyle" [(ngModel)]="house.cross.roofStyle"
       (ngModelChange)="choosenRoofstyle($event)">
       <mat-button-toggle [value]="RoofStyle.roofCircle">Circle based</mat-button-toggle>
       <mat-button-toggle [value]="RoofStyle.roofCircleAnd70">Both</mat-button-toggle>
-      <mat-button-toggle [value]="RoofStyle.roof70">70&deg; based</mat-button-toggle>
+      <mat-button-toggle [value]="RoofStyle.roof70">70° based</mat-button-toggle>
     </mat-button-toggle-group>
 
   </section>
@@ -405,51 +392,41 @@
 <section [id]="Section.EndOfPageHouse">
   <h3>This was the main design</h3>
   <p>This site has a lot of info, if you are up for more. Feel free to join us at
-    this <a href="{{discord}}" target="_blank" style="background: var(--primary-color); padding: 0 6px; color: white;">
+    this <br><a href="{{discord}}" target="_blank"
+      style="background: var(--primary-color); padding: 0 6px; color: white;">
       <fa-icon [icon]="faDiscord"></fa-icon> discord
       channel
-    </a>:
+    </a>
   </p>
   <br>
-  <p>Next step is to get the sizes of the stairs.</p>
-  <div fxLayout="column" fxLayoutGap="3px" style="max-width: 180px;">
-    <button mat-flat-button color="accent" routerLink="/stairs">
-      <mat-icon style="font-family:'Material Icons Outlined';">stairs</mat-icon>
-      <span>Stairs</span>
-    </button>
-  </div>
-
-  <p>Its also okay to leave them default and check out other chapters!</p>
-  <br>
-  <div fxLayout="column" fxLayoutGap="16px" style="max-width: 180px;">
-    <!-- <button mat-flat-button color="accent" routerLink="/house">
-      <mat-icon style="font-family:'Material Icons Outlined';">home</mat-icon>
-      <span>The house</span>
-    </button> -->
-    <!-- <button mat-flat-button color="accent" routerLink="/facade">
-      <mat-icon>roofing</mat-icon>
-      <span>Façade</span>
-    </button> -->
-    <button mat-flat-button color="accent" routerLink="/construction">
+  <p>An other interesting page could be the layers of a wall/construction </p>
+  <div class="on-page-menu ">
+    <button mat-menu-item routerLink="/construction">
       <mat-icon>handyman</mat-icon>
       <span>Construction</span>
     </button>
-    <button mat-flat-button color="accent" routerLink="/wired">
+  </div>
+
+  <p>There is a menu on the top-left with a lot more items. Some are listed here</p>
+  <br>
+  <div class="on-page-menu ">
+
+    <button mat-menu-item routerLink="/wired">
       <mat-icon>bolt</mat-icon>
       <span>Wired</span>
     </button>
-    <button mat-flat-button color="accent" routerLink="/costs">
-      <mat-icon style="font-family:'Material Icons Outlined';">savings</mat-icon>
-      <span>Costs</span>
-    </button>
-    <button mat-flat-button color="accent" routerLink="/installations">
+    <button mat-menu-item routerLink="/installations">
       <mat-icon>solar_power</mat-icon>
       <span>Installations</span>
     </button>
-    <!-- <button mat-flat-button color="accent" routerLink="/map">
+    <button mat-menu-item routerLink="/map">
       <mat-icon>pin_drop</mat-icon>
       <span>Map</span>
-    </button> -->
+    </button>
+    <button mat-menu-item routerLink="/stairs">
+      <mat-icon style="font-family:'Material Icons Outlined';">stairs</mat-icon>
+      <span>Stairs</span>
+    </button>
   </div>
 
 </section>

@@ -31,8 +31,9 @@ export class OLBaseMapService {
 
   getStore(): void {
     const cookie = this.cookieService.get(this.cookieKey);
+    if (cookie === "") return;
     const cookieStr = JSON.parse(cookie);
-    if (cookie === "" && !(cookieStr in Basemap)) return;
+    if (!(cookieStr in Basemap)) return;
     this.basemap$.next(cookieStr);
   }
   setStore(): void {

@@ -68,7 +68,7 @@ export class SvgStairsComponent extends BasicSVG implements AfterViewInit {
         [-this.stair.run, -this.stair.totalRise],
         [maxRun, this.stair.totalRise + this.stair.floorThickness],
       ];
-      this.marginInPixels = [40, 40, 0, 0];
+      this.marginInPixels = [40, 40, 80, 40];
     }
 
     this.marginInMeters = [0, this.stair.run * 2, 0, 0];

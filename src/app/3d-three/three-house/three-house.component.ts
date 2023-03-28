@@ -77,6 +77,7 @@ interface WindowGenerator {
   x;
   y;
   z;
+  noFraming;
 }
 @Component({
   selector: "app-three-house",
@@ -126,14 +127,14 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
     );
     this.appService.fullscreen$.next(true);
     this.preLoadWindow();
-    this.appService.states$.next({
-      ...this.appService.states$.value,
-      [House3DParts.roof]: true,
-      [House3DParts.outerWall]: true,
-      [House3DParts.innerWall]: true,
-      [House3DParts.topFloor]: true,
-      [House3DParts.groundFloor]: true,
-    });
+    // this.appService.states$.next({
+    //   ...this.appService.states$.value,
+    //   [House3DParts.roof]: false,
+    //   [House3DParts.outerWall]: true,
+    //   [House3DParts.innerWall]: true,
+    //   [House3DParts.topFloor]: true,
+    //   [House3DParts.groundFloor]: true,
+    // });
   }
   defaultCamera() {
     const x = this.house.houseWidth / 2;
@@ -154,7 +155,7 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
     this.createFloors();
     this.createWalls();
     // this.hexagonWindows();
-    this.debugMeasureBlock();
+    // this.debugMeasureBlock();
     // this.createAllStuds();
     const axesHelper = new THREE.AxesHelper(1);
     axesHelper.position.set(0, 0, 0);
@@ -232,16 +233,16 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
       if (
         [ClipPart.centerLeft, ClipPart.centerRight].includes(key as ClipPart)
       ) {
-        const scale = (window.height - size / 2) / size;
+        const scale = window.height / size;
         mesh.scale.set(1, scale, 1);
-        mesh.translateY(window.height - (fullSize + size * 2.9));
+        // mesh.translateY(window.height - (fullSize + size * 2.9));
+        mesh.translateY(-window.height / 2 - 0.2);
         // mesh.translateX(0.1);
       }
       if ([ClipPart.topMid, ClipPart.bottomMid].includes(key as ClipPart)) {
-        const newWidth = window.width;
-        const scale = newWidth / size;
+        const scale = window.width / size;
         mesh.scale.set(scale, 1, 1);
-        mesh.translateX(-newWidth / 2);
+        mesh.translateX(-window.width / 2);
         // mesh.translateY(0.1);
       }
 
@@ -326,9 +327,9 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
       // Done loading
       const mainOuterWall = this.subModels[House3DParts.outerWall][0]; // get Group
       this.windows.map((obj) => {
-        if (obj.selector === "L0-outer-SouthWall-2-Window-14") return;
-        // const frame = this.getWindow(obj);
-        // mainOuterWall.add(frame);
+        if (obj.noFraming) return;
+        const frame = this.getWindow(obj);
+        mainOuterWall.add(frame);
       });
     });
   }
@@ -808,6 +809,36 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
       this.add(obj.key, [group]);
     });
   }
+
+  curtainWall(wall: Wall): THREE.Mesh[] {
+    const window = wall.parts.find((x) => x instanceof Window) as Window;
+    const house = this.house;
+    const pushback = 0.1;
+    const depth = 0.1;
+
+    const horizontalBar1 = this.threeService.createBox({
+      material: Material.windowDarkFrame,
+      whd: [window.width, 0.3, depth],
+      xyz: [
+        window.origin[0],
+        house.cross.ceilingHeight,
+        window.origin[1] - depth - pushback,
+      ],
+    });
+
+    const secondHight = house.cross.ceilingHeight + 2;
+
+    const horizontalBar2 = this.threeService.createBox({
+      material: Material.windowDarkFrame,
+      whd: [window.width, 0.3, depth],
+      xyz: [window.origin[0], secondHight, window.origin[1] - depth - pushback],
+    });
+
+    console.log(window, secondHight);
+
+    return [horizontalBar1, horizontalBar2];
+  }
+
   createWalls() {
     const walls = this.house.partsFlatten.filter(
       (x) => x instanceof Wall
@@ -873,7 +904,6 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
       );
 
       if (higherTower) {
-        // this.debug(this.roofMeshes[RoofClip.outside]);
         wallMesh = this.clip(wallMesh, this.roofMeshes[RoofClip.roofAndBelow]);
       } else if (tower) {
         wallMesh = this.clip(wallMesh, halfTowerTopFloor);
@@ -936,8 +966,8 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
           xyz: [-size / 2, 0, origin],
         });
 
-        // if (wall.gable && opening.floor === Floor.top)
-        //   clipCube = this.hexagonWindows();
+        const hexagonWindow = wall.gable && opening.floor === Floor.top;
+        if (hexagonWindow) clipCube = this.hexagonWindows();
 
         this.threeService.rotateAroundAxis(
           clipCube,
@@ -946,8 +976,6 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
         );
 
         this.threeService.translate(clipCube, x, y, z);
-        // this.subModels[House3DParts.tower].push(clipCube);
-        // clipCube.userData = { floor: wall.floor };
         wallMesh = this.clip(wallMesh, clipCube);
         if (wallOuter) wallOuter = this.clip(wallOuter, clipCube);
 
@@ -963,6 +991,9 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
             z,
             rotate: opening.rotate,
             selector: opening.selector,
+            noFraming:
+              opening.selector === "L0-outer-SouthWall-2-Window-14" ||
+              hexagonWindow,
           });
           // openingParts.push(this.createWindowPlane(opening, x, y, z));
         }
@@ -971,7 +1002,7 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
       wallMesh.userData = { floor: wall.floor };
       if (outer || higherTower) {
         const g = this.group([wallMesh, wallOuter]);
-        g.userData = { floor: wall.floor };
+        // g.userData = { floor: wall.floor };
         g.name = wall.selector;
         outerWallParts.push(g);
       } else {
@@ -987,6 +1018,9 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
       ...outerWallParts,
       ...pillar,
       ...openingParts,
+      ...this.curtainWall(
+        walls.find((x) => x.selector === "L0-outer-SouthWall-2")
+      ),
     ]);
 
     this.scaleFromSomewhere(House3DParts.outerWall, totalOuterWall);

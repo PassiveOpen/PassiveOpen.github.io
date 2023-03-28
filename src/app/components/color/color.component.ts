@@ -18,20 +18,23 @@ export class AppColorComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.parseColors();
   }
+
   parseColors() {
     const host = this.host.nativeElement as HTMLElement;
-    console.log(this.host.nativeElement);
-
     this.keys.forEach((key) => {
       const el = host.querySelector(`.${key}`);
       if (!el) return;
-      const primaryColor = getComputedStyle(el).backgroundColor;
-      console.log(
-        `%c ${key}: ${primaryColor}`,
-        `background: ${primaryColor}; color: ${this.invertColor(primaryColor)}`
-      );
-      this.colorService.color[key] = primaryColor;
+      const rgb = getComputedStyle(el).backgroundColor;
+      this.colorService.add(key, rgb);
+      // this.debug(key, primaryColor)
     });
+  }
+
+  debug(key, primaryColor) {
+    console.log(
+      `%c ${key}: ${primaryColor}`,
+      `background: ${primaryColor}; color: ${this.invertColor(primaryColor)}`
+    );
   }
 
   invertColor(rgb, bw = true) {

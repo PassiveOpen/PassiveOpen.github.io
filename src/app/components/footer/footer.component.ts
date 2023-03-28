@@ -6,7 +6,13 @@ import {
   Renderer2,
 } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, Params, Router } from "@angular/router";
-import { faDiscord, faGithub } from "@fortawesome/free-brands-svg-icons";
+import {
+  faDiscord,
+  faGithub,
+  faInstagram,
+  faPatreon,
+  faYoutube,
+} from "@fortawesome/free-brands-svg-icons";
 import {
   tap,
   filter,
@@ -32,11 +38,18 @@ import { TooltipService } from "../tooltip/tooltip.service";
 })
 export class AppFooterComponent {
   year = new Date().getFullYear();
+
   discord = this.appService.discord;
   github = this.appService.github;
+  youtube = this.appService.youtube;
+  patreon = this.appService.patreon;
+  instagram = this.appService.instagram;
 
   faDiscord = faDiscord;
   faGithub = faGithub;
+  faYoutube = faYoutube;
+  faPatreon = faPatreon;
+  faInstagram = faInstagram;
 
   onStart = true;
 

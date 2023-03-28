@@ -10,13 +10,13 @@ export enum WindowForm {
   standard = "standard",
   hexagon = "hexagon",
 }
-export class Window extends BaseSVG {
+export class Window<T = House> extends BaseSVG<T> {
   floor = Floor.ground;
   windowForm = WindowForm.standard;
   parent: Wall;
   width = 2;
   height = 2;
-  elevation = 1;
+  elevation = 0.9;
   origin = [0, 0];
   scale = [1, 1];
   rotate = 0;
@@ -31,7 +31,7 @@ export class Window extends BaseSVG {
     return this.innerDepthFrame + this.frameDepth;
   }
 
-  constructor(data: Partial<Window>) {
+  constructor(data: Partial<Window<T>>) {
     super();
     Object.assign(this, data);
   }

@@ -28,8 +28,13 @@ export type StateObj = { [key in StatesExtended]?: boolean };
 export class AppService {
   darkMode = false;
   title = "Lindelund";
-  update$ = new Subject<void>();
+  discord = "https://discord.gg/hrjfzY3yTp";
+  github = "https://github.com/PassiveOpen/PassiveOpen.github.io";
+  youtube = "https://www.youtube.com/channel/UCtP_RM2k4-27u40nC0ncpdw";
+  patreon = "https://www.patreon.com/PassiveOpen";
+  instagram = "https://www.instagram.com/2_plings/";
 
+  update$ = new Subject<void>();
   tag$ = new BehaviorSubject(undefined);
   graphic$ = new BehaviorSubject(undefined);
   states$ = new BehaviorSubject<StateObj>({});
@@ -46,8 +51,7 @@ export class AppService {
   );
 
   floor$ = new BehaviorSubject(Floor.ground);
-  discord = "https://discord.gg/hrjfzY3yTp";
-  github = "https://github.com/PassiveOpen/PassiveOpen.github.io";
+
   scroll$ = new BehaviorSubject<Scroll>({
     scroll: 0,
     percentage: 0,

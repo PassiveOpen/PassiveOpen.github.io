@@ -33,20 +33,15 @@ p {
 }
 
 section {
-  border-left: 1px solid rgba(0, 0, 0, 0);
+  border-left: 1px solid var(--color-0);
   transition: 0.6s;
-
   margin: 0 0 0 0;
   padding: 8vh 4px 20vh 16px;
-  // margin: 25vh 0;
-  // padding: 16px 4px 16px 16px;
-
   &.section-active {
-    border-left-color: rgba(0, 0, 0, 0.2);
+    border-left-color: var(--color-20);
   }
-
   &:hover {
-    border-left-color: rgba(0, 0, 0, 0.3);
+    border-left-color: var(--color-30);
   }
 }
 
@@ -56,7 +51,7 @@ a {
   transition: 0.4s;
   border-radius: 3px;
   &:hover {
-    background: grey;
+    background: var(--color-50);
   }
 }
 
@@ -68,6 +63,9 @@ a.larger-link {
   display: inline-flex;
   align-items: center;
   gap: 4px;
+
+  line-height: 0rem;
+  border-radius: 4px;
 
   &:hover {
     transition: 0.2s;
@@ -156,4 +154,27 @@ section > label {
 }
 #disqus_thread {
   margin: 200px 0 80px;
+}
+
+.loader:after {
+  content: " .";
+  animation: dots 1s steps(5, end) infinite;
+  @keyframes dots {
+    0%,
+    20% {
+      color: var(--color-100);
+      text-shadow: 0.25em 0 0 var(--color-100), 0.5em 0 0 var(--color-100);
+    }
+    40% {
+      color: var(--color-10);
+      text-shadow: 0.25em 0 0 var(--color-100), 0.5em 0 0 var(--color-100);
+    }
+    60% {
+      text-shadow: 0.25em 0 0 var(--color-10), 0.5em 0 0 var(--color-100);
+    }
+    80%,
+    100% {
+      text-shadow: 0.25em 0 0 var(--color-10), 0.5em 0 0 var(--color-10);
+    }
+  }
 }

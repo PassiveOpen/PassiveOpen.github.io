@@ -89,7 +89,7 @@ $sun-color: rgb(253, 200, 101);
     }
   }
 
-  svg.plan {
+  svg.house2D {
     // transform-box: fill-box;
     height: 100%;
     width: 100%;
@@ -217,6 +217,9 @@ $sun-color: rgb(253, 200, 101);
     }
 
     .g-room {
+      .room-hole polygon {
+        fill: var(--color-20);
+      }
       polygon {
         stroke: none !important;
         transition: 0.4s;
@@ -224,9 +227,6 @@ $sun-color: rgb(253, 200, 101);
         // fill: rgba(158, 250, 130, 0.541);
         &:hover {
           fill: var(--primary-lighter-color);
-        }
-        &.room-hole {
-          box-shadow: inset 3px 5px 2px rgb(0 0 0 / 0.4);
         }
         &.selected {
           fill: var(--primary-color);

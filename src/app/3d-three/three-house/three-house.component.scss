@@ -1,13 +1,17 @@
 :host {
   height: 100%;
   width: 100%;
-  // & > * {
-  //   width: 100vw;
-  //   max-width: 700px;
-  // }
 }
-img {
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: cover;
+.loader {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  background: var(--color-0);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.3rem;
 }

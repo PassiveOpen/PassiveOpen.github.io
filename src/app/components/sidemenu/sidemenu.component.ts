@@ -1,4 +1,12 @@
-import { Component, HostBinding, OnInit } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostBinding,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
+import { MatButton } from "@angular/material/button";
 import { AppService } from "src/app/app.service";
 import packageJson from "../../../../package.json";
 
@@ -7,28 +15,19 @@ import packageJson from "../../../../package.json";
   templateUrl: "./sidemenu.component.html",
   styleUrls: ["./sidemenu.component.scss"],
 })
-export class SideMenuComponent implements OnInit {
-  @HostBinding("class.mini") mini = true;
-  @HostBinding("class.collapsed") collapsed = true;
-
+export class SideMenuComponent implements AfterViewInit {
   version: string = packageJson.version;
-
   title = this.appService.title;
+  @ViewChild("menu", { read: ElementRef }) menu: ElementRef;
 
   constructor(private appService: AppService) {}
 
-  open() {
-    if (this.mini) {
-      this.collapsed = false;
-    }
-    this.mini = !this.mini;
+  ngAfterViewInit(): void {
+    // this.menu.nativeElement.click();
   }
-  click() {
-    this.collapsed = true;
-    if (this.appService.fullscreen$.value === true)
-      this.appService.fullscreen$.next(false);
-  }
-  ngOnInit(): void {}
+
+  click() {}
+
   get darkMode() {
     return this.appService.darkMode;
   }

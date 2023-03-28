@@ -1,26 +1,36 @@
 .matrix {
-
-  box-sizing: border-box;
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-
+  border-collapse: collapse;
   .matrix-cell {
-    display: block;
-    // height: 40px;
-    // width: 40px;
-    border: 1px solid black;
-    border-radius: 0px;
-    padding: 0px;
-    margin: 0px;
-    min-width: initial;
-    min-height: inherit;
     line-height: 1em;
     white-space: pre-wrap;
-    &.too-much,
-    &.too-litte {
-      border: 1px solid rgb(255, 255, 255);
-      opacity: 0.6;
+    cursor: pointer;
+    transition: 0.2s;
+    &:hover {
+      background-color: var(--color-30);
     }
+  }
+  td,
+  th {
+    position: relative;
+  }
+}
+.too-much,
+.too-little {
+  background-color: rgba(255, 0, 0, 0.3);
+  opacity: 0.6;
+}
+.not-comfortable {
+  background-color: rgba(255, 115, 0, 0.3);
+  opacity: 0.6;
+}
+.active {
+  &::after {
+    content: " ";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--color-60);
   }
 }

@@ -15,6 +15,7 @@ export enum Tag {
   roof70 = "roof-70",
   roofWalls = "roof-walls",
   efficiency = "efficiency",
+  simple = "simple",
   greyOut = "greyOut",
   amountSteps = "amount-steps",
   viewlines = "viewlines",
@@ -123,12 +124,12 @@ export enum Section {
 
   //planning
 
-  planningPreps = "planningPreps",
-  planningFoundation = "planningFoundation",
-  planningFraming = "planningFraming",
-  planningOutside = "planningOutside",
-  planningInstallations = "planningInstallations",
-  planningFinishing = "planningFinishing",
+  planningPreps = "planning-preps",
+  planningFoundation = "planning-foundation",
+  planningFraming = "planning-framing",
+  planningOutside = "planning-outside",
+  planningInstallations = "planning-installations",
+  planningFinishing = "planning-finishing",
 
   //Extra
   House3D = "House3D",
@@ -214,17 +215,18 @@ export enum Helpers3D {
   clipBoxShow = "clipBoxShow",
   mirror = "mirror",
 }
+
 export enum House3DParts {
-  foundation = "foundation",
-  groundFloor = "groundFloor",
-  topFloor = "topFloor",
-  roof = "roof",
-  innerWall = "innerWall",
-  outerWall = "outerWall",
-  studs = "studs",
-  lvl = "lvl",
-  debug = "debug",
-  tower = "tower",
+  foundation = `house3d-foundation`,
+  groundFloor = `house3d-groundFloor`,
+  topFloor = `house3d-topFloor`,
+  roof = `house3d-roof`,
+  innerWall = `house3d-innerWall`,
+  outerWall = `house3d-outerWall`,
+  studs = `house3d-studs`,
+  lvl = `house3d-lvl`,
+  debug = `house3d-debug`,
+  tower = `house3d-tower`,
 }
 export enum ConstructionParts {
   foundation = "A1-construction-foundation",

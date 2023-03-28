@@ -1,27 +1,33 @@
 <div fxLayout="column" fxLayoutAlign="end" fxLayoutGap="8px" @slideInOut>
 
 
-  <button mat-mini-fab (click)="zoomToHouse()" color="accent">
-    <label>
-      House
-    </label>
-    <mat-icon>house</mat-icon>
-  </button>
+
+  <button-state (click)="zoomToHouse()">
+    <span label> Zoom to house</span>
+    <span icon>
+      <mat-icon>house</mat-icon>
+    </span>
+  </button-state>
 
 
-  <button mat-mini-fab (click)="olMeasureService.activate()" color="accent">
-    <label>
-      Measurements
-    </label>
-    <mat-icon style="font-family:'Material Icons Outlined';">square_foot</mat-icon>
-  </button>
 
-  <button mat-mini-fab (click)="olBaseMapService.nextBasemap()" color="accent">
-    <label>
-      {{basemap$ | async}}
-    </label>
-    <mat-icon style="font-family:'Material Icons Outlined';">map</mat-icon>
-  </button>
+
+  <button-state (click)="olMeasureService.activate()" [disabled]="olMeasureService.active">
+    <span label> {{olMeasureService.active?'Stop': 'Start'}} measuring</span>
+    <span icon>
+      <mat-icon style="font-family:'Material Icons Outlined';">square_foot</mat-icon>
+    </span>
+  </button-state>
+
+
+  <!-- (click)="appService.setState(States.walkLine)" [floatLeft]=floatLeft
+  *ngIf="[ Graphic.stairPlan].includes(scroll.graphic)" -->
+  <button-state (click)="olBaseMapService.nextBasemap()">
+    <span label> {{basemap$ | async}}</span>
+    <span icon>
+      <mat-icon style="font-family:'Material Icons Outlined';">map</mat-icon>
+    </span>
+  </button-state>
 
 
 

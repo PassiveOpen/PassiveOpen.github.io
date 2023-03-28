@@ -36,7 +36,8 @@
   a {
     color: mat-color($foreground, text);
   }
-  .base {
+  .base,
+  main {
     color: mat-color($foreground, text);
     background-color: mat-color($background, background);
   }

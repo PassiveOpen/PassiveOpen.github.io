@@ -5,6 +5,7 @@
   floor-{{(floor$ |async) }} 
   section-{{(scroll$ |async).section }} 
   show-{{(scroll$ |async).graphicSide }} 
+  graphic-{{(scroll$ |async).graphic }} 
   {{(popupActive$ | async)?'popup-active':''}} 
   {{(fullscreen$ | async)?'fullscreen':''}}
   {{(cssStates$ |async) }} 
@@ -22,8 +23,10 @@
     </main>
 
     <div class="right-blinder bg"></div>
-    <controls @slideInOut class="controls controls-left" *ngIf="graphicSide === GraphicSide.left"></controls>
-    <controls @slideInOut class="controls controls-right" *ngIf="graphicSide === GraphicSide.right"></controls>
+    <controls @slideInOut class="controls controls-left" *ngIf="graphicSide === GraphicSide.left" [floatLeft]=true>
+    </controls>
+    <controls @slideInOut class="controls controls-right" *ngIf="graphicSide === GraphicSide.right" [floatLeft]=false>
+    </controls>
 
     <ng-container *ngIf="(scroll$ |async).graphic as graphic">
       <div class="floating floating-left">

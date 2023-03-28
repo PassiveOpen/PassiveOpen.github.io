@@ -15,20 +15,26 @@ export class PageStairsComponent implements AfterViewInit {
   Section = Section;
   Tag = Tag;
   tagsKeys = Object.keys(Tag);
-  deltas = 4;
+  // deltas = 10;
+  minAngle = 30;
+  maxAngle = 42; //35
 
   update = this.houseService.update;
+  round = round;
+
   constructor(
     private houseService: HouseService,
     private appService: AppService
   ) {}
 
   // angle 37
-  //t 570 ≤ M ≤ 630 mm stapmodules
+  //t
   // OP 170 - 190
   // aaan 200 - 260
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+    this.house$.value.stair;
+  }
 
   sizeLabel(value) {
     return `${value}m`;
@@ -36,11 +42,14 @@ export class PageStairsComponent implements AfterViewInit {
 
   get totalRunMax() {
     const stair = this.house$.value.stair;
-    return round(stair.totalRise / Math.tan(toRadians(30)), 1);
+    return round(stair.totalRise / Math.tan(toRadians(this.minAngle)), 1);
   }
   get totalRunMin() {
     const stair = this.house$.value.stair;
-    return round(stair.totalRise / Math.tan(toRadians(35)), 1);
+    return round(stair.totalRise / Math.tan(toRadians(this.maxAngle)), 1);
+  }
+  get deltas() {
+    return (Math.ceil(this.rangeRun / 0.1) - 1) | 1;
   }
 
   get rangeRun() {
@@ -52,27 +61,59 @@ export class PageStairsComponent implements AfterViewInit {
     return stair.maxSteps - stair.minSteps + 1;
   }
 
-  currentRun(dx) {
-    return round((dx / (this.deltas - 1)) * this.rangeRun + this.totalRunMin);
+  totalRunByIndex(dx) {
+    return round(
+      (dx / (this.deltas - 1)) * this.rangeRun + this.totalRunMin,
+      1
+    );
   }
 
-  currentCell(steps, dx) {
-    // 22	30
+  getRun(steps, dx) {
     const stair = this.house$.value.stair;
-    const totalRun = this.currentRun(dx);
-    const run = round((totalRun / (stair.minSteps + steps)) * 1000, -1);
-
+    const totalRun = this.totalRunByIndex(dx);
+    const run = round((totalRun / (stair.minSteps + steps)) * 1000, 0);
     return run;
+  }
+  getRise(steps) {
+    const stair = this.house$.value.stair;
+    const rise = round((stair.totalRise / (stair.minSteps + steps)) * 1000, 0);
+    return rise;
+  }
+
+  scoreComfort(run, rise) {
+    const total = run + rise * 2;
+    return Math.abs(total - 600); // 570 ≤ M ≤ 630 mm
+  }
+  scoreColor(run, rise) {
+    const value = this.scoreComfort(run, rise);
+    if (value > 30) {
+      return;
+    }
+    const alpha = 0.6 - (0.8 / 30) * value;
+
+    return `rgba(0, 115, 0, ${alpha})`;
   }
 
   score(run, rise) {
+    const stair = this.house$.value.stair;
+
+    const current =
+      Math.abs(stair.run * 1000 - run) < 1 &&
+      Math.abs(stair.rise * 1000 - rise) < 1
+        ? " active"
+        : "";
+
     if (run < 220) {
-      return "too-little";
-    }
-    if (run > 300) {
-      return "too-much";
+      return "too-little" + current;
+    } else if (run > 300) {
+      return "too-much" + current;
+    } else if (this.scoreComfort(run, rise) > 30) {
+      return "not-comfortable" + current;
+    } else {
+      return "comfortable" + current;
     }
   }
+
   select(steps, totalRun) {
     this.update("stair", "steps", steps);
     this.update("stair", "totalRun", totalRun);

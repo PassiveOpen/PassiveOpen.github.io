@@ -102,11 +102,11 @@ export class SvgCrossComponent
     this.marginInMeters = [margin, margin, margin, margin];
 
     this.drawBendPoint();
-    this.drawPoints(); //// Only for debug
+    // this.debugDrawPoints(); //// Only for debug
     this.figure.update();
   }
 
-  drawPoints() {
+  debugDrawPoints() {
     this.house.cross.pointOf70Roof().forEach((point, i) => {
       d3.select<SVGCircleElement, unknown>(`#debug-point-${i}`)
         .attr("cx", point[0])

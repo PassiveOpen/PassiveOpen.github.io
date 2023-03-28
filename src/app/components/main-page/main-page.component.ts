@@ -69,7 +69,7 @@ export class AppMainPageComponent implements AfterViewInit {
     private houseService: HouseService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private stateService: StateService // creates a instance of this service
+    private stateService: StateService
   ) {
     fromEvent(window, "scroll")
       // .pipe(throttleTime(600))
@@ -121,8 +121,14 @@ export class AppMainPageComponent implements AfterViewInit {
       this.graphic = Graphic.none;
       this.graphicSide = GraphicSide.none;
     } else {
-      this.graphic = this.setGraphic(this.section);
-      this.graphicSide = this.getSide();
+      const graphic = this.stateService.setGraphic(this.section);
+      if (this.graphic !== graphic) {
+        console.log("Swap side!");
+        this.tooltipService.detachOverlay();
+      }
+      this.graphic = graphic;
+
+      this.graphicSide = this.stateService.getSide(this.graphic);
 
       document
         .querySelector(`section#${this.section}`)
@@ -163,131 +169,6 @@ export class AppMainPageComponent implements AfterViewInit {
     );
   }
 
-  setGraphic(section: Section): Graphic {
-    let graphic = Graphic.none;
-    if (
-      [
-        Section.welcome,
-        Section.passiv,
-        Section.basics,
-        Section.extensions,
-        Section.tower,
-        Section.wiredWelcome,
-        Section.wiredPower,
-        Section.wiredEthernet,
-        Section.wiredExtra,
-        Section.wiredLight,
-        Section.wiredSafety,
-        Section.wiredVent,
-        Section.wiredWater,
-      ].includes(section)
-    ) {
-      graphic = Graphic.house2D;
-    }
-    if (
-      [
-        Section.roof70,
-        Section.roofBasics,
-        Section.roofChoice,
-        Section.roofCircle,
-        Section.roofEdge,
-        Section.roofIntermezzo,
-      ].includes(section)
-    ) {
-      graphic = Graphic.cross;
-      if ([Section.roof70].includes(section)) {
-        this.houseService.update("cross", "viewedRoofStyle", RoofStyle.roof70);
-      }
-      if ([Section.roofBasics, Section.roofCircle].includes(section)) {
-        this.houseService.update(
-          "cross",
-          "viewedRoofStyle",
-          RoofStyle.roofCircle
-        );
-      }
-    }
-    if (
-      [
-        Section.stairStart,
-        Section.stairBasic,
-        Section.stairCheck,
-        Section.stairPlan,
-      ].includes(section)
-    ) {
-      graphic = Graphic.stairCross;
-    }
-    if ([Section.stairPlan].includes(section)) {
-      graphic = Graphic.stairPlan;
-    }
-    if (
-      [
-        Section.constructionParameters,
-        Section.facadeStart,
-        Section.facadeWindow,
-        Section.facadeDoor,
-      ].includes(section)
-    ) {
-      graphic = Graphic.none;
-    }
-    if (
-      [
-        Section.constructionWelcome,
-        Section.constructionFoundation,
-        Section.constructionCrawlerSpace,
-        Section.constructionFloor,
-        Section.constructionRoof,
-        Section.constructionWallFinish,
-        Section.constructionWallSole,
-        Section.constructionWallJoists,
-        Section.constructionWallOSB,
-        Section.constructionWallTape,
-        Section.constructionWallOuterSheet,
-        Section.constructionWallSpace,
-        Section.constructionWallFacade,
-        Section.constructionWallInsulation,
-        Section.constructionWallService,
-        Section.constructionWallGips,
-        Section.constructionFloor,
-
-        Section.constructionFloorLVL,
-        Section.constructionGroundFloor,
-
-        Section.constructionRoofRidge,
-        Section.constructionRoofJoist,
-        Section.constructionRoofInside,
-        Section.constructionRoofOuterSheet,
-        Section.constructionRoofSpace,
-        Section.constructionRoofTiles,
-      ].includes(section)
-    ) {
-      graphic = Graphic.construction;
-    }
-
-    if ([Section.House3D].includes(section)) {
-      graphic = Graphic.House3D;
-    }
-
-    if (
-      [
-        Section.installationDrinkWater,
-        Section.installationElectricity,
-        Section.installationGreyWater,
-        Section.installationHeating,
-        Section.installationSmartHome,
-        Section.installationVentilation,
-      ].includes(section)
-    ) {
-      graphic = Graphic.none;
-    }
-
-    if (this.graphic !== graphic) {
-      console.log("Swap side!");
-      this.tooltipService.detachOverlay();
-    }
-    this.graphic = graphic;
-    return graphic;
-  }
-
   getSection(): Section {
     var windowHalf = round(window.innerHeight * this.goalLine, 0);
     var windowTop = round(window.pageYOffset, 0);
@@ -301,18 +182,5 @@ export class AppMainPageComponent implements AfterViewInit {
       .filter((x) => x.past)
       .sort((a, b) => b.top - a.top);
     return next && next[0] ? next[0].id : undefined;
-  }
-
-  getSide(): GraphicSide {
-    let graphicSide = GraphicSide.right;
-
-    if ([Graphic.cross].includes(this.graphic)) {
-      graphicSide = GraphicSide.left;
-    }
-    if ([Graphic.none].includes(this.graphic)) {
-      graphicSide = GraphicSide.none;
-    }
-
-    return graphicSide;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from "@angular/core";
+import { Component, ElementRef, Input, OnInit } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 
 import { faTemperatureHigh, faMound } from "@fortawesome/free-solid-svg-icons";
@@ -8,6 +8,7 @@ import { filter } from "rxjs";
 import { ThreeService } from "src/app/3d-three/three.service";
 import { AppService } from "src/app/app.service";
 import { HouseService } from "src/app/house/house.service";
+import { environment } from "src/environments/environment";
 import { animationSlideInOut } from "../animations";
 import {
   ConstructionParts,
@@ -32,13 +33,15 @@ type SensorIcon = {
   animations: [animationSlideInOut],
 })
 export class ControlsComponent implements OnInit {
-  extra = false;
+  @Input() floatLeft: boolean = false;
+  extra = environment.production ? true : false;
   house$ = this.houseService.house$;
   Floor = Floor;
   floor$ = this.appService.floor$;
   scroll$ = this.appService.scroll$;
   states$ = this.appService.states$;
   setFloor = () => this.appService.setFloor();
+
   Graphic = Graphic;
   States = State;
   page$ = this.appService.page$;
@@ -81,9 +84,10 @@ export class ControlsComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  checkState(state: StatesExtended): boolean {
+  getState(state: StatesExtended): boolean {
     return this.states$.value[state] === true;
   }
+
   swapCamera() {
     this.threeService.swapCamera();
   }

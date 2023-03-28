@@ -30,6 +30,7 @@ export class OLMeasureService {
   active = false;
   showSegments = true;
   clearPrevious = true;
+  idle = true;
   drawType = DrawType.Length;
   tipPoint;
   segmentStyles = [];
@@ -214,27 +215,30 @@ export class OLMeasureService {
 
       this.subscriptions.push(
         ...[
-          fromEvent(document, "mousedown", { passive: false })
-            .pipe(filter((e: MouseEvent) => e.buttons === 2)) // right click
-            .subscribe((e) => {
-              // e.preventDefault();
-              // e.stopImmediatePropagation();
-              console.log(this.segmentStyles.length);
-
-              if (this.segmentStyles.length - 1 === 0) {
-                this.draw.abortDrawing();
-              } else {
-                this.draw.finishDrawing();
-              }
-            }),
+          fromEvent(this.map.getViewport(), "contextmenu").subscribe((e) => {
+            if (this.idle || this.segmentStyles.length - 1 === 0) {
+              this.activate(false);
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+            } else {
+              this.draw.finishDrawing();
+            }
+          }),
           fromEvent(this.draw, "drawstart").subscribe(() => {
             this.modify.setActive(false);
+            this.idle = false;
+            console.log(this.clearPrevious);
+
             if (this.clearPrevious) {
               this.source.clear();
+              this.segmentStyles = [this.segmentStyle];
             }
           }),
 
           fromEvent(this.draw, "drawend").subscribe(() => {
+            console.log("12 ", this.segmentStyles.length);
+            this.idle = true;
             this.modify.setActive(true);
             this.modifyStyle.setGeometry(this.tipPoint);
             this.map.once("pointermove", () => {
@@ -314,7 +318,7 @@ export class OLMeasureService {
       point = new Point(geometry.getLastCoordinate());
       label = this.formatLength(geometry);
       line = geometry;
-      this.tip = this.activeTip;
+      this.tip = this.idle ? this.idleTip : this.activeTip;
     }
 
     if (this.showSegments && line) {

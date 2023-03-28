@@ -4,7 +4,15 @@
 
 <div #primary class="mat-button mat-primary" style="display:none"></div>
 
+<div class="is-mobile" *ngIf="isMobile && !readMobile" (click)="readMobile = true">
+  <div fxLayoutAlign="center center">
 
+    You are using a mobile device.<br><br> We put a lot of effort in this side, but it near impossible to make it work
+    on
+    mobile
+    devices. <br><br>Please use a desktop or laptop to view this site.<br><br> <br>X close
+  </div>
+</div>
 <main>
   <router-outlet></router-outlet>
 

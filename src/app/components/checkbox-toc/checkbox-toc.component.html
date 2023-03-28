@@ -1,0 +1,5 @@
+<label (mouseenter)="mouseenter()" (mouseleave)="mouseleave()" class="container">
+  <ng-content class="label" select="[label]" [class.float-left]="floatLeft"
+    [class.float-right]="!floatLeft"></ng-content>
+  <mat-slide-toggle [checked]="state" (change)="change()"></mat-slide-toggle>
+</label>

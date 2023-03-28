@@ -32,7 +32,7 @@ export class MapButtonsComponent implements AfterViewInit {
     const center = fromLonLat([lng, lat]);
     this.olViewService.animate({
       center,
-      zoom: 16,
+      zoom: 17.5,
     });
   }
 }

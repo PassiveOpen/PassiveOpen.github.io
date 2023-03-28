@@ -2,6 +2,8 @@ import { Injectable } from "@angular/core";
 import { House } from "./house.model";
 import {
   ConstructionParts,
+  Graphic,
+  GraphicSide,
   Section,
   SensorType,
   State,
@@ -10,7 +12,7 @@ import {
 import { AppService, StateObj } from "../app.service";
 import { HouseService } from "./house.service";
 import { Measure } from "../model/specific/measure.model";
-import { Cross } from "./cross.model";
+import { Cross, RoofStyle } from "./cross.model";
 import { Wall, WallType } from "../model/specific/wall.model";
 import { Door } from "../model/specific/door.model";
 import { Sensor } from "../model/specific/sensors/sensor.model";
@@ -337,5 +339,119 @@ export class StateService {
     states.forEach((state) => {
       arr[state] = bool;
     });
+  }
+
+  getSide(graphic: Graphic): GraphicSide {
+    if ([Graphic.cross].includes(graphic)) {
+      return GraphicSide.left;
+    }
+    if ([Graphic.none].includes(graphic)) {
+      return GraphicSide.none;
+    }
+    return GraphicSide.right;
+  }
+  setGraphic(section: Section) {
+    if (
+      [
+        Section.welcome,
+        Section.passiv,
+        Section.basics,
+        Section.extensions,
+        Section.tower,
+        Section.wiredWelcome,
+        Section.wiredPower,
+        Section.wiredEthernet,
+        Section.wiredExtra,
+        Section.wiredLight,
+        Section.wiredSafety,
+        Section.wiredVent,
+        Section.wiredWater,
+      ].includes(section)
+    ) {
+      return Graphic.house2D;
+    } else if (
+      [
+        Section.roof70,
+        Section.roofBasics,
+        Section.roofChoice,
+        Section.roofCircle,
+        Section.roofEdge,
+        Section.roofIntermezzo,
+        Section.EndOfPageHouse,
+      ].includes(section)
+    ) {
+      return Graphic.cross;
+    } else if ([Section.roof70].includes(section)) {
+      this.houseService.update("cross", "viewedRoofStyle", RoofStyle.roof70);
+    } else if ([Section.roofBasics, Section.roofCircle].includes(section)) {
+      this.houseService.update(
+        "cross",
+        "viewedRoofStyle",
+        RoofStyle.roofCircle
+      );
+    } else if (
+      [Section.stairStart, Section.stairBasic, Section.stairCheck].includes(
+        section
+      )
+    ) {
+      return Graphic.stairCross;
+    } else if ([Section.stairPlan].includes(section)) {
+      return Graphic.stairPlan;
+    } else if (
+      [
+        Section.constructionParameters,
+        Section.facadeStart,
+        Section.facadeWindow,
+        Section.facadeDoor,
+      ].includes(section)
+    ) {
+      return Graphic.none;
+    } else if (
+      [
+        Section.constructionWelcome,
+        Section.constructionFoundation,
+        Section.constructionCrawlerSpace,
+        Section.constructionFloor,
+        Section.constructionRoof,
+        Section.constructionWallFinish,
+        Section.constructionWallSole,
+        Section.constructionWallJoists,
+        Section.constructionWallOSB,
+        Section.constructionWallTape,
+        Section.constructionWallOuterSheet,
+        Section.constructionWallSpace,
+        Section.constructionWallFacade,
+        Section.constructionWallInsulation,
+        Section.constructionWallService,
+        Section.constructionWallGips,
+        Section.constructionFloor,
+
+        Section.constructionFloorLVL,
+        Section.constructionGroundFloor,
+
+        Section.constructionRoofRidge,
+        Section.constructionRoofJoist,
+        Section.constructionRoofInside,
+        Section.constructionRoofOuterSheet,
+        Section.constructionRoofSpace,
+        Section.constructionRoofTiles,
+      ].includes(section)
+    ) {
+      return Graphic.construction;
+    } else if ([Section.House3D].includes(section)) {
+      return Graphic.House3D;
+    } else if (
+      [
+        Section.installationDrinkWater,
+        Section.installationElectricity,
+        Section.installationGreyWater,
+        Section.installationHeating,
+        Section.installationSmartHome,
+        Section.installationVentilation,
+      ].includes(section)
+    ) {
+      return Graphic.none;
+    }
+    return Graphic.none;
   }
 }

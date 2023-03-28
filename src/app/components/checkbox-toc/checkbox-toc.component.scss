@@ -1,0 +1,47 @@
+// .label {
+//   display: block;
+//   position: absolute;
+//   float: right;
+//   background: var(--accent);
+//   border-radius: 9px;
+//   margin: 6px 0px;
+//   line-height: 28px;
+//   padding: 0px 8px;
+//   font-size: 0.6rem;
+//   overflow: hidden;
+//   width: initial;
+
+//   &.float-left {
+//     left: 80px;
+//   }
+//   &.float-right {
+//     right: 80px;
+//   }
+// }
+:host {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  height: 16px;
+  transition: background-color 0.2s ease-in-out;
+  &:hover {
+    background-color: var(--color-5);
+  }
+}
+mat-slide-toggle {
+  transform: scale(0.75);
+}
+label.container {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  line-height: 1em;
+  white-space: nowrap;
+}

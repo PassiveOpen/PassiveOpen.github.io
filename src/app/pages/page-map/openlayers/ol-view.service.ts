@@ -20,10 +20,13 @@ export class OLViewService {
   center = [0, 0];
   view: View;
 
-  constructor(private cookieService: CookieService) {
+  constructor(private cookieService: CookieService) {}
+
+  init(center = [0, 0], zoom = 15) {
+    this.center = center;
     this.view = new View({
       center: this.center,
-      zoom: 18,
+      zoom,
     });
     this.centerAndZoom = this.getStore();
     this.subscriptions.push(
@@ -50,12 +53,13 @@ export class OLViewService {
 
   getStore(): CenterAndZoom {
     const cookie = this.cookieService.get(this.cookieKey);
-    const centerAndZoom = JSON.parse(cookie);
-    if (cookie === "")
+    if (cookie === "") {
       return {
         center: this.center,
         zoom: 15,
       };
+    }
+    const centerAndZoom = JSON.parse(cookie);
     return centerAndZoom;
   }
   setStore(): void {

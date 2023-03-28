@@ -1,10 +1,37 @@
-# Vragen
+# Questions
 
-## Welke data
+# Defusion open
 
-## Belasting plichtig
+- Does t work
+- Is wood insulations bats okay?
+- Does this work to a greenhouse
 
-## Försäkringskassan
+# Windows
 
-Krijg ik papageld?
-7 maanden ingeschreven of EU lande ook?
+- Sizes
+- Door alignment
+- Screens
+
+# Slap
+
+- Is concrete okay?
+- How create mass?
+
+# Process
+
+- Money
+- Time
+- Groundwork / rocks
+- Building dry
+
+# Other
+
+- Tower roof
+
+# Questions for kommun
+
+- 1.5 våning
+- avlopp/vatten/el/internet?
+- post / avfall
+- Garage
+- Greenhouse

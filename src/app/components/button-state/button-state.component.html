@@ -1,0 +1,7 @@
+<mat-label [class.float-left]="floatLeft" [class.float-right]="!floatLeft" [@stateSlideIn]="hover">
+
+  <ng-content select="[label]"></ng-content>
+</mat-label>
+<button mat-mini-fab (click)="click" color="accent" (mouseenter)="mouseenter()" (mouseleave)="mouseleave()">
+  <ng-content select="[icon]"></ng-content>
+</button>

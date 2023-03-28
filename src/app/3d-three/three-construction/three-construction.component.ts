@@ -981,7 +981,7 @@ export class ThreeConstructionComponent extends BaseThreeComponent<ConstructionP
   }
 
   buildInsulation() {
-    this.plotRoofPoints();
+    // this.plotRoofPoints();
     const key = ConstructionParts.insulation;
     const el = this.cross.elevations;
 

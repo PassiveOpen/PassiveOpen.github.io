@@ -31,43 +31,38 @@ export class Stair {
   house: House;
   cross: Cross;
   // Inputs
-  ceilingHeight = 3.3;
-  floorThickness = 0.5;
+  totalRun = 4.6;
+  steps = 19;
+  runThickness = 0.02;
+  riseThickness = 0.02;
+  nose = 0.02;
+  walkWidth = 0.8;
+  walkLineOffset = 0.3;
+  totalWidth = 2.7;
+
+  stepsFlightRight = 9;
+  stepsFlightLeft = 2;
+  stepsFlightMid = 10;
 
   // Elevation heights
   groundFloorTop = -1;
   topFloorTop = -1;
   topFloorBottom = -1;
   groundElevation = -1;
-
-  // basics cross
+  ceilingHeight = -1;
+  floorThickness = -1;
   totalRise = -1;
-  totalRun = 6;
+  run = -1;
+  rise = -1;
   angle;
-  run = 0.3;
-  runThickness = 0.02;
-  rise = 0.2;
-  riseThickness = 0.02;
-  nose = 0.02;
-  steps = 20;
   maxSteps;
   minSteps;
   step;
-
-  // basic plan
-  walkWidth = 0.8;
   stairOrigin: [number, number] = [0, 0];
-  stepsRight = 12;
-
-  leftFlightSteps = 5;
-
-  midFlightSteps = 4; // even!
-  totalWidth = 2.7;
   totalHeight = -1;
   lesserHeight = -1;
 
   intersections = {};
-  walkLineOffset = 0.3;
 
   stringers: Stringers;
 
@@ -86,6 +81,11 @@ export class Stair {
 
   calculate(house) {
     this.house = house;
+    this.ceilingHeight = this.house.cross.ceilingHeight;
+    this.floorThickness = this.house.cross.topFloorThickness;
+
+    this.stepsFlightMid =
+      this.steps - this.stepsFlightLeft - this.stepsFlightRight;
 
     // Elevation heights
     // this.totalRun = round(this.totalRise / Math.tan((35 * Math.PI) / 180));
@@ -120,7 +120,7 @@ export class Stair {
     this.totalHeight = Math.max(y1, y2);
     this.lesserHeight = Math.min(y1, y2);
 
-    this.calculateCorrectionArray();
+    // this.calculateCorrectionArray();
     const out: Stringer = {
       coords: [
         offset(this.stairOrigin, [this.totalWidth * 0, y1]),
@@ -524,7 +524,7 @@ export class Stair {
   calculateCorrectionArray() {
     const quart = (this.walkLineOffset * Math.PI) / 2;
     const half = (this.totalWidth - this.walkWidth * 2) / 2;
-    const lengthRight = (this.stepsRight + 1) * this.run;
+    const lengthRight = (this.stepsFlightRight + 1) * this.run;
     const lengthLeft = this.totalRun - lengthRight;
     const leftSide = lengthLeft - quart - half;
     const rightSide = lengthRight - quart - half;
@@ -643,7 +643,7 @@ export class Stair {
     let distance = round((step - 1) * this.run);
     const quart = (this.walkLineOffset * Math.PI) / 2;
     const half = (this.totalWidth - this.walkWidth * 2) / 2;
-    const lengthRight = (this.stepsRight + 1) * this.run;
+    const lengthRight = (this.stepsFlightRight + 1) * this.run;
     const lengthLeft = this.totalRun - lengthRight;
     const leftSide = lengthLeft - quart - half;
 
@@ -677,7 +677,7 @@ export class Stair {
     let distance = (step - 1) * this.run;
     const quart = (this.walkLineOffset * Math.PI) / 2;
     const half = (this.totalWidth - this.walkWidth * 2) / 2;
-    const lengthRight = (this.stepsRight + 1) * this.run;
+    const lengthRight = (this.stepsFlightRight + 1) * this.run;
     const lengthLeft = this.totalRun - lengthRight;
     const leftSide = lengthLeft - quart - half;
     if (distance < leftSide) {
@@ -725,19 +725,5 @@ export class Stair {
       ];
       return [x, y + distance];
     }
-
-    // const path = (
-    //   d3.select('.walk-line') as d3.Selection<
-    //     SVGPathElement,
-    //     unknown,
-    //     HTMLElement,
-    //     any
-    //   >
-    // ).node();
-    // if (path) {
-    //   const d = path.getPointAtLength(index * this.run);
-    //   return [d.x, d.y];
-    // }
-    return this.stairOrigin;
   }
 }

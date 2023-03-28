@@ -1,10 +1,23 @@
 <footer>
   <mat-toolbar fxLayout="column" fxLayoutAlign="center center">
 
-    <div style="font-size:1.3em ;">Join us on our <a class="larger-link" target="_blank" href="{{discord}}"
-        style="background: var(--primary-color); ">
+    <div style="font-size:1.3em ; margin-bottom: 24px;">Join us on our
+
+      <a class="larger-link" target="_blank" href="{{discord}}" style="background: var(--primary-color); ">
         <fa-icon [icon]="faDiscord"></fa-icon> Discord
-      </a> channel
+      </a>
+
+    </div>
+    <div style="font-size:1em ; margin-bottom: 24px;">
+      In cooperation with 2_plings
+      <a class="larger-link" target="_blank" href="{{youtube}}" style="background: #FF0000 ">
+        <fa-icon [icon]="faYoutube"></fa-icon> Youtube
+      </a>
+      or
+
+      <a class="larger-link" target="_blank" href="{{instagram}}" style="background: rgb(240 0 117); ">
+        <fa-icon [icon]="faInstagram"></fa-icon> Instagram
+      </a>
     </div>
     <div>
       Everything is free and open source. See <a class="larger-link" target="_blank" href="{{github}}">
@@ -13,9 +26,6 @@
     </div>
     <div>
       PassiveOpen.com 2019 - {{year}}<br>
-    </div>
-    <div>
-      Build by <a class="larger-link" target="_blank" href="GeoDev.nl">GeoDev</a>
     </div>
 
   </mat-toolbar>

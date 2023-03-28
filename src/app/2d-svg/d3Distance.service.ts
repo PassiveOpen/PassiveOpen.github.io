@@ -111,6 +111,13 @@ export class D3DistanceService {
     const graphic = this.appService.scroll$.value.graphic;
     const svg = document.querySelector(`svg.${graphic}`);
     // crosshair
+    console.log(svg, `svg.${graphic}`);
+    if (!svg) {
+      console.error(`svg not found`, `svg.${graphic}`);
+
+      return;
+    }
+
     const g = svg.querySelector("g");
 
     if (graphic === Graphic.cross) {

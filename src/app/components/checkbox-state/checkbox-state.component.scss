@@ -1,0 +1,51 @@
+mat-label {
+  display: block;
+  position: absolute;
+  float: right;
+  background: var(--accent);
+  border-radius: 9px;
+  margin: 6px 0px;
+  line-height: 28px;
+  padding: 0px 8px;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  overflow: hidden;
+  width: initial;
+
+  &.float-left {
+    left: 80px;
+  }
+  &.float-right {
+    right: 80px;
+  }
+}
+:host {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+label.container {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 8px 0;
+  &::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: 68px;
+    border-top: 1px solid var(--color-20);
+    top: 0px;
+    left: -4px;
+  }
+  ::ng-deep > span {
+    height: 24px;
+    width: 24px;
+    overflow: hidden;
+  }
+}

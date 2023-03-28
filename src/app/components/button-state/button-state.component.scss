@@ -1,0 +1,23 @@
+mat-label {
+  display: block;
+  position: absolute;
+  float: right;
+  background: var(--accent);
+  color: "black";
+  border-radius: 9px;
+  margin: 6px 0px;
+  line-height: 28px;
+  padding: 0px 8px;
+  white-space: nowrap;
+  font-size: 0.8rem;
+
+  overflow: hidden;
+  width: initial;
+
+  &.float-left {
+    left: 60px;
+  }
+  &.float-right {
+    right: 60px;
+  }
+}

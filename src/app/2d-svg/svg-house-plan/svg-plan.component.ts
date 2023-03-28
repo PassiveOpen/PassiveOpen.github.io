@@ -92,11 +92,11 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
     const scroll = this.appService.scroll$.value;
     if (this.appService.fullscreen$.value === true) return;
     if (scroll.section === Section.welcome) {
-      this.g.attr("transform", "transform: scale(0.4) translateX(40%)");
+      this.setTransform("translate(-1, -4) scale(0.8)", 1000);
       this.showingImage = true;
     } else {
+      this.setTransform(undefined, 1000);
       this.showingImage = false;
-      this.g.attr("transform", "");
     }
   }
 

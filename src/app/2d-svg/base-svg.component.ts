@@ -143,7 +143,6 @@ export class BasicSVG {
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
     if (this.observer) this.observer.unobserve(this.host.nativeElement);
-    console.log("destroy", this.graphic);
     this.houseService.destroyParts();
   }
   svgUpdateMarginAndSize() {}
@@ -194,11 +193,9 @@ export class BasicSVG {
               this.house = house;
               this.cross = house.cross;
               this.stair = house.stair;
-              console.log(111, this.stair.totalRise);
             })
           )
           .subscribe((x) => {
-            console.log("2");
             this.updateSVG(true);
           }),
         merge(
@@ -237,10 +234,7 @@ export class BasicSVG {
     if (this.loaded) {
       this.appService.setTransformCookie(transform, this.graphic);
     }
-    this.g
-      //   // .transition()
-      //   // .duration(duration)
-      .attr("transform", transform);
+    this.g.transition().duration(duration).attr("transform", transform);
     //   .on("end", () => {
     //     this.updateSVG();
     //   });
@@ -249,7 +243,7 @@ export class BasicSVG {
   updateSVG(forceUpdate = false) {
     this.tooltipService.updateOverlay();
     this.svgUpdateMarginAndSize();
-
+    this.svgSpecificUpdate();
     const [[x, y], [maxX, maxY]] = this.svgHouseSize;
     const minX = -this.marginInMeters[3] + x;
     const minY = -this.marginInMeters[0] + y;
@@ -315,8 +309,6 @@ export class BasicSVG {
     this.stringCache = stringCache;
     if (forceUpdate === false && !(redrawAll || zoomMotion)) return;
     // console.log(stringCache, zoomed, forceUpdate);
-
-    this.svgSpecificUpdate();
 
     this.house.redrawHouse({
       floor: this.appService.floor$.value,

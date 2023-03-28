@@ -2,8 +2,8 @@
   <section [id]="Section.stairStart" #Section.stairStart>
 
     <h1>Stairs</h1>
-    <p class="mat-caption">
-      Stairs are its own thing. There are even whole pinterest collections dedicated to stairs.
+    <p>
+      Stair design is a complex and important aspect of architecture, with entire Pinterest collections dedicated to it.
     </p>
 
   </section>
@@ -11,12 +11,13 @@
 
     <h2>Stair 101</h2>
     <p>
-      There are different approaches to calculate stairs. We already did the following for us.
+      Calculating stairs can be approached in various ways.
     </p>
     <ol>
-      <li>The <b>vertical</b> distance is already decided by the house: {{house.stair.totalRise}}m</li>
-      <li>Building code allows the rise of the step to be between:
-        182mm and 220mm.Therefore we can only have between <b>{{house.stair.minSteps}} and {{house.stair.maxSteps}}
+      <li>The <b>vertical</b> distance is already determined by the house: {{house.stair.totalRise}}m</li>
+      <li>The building code allows for the rise of each step to be between
+        182mm and 220mm. Therefore we can only have steps between <b>{{house.stair.minSteps}} and
+          {{house.stair.maxSteps}}
           steps</b> </li>
     </ol>
     <label>
@@ -27,7 +28,9 @@
       </mat-slider>
     </label>
     <ol start="3">
-      <li>The min and max <b>horizontal distance</b> is easy, the stairs should be between 30&deg; and 35&deg;</li>
+      <li>The rise is: {{round(house.stair.rise*1000, 0)}}mm</li>
+      <li>The min and max <b>horizontal distance</b> is easy, the stairs should be between {{minAngle}}&deg; and
+        {{maxAngle}}&deg;</li>
     </ol>
 
     <!-- Stairs are quite complex to calculate. There are two ways
@@ -42,43 +45,62 @@
         tickInterval="1">
       </mat-slider>
     </label>
-    <ol start="4">
-      <li>The angle now is: {{house.stair.angle}}&deg;</li>
+    <ol start="5">
+      <li>The angle is: {{house.stair.angle}}&deg;</li>
+      <li>A matrix is formed from the combination of the two parameters to calculate <b>the run</b>.
+      </li>
     </ol>
-    <!-- <div class="matrix">
-
-      <ng-container *ngFor="let steps of [].constructor(rangeSteps); let step = index;">
-        <span class="matrix-step" fxFlex="0 0 20%">{{house.stair.minSteps+step}} steps</span>
-        <ng-container *ngFor="let totalR of [].constructor(deltas); let dx = index;">
-          <ng-container *ngIf="currentCell(step,dx) as rise">
-
-            <button mat-flat-button fxFlex="1 1 20%" class="matrix-cell matrix-{{step}}--{{dx}}"
-              [overlayTemplate]="bendPoint" cdkOverlayOrigin [ngClass]="score(rise,this.currentRun(dx))"
-              (click)="select(house.stair.minSteps+step,this.currentRun(dx))">
-              {{rise}} mm
-              <ng-template #bendPoint>
-                {{house.stair.minSteps+step}} steps width a total run of: {{this.currentRun(dx)}}m
-              </ng-template>
-            </button>
-
+    <table class="matrix">
+      <tr>
+        <th></th>
+        <th *ngFor="let steps of [].constructor(rangeSteps); let step = index;" [ngClass]="{ 'active' :
+          house.stair.minSteps+step===house.stair.steps }">
+          #{{house.stair.minSteps+step}}
+        </th>
+      </tr>
+      <tr>
+        <td></td>
+        <td colspan="50" style=" text-align: center;"> &uarr; Too steep &uarr; </td>
+      </tr>
+      <tr *ngFor="let totalR of [].constructor(deltas); let dx = index;">
+        <td class="step" [ngClass]="{ 'active' :
+        totalRunByIndex(dx)===house.stair.totalRun}"><b>{{totalRunByIndex(dx)}}m</b></td>
+        <ng-container *ngFor="let steps of [].constructor(rangeSteps); let step = index;">
+          <ng-container *ngIf="getRun(step,dx) as run">
+            <td class="matrix-cell matrix-{{step}}--{{dx}}" [ngClass]="score(run,getRise(step))"
+              (click)="select(house.stair.minSteps+step,totalRunByIndex(dx))"
+              [ngStyle]="{'background-color': scoreColor(run,getRise(step))}">
+              {{run}} mm
+            </td>
           </ng-container>
-
         </ng-container>
-      </ng-container>
+      </tr>
+      <tr>
+        <td></td>
+        <td colspan="50" style=" text-align: center;"> &darr; Too shallow &darr; </td>
+      </tr>
+    </table>
+    <p>
+      Where <span class="too-much" style="padding:0 8px;">Red</span> is not allowed due to code.<br>
+      <span class="not-comfortable" style="padding:0 8px;">Orange</span> is not comfortable to walk on.<br>
+      <span style="background-color:rgba(0, 115, 0,0.6);padding:0 8px;">Green</span> should be the most
+      comfortable.<br>
+      Which step, is a tradeoff between the total length of the stairs and the angle. A lower angle takes less energy to
+      walk up the stairs, but the stairs will be longer.
 
-
-    </div> -->
+    </p>
 
   </section>
+
   <section [id]="Section.stairCheck" #Section.stairCheck>
     <h2>The good, bad and perfect stairs</h2>
     <label>
       <span>Checks</span>
       The angle will be {{house.stair.angle}}&deg;
       <div>Steps: {{house.stair.steps}}</div>
-      <div>Rise: {{house.stair.rise}} m</div>
-      <div>Run: {{house.stair.run}} m</div>
-      <div>Rise+Run+Rise: {{house.stair.step*10}} cm</div>
+      <div>Rise: {{round(house.stair.rise*1000,0)}} mm</div>
+      <div>Run: {{round(house.stair.run*1000,0)}} mm</div>
+      <div>Rise+Run+Rise: {{round((house.stair.run+house.stair.rise*2)*1000,0)}} mm</div>
     </label>
   </section>
 
@@ -96,18 +118,24 @@
         (input)="update('stair', 'walkWidth',$event.value)" step="0.1" tickInterval="1">
       </mat-slider>
     </label>
-    <label>
-      <span>Total width of stairs: {{house.stair.totalWidth}}m</span>
+    <!-- <label>
+      <span>Total width of stairs: {{house.stair.totalWidth}}m </span>
+      <span>{{house.stair.walkWidth*2}} {{12}}</span>
       <mat-slider [min]="house.stair.walkWidth*2" [max]=12 [ngModel]="house.stair.totalWidth"
         (input)="update('stair', 'totalWidth',$event.value)" step="0.1" tickInterval="1">
       </mat-slider>
-    </label>
+    </label> -->
     <label>
-      <span>Steps on the rightside: {{house.stair.stepsRight}} of {{house.stair.steps}}</span>
-      <mat-slider [min]="0" [max]="house.stair.steps/2" [ngModel]="house.stair.stepsRight"
-        (input)="update('stair', 'stepsRight',$event.value)" step="1" tickInterval="1">
+      <span>Steps on the rightside: {{house.stair.stepsFlightRight}} of {{house.stair.steps}}</span>
+      <mat-slider [min]="0" [max]="house.stair.steps/2" [ngModel]="house.stair.stepsFlightRight"
+        (input)="update('stair', 'stepsFlightRight',$event.value)" step="1" tickInterval="1">
       </mat-slider>
     </label>
+    <span>
+      {{house.stair.stepsFlightLeft}} -
+      {{house.stair.stepsFlightMid}} -
+      {{house.stair.stepsFlightRight}}
+    </span>
     <p>
       For now we keep the model as simple as possible. Stairs are quite complex. Steps can change direction slowly to
       make it a piece of art by it self.

@@ -58,11 +58,11 @@ export class Cross {
   // Inputs
   innerWidth = -1;
   wallOuterThickness = -1;
+  ceilingHeight = -1;
+  floorAboveGround = -1;
+  crawlerHeight = -1;
+  crawlerSpace = false;
 
-  ceilingHeight = 3.3;
-  floorAboveGround = 0.7;
-  crawlerHeight = 1.0;
-  crawlerSpace = true;
   topFloorThickness = 400 / 1000;
   groundFloorThickness = 480 / 1000;
 
@@ -168,7 +168,6 @@ export class Cross {
       [Elevation.groundFloor]: 0,
       [Elevation.ceiling]: topFloorBottom,
       [Elevation.topFloor]: topFloorTop,
-      [Elevation.towerTop]: topFloorTop + 5, // beetje raar dit
     };
 
     this.roofCenter = [
@@ -195,7 +194,6 @@ export class Cross {
         [RoofPoint.lowestOutside]: roofPoints[0],
       };
     }
-
     if (this.viewedRoofStyle === RoofStyle.roofCircle) {
       const getPoint = (i, type): xy => {
         const [x, y] = this.pointOnCircleRoof(Math.PI * -((4 - i) / 4), type);
@@ -223,9 +221,11 @@ export class Cross {
     this.innerWallHeight = Math.abs(this.roofPoints[RoofPoint.wallInside][1]);
     this.outerWallHeight = Math.abs(this.roofPoints[RoofPoint.wallOutside][1]);
 
-    this.minimumHeightWidth = round(
-      this.getIntersectionWithRoof(this.minimumHeight)[0]
-    );
+    (this.elevations[Elevation.towerTop] =
+      this.elevations[RoofPoint.topOutside] - 0.5),
+      (this.minimumHeightWidth = round(
+        this.getIntersectionWithRoof(this.minimumHeight)[0]
+      ));
     this.minimumHeightRoomWidth = round(
       this.getIntersectionWithRoof(this.minimumHeightRoom)[0]
     );

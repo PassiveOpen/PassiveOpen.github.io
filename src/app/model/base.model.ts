@@ -9,10 +9,10 @@ import { Sensor } from "./specific/sensors/sensor.model";
 
 let ids = {};
 
-export class BaseSVG {
+export class BaseSVG<T = {}> {
   floor: Floor; // no default, block inheritance
   name;
-  parts: BaseSVG[];
+  parts: BaseSVG<T>[];
   svg: d3.Selection<SVGGElement, unknown, HTMLElement, undefined>;
   classes: string[] = [];
   parent;
@@ -37,9 +37,9 @@ export class BaseSVG {
 
   async draw(floor: Floor) {}
   redraw(floor: Floor) {}
-  init(floor: Floor, theme: Cross | House | Stair) {}
-  onUpdate: (theme: Cross | House | Stair) => void;
-  tooltip = (x: Cross | House | Stair | Wall): SafeHtml => {
+  init(floor: Floor, house: House | Cross | Stair) {}
+  onUpdate: (house: House | Cross | Stair) => void;
+  tooltip = (x: T | Wall): SafeHtml => {
     return `<b>${this.name ? this.name : this.selector}</b>`;
   };
 
@@ -62,8 +62,8 @@ export class BaseSVG {
     this.meterPerPixel = this.svgUpdate.meterPerPixel;
 
     if (this.svgUpdate.redrawAll) {
-      // aka instance of House (House is based on this class! dont use instanceof).
-      if ((this.svgUpdate.theme as House).showTower !== undefined) {
+      // aka instance of House (House is based on this class! dont use instanceof). //@ts-ignore
+      if ((this.svgUpdate.theme as unknown as House).showTower !== undefined) {
         if (this.floor === undefined && this.parent && this.parent.floor) {
           this.floor = this.parent.floor;
         }

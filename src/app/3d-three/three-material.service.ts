@@ -31,6 +31,7 @@ export enum Material {
   floor = "floor",
   roof = "roof",
   wireFrame = "wireFrame",
+  windowDarkFrame = "windowDarkFrame",
 }
 
 export enum Texture {
@@ -196,6 +197,13 @@ export class ThreeMaterialService {
         }),
       ]; //0xf1f0ea
     }
+    if (material === Material.windowDarkFrame) {
+      mat = [
+        new THREE.MeshLambertMaterial({
+          color: 0x333333,
+        }),
+      ];
+    }
 
     if (material === Material.normals) {
       mat = [new THREE.MeshNormalMaterial({})];
@@ -303,17 +311,16 @@ export class ThreeMaterialService {
           // // ior: 1.33,
           // // side: THREE.FrontSide,
 
-          // color: 0xffffff,
-          // transmission: 0.9,
+          depthWrite: false,
+          color: 0xffffff,
+          transmission: 0.9,
           opacity: 0.5,
-          // metalness: 0,
-          // roughness: 0,
-          // ior: 1.5,
+          metalness: 0,
+          roughness: 0,
+          ior: 1.5,
           transparent: true,
-          // specularIntensity: 1,
-          // specularColor: new THREE.Color(0xffffff),
-          // lightIntensity: 1,
-          // exposure: 1
+          specularIntensity: 1,
+          specularColor: new THREE.Color(0xffffff),
         }),
       ];
     }

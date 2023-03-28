@@ -24,5 +24,20 @@ export enum Color {
   providedIn: "root",
 })
 export class ColorService {
-  color: { [key in Color]?: string } = {};
+  private colors: { [key in Color]?: number[] } = {};
+
+  add(key: Color, value: string) {
+    const rgb = value.replace("rgb(", "").replace(")", "");
+    this.colors[key] = rgb.split(", ").map((x) => Number(x));
+  }
+
+  rgb(color: Color): string {
+    const [r, g, b] = this.colors[color];
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  rgba(color: Color, opacity: number): string {
+    const [r, g, b] = this.colors[color];
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  }
 }
