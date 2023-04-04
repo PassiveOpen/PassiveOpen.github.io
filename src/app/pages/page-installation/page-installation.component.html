@@ -3,50 +3,118 @@
 </section>
 
 
-<section [id]="Section.installationDrinkWater">
-  <h2>Drink water</h2>
-  <p>
-    Cold water supply doesn't require any special considerations, but if you live in the countryside, you may have a
-    local source available. On the other hand, for hot or warm water supply in sinks and showers, a central heating
-    system is necessary. It involves a central <tag [tag]="Tag.warmWaterBuffer"> warm water buffer</tag> tank that
-    utilizes various heat sources, enabling hot water and even heating throughout the house.
+<ng-template #warmWaterBuffer>
+  A x00L tank for warm water. It is heated up externally by e.g. the sun or a heat-pump. The output is floor-heating or
+  domestic hot water for showers.
 
+  <!-- https://burnit.bg/en/project/buffer-tanks-sunsystem-pbm-r2-ef-with-two-coils/ -->
+</ng-template>
 
-    - </p>
-</section>
 
 <section [id]="Section.installationHeating">
   <h2>Heating</h2>
-  <p>
-    Floor heating is the most suitable heating option for a passive house, which has minimal heat loss and receives
-    energy from the sun, people, and machines. In colder climates, some heating may be required in extreme winters, and
-    a heat-pump is the best way to warm up the low-heat water used for floor heating.
-    It might share with domestic hot water a <tag [tag]="Tag.warmWaterBuffer"> warm water buffer</tag> tank.
-  </p>
+
+  When it comes to heat, we need to think about how to produce, store, and use it effectively.
+  In colder climates, some heating may be required in extreme winters. Besides heat is required for daily activities
+  such as taking warm showers. These solutions are planned around a central <tag [tag]="Tag.warmWaterBuffer"
+    [overlayTemplate]="warmWaterBuffer"> warm
+    water buffer</tag> tank. An alternative would be warming up the air via the ventilation system.
+
+  <h3>Production</h3>
+  There are some options to produce heat. Don't forget humans, the sun, a computer also generates quite a bit of heat.
+  <ul>
+    <li>Heat pump</li>
+    <li>City / block heating</li>
+    <li>Wood / pallet stove</li>
+    <li>Bio gass / Biomeiler</li>
+    <li>Some levels - solar</li>
+  </ul>
+
+  <h3>Storage</h3>
+  Unlike energy, storage for heat is a bit more easy. Heat can be stored in a <tag [tag]="Tag.warmWaterBuffer"
+    [overlayTemplate]="warmWaterBuffer"> warm
+    water buffer</tag> tank. A big well insulated tank can store heat for a long time.
+  There are even solutions to store heat in an super insulated tank underground or even in
+  aquifers far underground.
+
+  <h3>Use</h3>
+  One of the passive house criteria is that the heat loss should be less than 15 kWh/(m²a). This is typically low as
+  10-20% what a normal house needs.
+  Floor heating is the most suitable heating option for a passive house, because it uses low temperatures. The warm
+  water needs to be warmed up to 60&deg; to kill bacteria and can be used in showers and sinks.
+
+
+  <h3>Preservation</h3>
+  A passive house has great insulation, but also heat exchangers in the ventilation system and in the showers.
+
+  <app-img-page height="360px" src="assets/img/heat_water.png"></app-img-page>
 </section>
 
 <section [id]="Section.installationElectricity">
   <h2>Electricity</h2>
+
+  The primary focus of a PassiveHouse should be efficiency rather than electricity. However, electricity is still
+  necessary for daily activities.
+  <br><br>
+  Production and usages of 'renewable primary energy' can higher your passive house certification level to <tag>plus
+  </tag> or <tag>premium</tag>.
+
+  <h3>Production</h3>
+  While achieving complete off-grid living may be difficult, we can greatly reduce our electricity usage by utilizing
+  solar panels.
+
+  <br><br>
+  This Mansard roof is a (near) perfect angle for solar panels. However the to make it look nice is harder. We are
+  still looking for the right panel types with old, classical roof tiles. If space allows it, you can put the panels
+  on the ground away from the house
+  <br><br>
+  There is a balance between the time you need electricity (evening, electricity-car & cooking) and when they produce
+  the most (around noon). If you can return-to-net, an orientation to noon is the best. Otherwise some panels may be
+  more beneficial facing westward.
+
+  <h3>Storage</h3>
+  Home batteries are not there yet. They are expensive and have a short life span. If you live rural or in areas with
+  long power-outage it might be interesting to have backup power.
+  <br><br>
+  A way to store some of the energy we can use electricity to storing excesses in the <tag [tag]="Tag.warmWaterBuffer"
+    [overlayTemplate]="warmWaterBuffer">
+    warm water
+    buffer
+  </tag>.
+
+
+  <h3>Preserve</h3>
+  Some machines in a house that use quite a bit of electricity are the washing machine, dishwasher, and dryer. Some
+  machines work with heat-pumps like a dryer. Other machines have hot-fill. This way e.g. the washing machine uses the
+  hot water ( which is way better storable) instead of electricity. Make sure the lines are short though.
+</section>
+
+
+<section [id]="Section.installationVentilation">
+  <h2>Ventilation</h2>
   <p>
+    In passive houses, the air-tight construction plays a crucial role in conserving heat. By using advanced blow-in and
+    suck-out ventilation systems, up to 94% of heat energy can be recovered and redistributed throughout the house,
+    resulting in significant energy savings.
 
-    While achieving complete off-grid living may be difficult, we can greatly reduce our electricity usage by utilizing
-    solar panels.
+    <br><br> Air-tight?! than I can't open my windows..
+    There is a common misconception that passive houses don't allow for opening windows. However, if the outside
+    temperature is not super warm or cold, it is perfectly fine to do so. Nevertheless, a well-designed climate
+    system can provide clean, filtered air and eliminate the need for open windows. This is especially useful for people
+    with allergies or in areas with high levels of smog.
 
     <br><br>
-    This Mansard roof is a (near) perfect angle for solar panels. However the to make it look nice is harder. We are
-    still looking for the right panel types with old, classical roof tiles. If space allows it, you can put the panels
-    on the ground away from the house
-    <br><br>
-    There is a balance between the time you need electricity (evening, electricity-car & cooking) and when they produce
-    the most (around noon). If you can return-to-net, an orientation to noon is the best. Otherwise some panels may be
-    more beneficial facing westward. Storing excess energy in the <tag [tag]="Tag.warmWaterBuffer"> warm water
-      buffer
-    </tag> works like a battery.
+    To achieve a healthy indoor air quality, the ventilation system is designed to provide fresh air to some rooms, like
+    the living room and sleeping rooms, while extracting air from wet rooms and the kitchen. The system is balanced to
+    ensure efficient airflow throughout the house.
+    Some rooms get fresh air, living room, sleeping rooms. And some rooms the air is pumped out, the wet rooms and
+    kitchen.
   </p>
 </section>
 
+<h1>Not passive house but climate-friendly</h1>
 <section [id]="Section.installationGreyWater">
-  <h2>Grey water</h2>
+  <h2>Rain water</h2>
   <p>
     Climate adaptation requires the conservation of water, which can be achieved by collecting rainwater and using it as
     a buffer during droughts. Rainwater, which has low calcium levels, is perfect for watering plants, flushing toilets,
@@ -59,29 +127,22 @@
     <br><br>In theory showering with rainwater seems perfect, but most laws forbids to bend cold-rainwater with
     warm-drinkwater. If you do, you need less soap and your hair will be smooth. It might be different at your location
   </p>
+  <app-img-page height="360px" src="assets/img/rainwater_flow.png"></app-img-page>
 </section>
 
-<section [id]="Section.installationVentilation">
-  <h2>Ventilation</h2>
+<section [id]="Section.installationDrinkWater">
+  <h2>Drink water</h2>
   <p>
-    In passive houses, the air-tight construction plays a crucial role in conserving heat. By using advanced blow-in and
-    suck-out ventilation systems, up to 94% of heat energy can be recovered and redistributed throughout the house,
-    resulting in significant energy savings.
+    Cold water supply doesn't require any special considerations, but if you live in the countryside, you may have a
+    local source available. On the other hand, for hot or warm water supply in sinks and showers, a central heating
+    system is necessary. It involves a central <tag [tag]="Tag.warmWaterBuffer" [overlayTemplate]="warmWaterBuffer">
+      warm water buffer</tag> tank that
+    utilizes various heat sources, enabling hot water and even heating throughout the house.
 
-    <br><br> Air-tight?! than I can't open my windows..
-    There is a common misconception that passive houses don't allow for opening windows. However, if the outside
-    temperature is close to the inside temperature, it is perfectly fine to do so. Nevertheless, a well-designed climate
-    system can provide clean, filtered air and eliminate the need for open windows. This is especially useful for people
-    with allergies or in areas with high levels of smog.
 
-    <br><br>
-    To achieve a healthy indoor air quality, the ventilation system is designed to provide fresh air to some rooms, like
-    the living room and sleeping rooms, while extracting air from wet rooms and the kitchen. The system is balanced to
-    ensure efficient airflow throughout the house.
-    Some rooms get fresh air, living room, sleeping rooms. And some rooms the air is pumped out, the wet rooms and
-    kitchen.
   </p>
 </section>
+
 
 <section [id]="Section.installationSmartHome">
   <h2>Domotica / Smart home</h2>

@@ -135,6 +135,24 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
     //   [House3DParts.topFloor]: true,
     //   [House3DParts.groundFloor]: true,
     // });
+    this.importDude();
+  }
+  importDude() {
+    this.threeService.importGLTF("Male_Standing.glb", (mesh: THREE.Mesh) => {
+      this.scene.add(mesh);
+      mesh.scale.set(0.5, 0.5, 0.5);
+      const corr = 0.02;
+      mesh.position.set(0, corr, 0);
+      mesh.updateMatrix();
+      // mesh.geometry.translate(0, 0.2, 0);
+      mesh.rotateY(degToRad(0));
+      this.threeService.translate(
+        mesh,
+        this.house.centerHouse[0],
+        this.house.cross.elevations[Elevation.topFloor],
+        this.house.houseLength - 4
+      );
+    });
   }
   defaultCamera() {
     const x = this.house.houseWidth / 2;
@@ -327,9 +345,9 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
       // Done loading
       const mainOuterWall = this.subModels[House3DParts.outerWall][0]; // get Group
       this.windows.map((obj) => {
-        if (obj.noFraming) return;
-        const frame = this.getWindow(obj);
-        mainOuterWall.add(frame);
+        // if (obj.noFraming) return;
+        // const frame = this.getWindow(obj);
+        // mainOuterWall.add(frame);
       });
     });
   }
@@ -815,10 +833,11 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
     const house = this.house;
     const pushback = 0.1;
     const depth = 0.1;
+    const width = window.width;
 
     const horizontalBar1 = this.threeService.createBox({
       material: Material.windowDarkFrame,
-      whd: [window.width, 0.3, depth],
+      whd: [width, 0.3, depth],
       xyz: [
         window.origin[0],
         house.cross.ceilingHeight,
@@ -826,17 +845,80 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
       ],
     });
 
-    const secondHight = house.cross.ceilingHeight + 2;
-
     const horizontalBar2 = this.threeService.createBox({
       material: Material.windowDarkFrame,
-      whd: [window.width, 0.3, depth],
-      xyz: [window.origin[0], secondHight, window.origin[1] - depth - pushback],
+      whd: [width, 0.2, depth],
+      xyz: [
+        window.origin[0],
+        house.cross.elevations[RoofPoint.bendInside] - 0.2,
+        window.origin[1] - depth - pushback,
+      ],
+    });
+    ///
+
+    const p = this.cross.roofPoints;
+    const e = this.cross.elevations;
+
+    const dX = p[RoofPoint.wallInside][0];
+    const dY = window.elevation;
+
+    const b = p[RoofPoint.bendInside];
+    let coords: xy[] = [
+      [0, 0],
+      offset(p[RoofPoint.wallInside], [-dX, -dY]),
+      offset(p[RoofPoint.bendInside], [-dX, -dY]),
+      offset(p[RoofPoint.topInside], [-dX, -dY]),
+      [this.house.outerBase - b[0] - dX, b[1] + -dY],
+      [window.width, p[RoofPoint.wallInside][1] + -dY],
+      [window.width, 0],
+
+      [0, 0],
+      [0, -1],
+      [window.width + 2, -1],
+      [window.width + 2, p[RoofPoint.wallInside][1] + -dY],
+      [this.house.outerBase - b[0] - dX + 2, b[1] + -dY + 2],
+      offset(p[RoofPoint.topInside], [-dX, -dY + 2]),
+      offset(p[RoofPoint.bendInside], [-dX - 2, -dY + 2]),
+      offset(p[RoofPoint.wallInside], [-dX - 2, -dY]),
+      [-2, 0],
+      [-2, -1],
+      [0, -1],
+    ];
+
+    const clip = this.threeService.extrudedShape({
+      material: Material.unknown,
+      coords,
+      xyz: [window.origin[0], 0, window.origin[1]],
+      depth: 1,
     });
 
-    console.log(window, secondHight);
+    this.debug(clip);
 
-    return [horizontalBar1, horizontalBar2];
+    const amount = 5;
+    const w = 0.1;
+    // create array of amount
+    const verticals = Array.from(Array(amount + 1).keys()).map((x, i) => {
+      // calculate offset of each bar
+      const offset = ((width - w) / amount) * i;
+      let mesh = this.threeService.createBox({
+        material: Material.windowDarkFrame,
+        whd: [w, this.house.cross.elevations[RoofPoint.topInside], depth],
+        xyz: [
+          window.origin[0] + offset,
+          0,
+          window.origin[1] - depth - pushback,
+        ],
+      });
+
+      mesh = this.clip(mesh, clip);
+      return mesh;
+    });
+
+    return [
+      horizontalBar1,
+      // horizontalBar2,
+      ...verticals,
+    ];
   }
 
   createWalls() {
@@ -1049,6 +1131,7 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
     this.translate(mesh, x, y, z);
     return mesh;
   }
+
   createWindowPlane(opening: Window, x, y, z) {
     let coords: xy[] = [];
     if (opening.selector === "L0-outer-SouthWall-2-Window-14") {

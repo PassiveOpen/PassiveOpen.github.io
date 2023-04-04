@@ -8,6 +8,9 @@ import { filter } from "rxjs";
 import { ThreeService } from "src/app/3d-three/three.service";
 import { AppService } from "src/app/app.service";
 import { HouseService } from "src/app/house/house.service";
+import { MapService } from "src/app/pages/page-map/map.service";
+import { OLBaseMapService } from "src/app/pages/page-map/openlayers/ol-basemap.service";
+import { OLMeasureService } from "src/app/pages/page-map/openlayers/ol-measure.service";
 import { environment } from "src/environments/environment";
 import { animationSlideInOut } from "../animations";
 import {
@@ -34,7 +37,13 @@ type SensorIcon = {
 })
 export class ControlsComponent implements OnInit {
   @Input() floatLeft: boolean = false;
-  extra = environment.production ? true : false;
+  get toc() {
+    return this.cookieService.get("toc") === "true";
+  }
+  set toc(state: boolean) {
+    this.cookieService.set("toc", `${state}`);
+  }
+
   house$ = this.houseService.house$;
   Floor = Floor;
   floor$ = this.appService.floor$;
@@ -75,11 +84,13 @@ export class ControlsComponent implements OnInit {
 
   constructor(
     public appService: AppService,
-    private elementRef: ElementRef,
-    private houseService: HouseService,
-    private cookieService: CookieService,
-    private router: Router,
-    private threeService: ThreeService
+    public elementRef: ElementRef,
+    public houseService: HouseService,
+    public cookieService: CookieService,
+    public olMeasureService: OLMeasureService,
+    public olBaseMapService: OLBaseMapService,
+    public threeService: ThreeService,
+    public mapService: MapService
   ) {}
 
   ngOnInit(): void {}

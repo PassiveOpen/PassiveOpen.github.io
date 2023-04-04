@@ -13,6 +13,11 @@
   th {
     position: relative;
   }
+  .vertical {
+    writing-mode: vertical-lr;
+    text-align: center;
+    padding: 4px;
+  }
 }
 .too-much,
 .too-little {

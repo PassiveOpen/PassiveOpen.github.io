@@ -1,0 +1,13 @@
+<ng-container *ngFor=" let layer of layers$|async">
+  <ng-container></ng-container>
+
+
+
+  <checkbox-toc [floatLeft]=false (stateChange)="setState(layer)" [state]="layer.getVisible()">
+    <span label> {{layer.getProperties().name}} </span>
+    <span icon>
+      {{layer.getProperties().name}}
+    </span>
+  </checkbox-toc>
+
+</ng-container>

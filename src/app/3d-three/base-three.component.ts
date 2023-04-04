@@ -180,11 +180,12 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
           const previous = this.section;
           if (this.section !== scroll.section) {
             this.section = scroll.section;
-            if (
-              previous === undefined ||
-              this.orbitControlsCookie !== undefined
-            )
-              return;
+            // if (
+            //   previous === undefined
+            //   ||
+            //   this.orbitControlsCookie !== undefined
+            // )
+            //   return;
             this.OnSectionChangeCallback();
           }
         }),
@@ -192,41 +193,43 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
     );
     this.initDraw();
 
-    THREE.DefaultLoadingManager.onStart = function (
-      url,
-      itemsLoaded,
-      itemsTotal
-    ) {
-      console.log(
-        "Started loading file: " +
-          url +
-          ".\nLoaded " +
-          itemsLoaded +
-          " of " +
-          itemsTotal +
-          " files."
-      );
-    };
+    if (!environment.production) {
+      THREE.DefaultLoadingManager.onStart = function (
+        url,
+        itemsLoaded,
+        itemsTotal
+      ) {
+        console.log(
+          "Started loading file: " +
+            url +
+            ".\nLoaded " +
+            itemsLoaded +
+            " of " +
+            itemsTotal +
+            " files."
+        );
+      };
 
-    THREE.DefaultLoadingManager.onLoad = function () {
-      console.log("Loading Complete!");
-    };
+      THREE.DefaultLoadingManager.onLoad = function () {
+        console.log("Loading Complete!");
+      };
 
-    THREE.DefaultLoadingManager.onProgress = function (
-      url,
-      itemsLoaded,
-      itemsTotal
-    ) {
-      console.log(
-        "Loading file: " +
-          url +
-          ".\nLoaded " +
-          itemsLoaded +
-          " of " +
-          itemsTotal +
-          " files."
-      );
-    };
+      THREE.DefaultLoadingManager.onProgress = function (
+        url,
+        itemsLoaded,
+        itemsTotal
+      ) {
+        console.log(
+          "Loading file: " +
+            url +
+            ".\nLoaded " +
+            itemsLoaded +
+            " of " +
+            itemsTotal +
+            " files."
+        );
+      };
+    }
 
     THREE.DefaultLoadingManager.onError = function (url) {
       console.log("There was an error loading " + url);
@@ -367,8 +370,6 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
         }
         this.scene.add(obj);
       });
-
-      // console.log(states[key] === true ? 0 : 1, key);
 
       this.animations[key].progress(states[key] === true ? 0 : 1);
     });
@@ -831,7 +832,7 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
 
     this.animate();
     this.rendererContainer.nativeElement.querySelector(".loader").remove();
-    if (!environment.production) this.gui.hide();
+    if (environment.production) this.gui.hide();
   }
 
   yoyo(key: T) {

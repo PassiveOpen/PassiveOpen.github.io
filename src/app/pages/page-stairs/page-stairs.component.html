@@ -53,6 +53,7 @@
     <table class="matrix">
       <tr>
         <th></th>
+        <th></th>
         <th *ngFor="let steps of [].constructor(rangeSteps); let step = index;" [ngClass]="{ 'active' :
           house.stair.minSteps+step===house.stair.steps }">
           #{{house.stair.minSteps+step}}
@@ -60,7 +61,9 @@
       </tr>
       <tr>
         <td></td>
-        <td colspan="50" style=" text-align: center;"> &uarr; Too steep &uarr; </td>
+        <td rowspan="50" class="vertical">&darr; Too high rise &darr;</td>
+        <td colspan="50" style=" text-align: center;"> &uarr; Too steep angle &uarr; </td>
+        <td rowspan="50" class="vertical">&uarr; Too low rise &uarr;</td>
       </tr>
       <tr *ngFor="let totalR of [].constructor(deltas); let dx = index;">
         <td class="step" [ngClass]="{ 'active' :
@@ -77,7 +80,7 @@
       </tr>
       <tr>
         <td></td>
-        <td colspan="50" style=" text-align: center;"> &darr; Too shallow &darr; </td>
+        <td colspan="50" style=" text-align: center;"> &darr; Too shallow angle &darr; </td>
       </tr>
     </table>
     <p>
@@ -94,14 +97,38 @@
 
   <section [id]="Section.stairCheck" #Section.stairCheck>
     <h2>The good, bad and perfect stairs</h2>
+    A good, comfortable stairs should follow a specific rule:<br>
+    One run and two rises <div
+      style="display:inline-block;background:var(--accent);color:black; height: 10px; width:18px;"><b></b></div>
+    should be
+    around 60cm (+/-
+    3cm)
     <label>
       <span>Checks</span>
-      The angle will be {{house.stair.angle}}&deg;
-      <div>Steps: {{house.stair.steps}}</div>
-      <div>Rise: {{round(house.stair.rise*1000,0)}} mm</div>
-      <div>Run: {{round(house.stair.run*1000,0)}} mm</div>
-      <div>Rise+Run+Rise: {{round((house.stair.run+house.stair.rise*2)*1000,0)}} mm</div>
+      <table>
+        <tr>
+          <td>Angle</td>
+          <td>{{house.stair.angle}}&deg;</td>
+        </tr>
+        <tr>
+          <td>Steps</td>
+          <td>{{house.stair.steps}}</td>
+        </tr>
+        <tr>
+          <td>Rise</td>
+          <td>{{round(house.stair.rise*1000,0)}} mm</td>
+        </tr>
+        <tr>
+          <td>Run</td>
+          <td>{{round(house.stair.run*1000,0)}} mm</td>
+        </tr>
+        <tr>
+          <td>Rise+Run+Rise</td>
+          <td>{{round((house.stair.run+house.stair.rise*2)*1000,0)}} mm</td>
+        </tr>
+      </table>
     </label>
+
   </section>
 
   <section [id]="Section.stairPlan" #Section.stairPlan>
@@ -126,21 +153,18 @@
       </mat-slider>
     </label> -->
     <label>
-      <span>Steps on the rightside: {{house.stair.stepsFlightRight}} of {{house.stair.steps}}</span>
-      <mat-slider [min]="0" [max]="house.stair.steps/2" [ngModel]="house.stair.stepsFlightRight"
-        (input)="update('stair', 'stepsFlightRight',$event.value)" step="1" tickInterval="1">
+      <span>Steps on the rightside: {{house.stair.stepsFlightLeft}} of {{house.stair.steps}}</span>
+      <mat-slider [min]="0" [max]="house.stair.steps- house.stair.stepsFlightMid"
+        [ngModel]="house.stair.stepsFlightLeft" (input)="update('stair', 'stepsFlightLeft',$event.value)" step="1"
+        tickInterval="1">
       </mat-slider>
     </label>
-    <span>
-      {{house.stair.stepsFlightLeft}} -
-      {{house.stair.stepsFlightMid}} -
-      {{house.stair.stepsFlightRight}}
-    </span>
+
     <p>
       For now we keep the model as simple as possible. Stairs are quite complex. Steps can change direction slowly to
-      make it a piece of art by it self.
+      make it a piece of art by it self. Take a look at this drawing by Tieleman (1739 !) for inspiration.
     </p>
-    <img width="100%" src="https://berkela.home.xs4all.nl/stijgpunten/afbeeldingen/tn_2005extra07_11.jpg">
+    <app-img-page height="800px" src="assets/img/1739_Tieleman.jpg"></app-img-page>
   </section>
 </ng-container>
 

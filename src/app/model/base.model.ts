@@ -71,8 +71,10 @@ export class BaseSVG<T = {}> {
         this.floor = Floor.all;
       }
       this.init(activeFloor, this.svgUpdate.theme);
+
       await this.draw(activeFloor); // This draws all for the first time
     }
+
     if (this.show(activeFloor)) {
       await this.redraw(activeFloor); // this updates all the sizes after a zoom.
     }

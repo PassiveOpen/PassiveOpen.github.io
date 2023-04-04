@@ -19,6 +19,7 @@ import { AppCircle } from "../model/circle.model";
 import * as d3 from "d3";
 import { AppStairPlan } from "../model/specific/stair-plan.model";
 import { House, xy } from "src/app/house/house.model";
+import { AppDistance } from "../model/distance.model";
 
 export interface Stringer {
   coords: xy[];
@@ -57,7 +58,7 @@ export class Stair {
   angle;
   maxSteps;
   minSteps;
-  step;
+  optimizedStep;
   stairOrigin: [number, number] = [0, 0];
   totalHeight = -1;
   lesserHeight = -1;
@@ -77,56 +78,57 @@ export class Stair {
     this.createStep();
     this.createMeasures();
     this.createPlan();
+    this.parts.push(new AppDistance());
   }
 
   calculate(house) {
+    // Determined by other inputs
     this.house = house;
     this.ceilingHeight = this.house.cross.ceilingHeight;
     this.floorThickness = this.house.cross.topFloorThickness;
-
-    this.stepsFlightMid =
-      this.steps - this.stepsFlightLeft - this.stepsFlightRight;
-
-    // Elevation heights
-    // this.totalRun = round(this.totalRise / Math.tan((35 * Math.PI) / 180));
-    // console.log(this.totalRun);
-
     this.groundFloorTop = 0;
     this.topFloorTop = this.house.cross.elevations[Elevation.topFloor];
-
     this.totalRise = this.topFloorTop - this.groundFloorTop;
+
+    // Defined
     this.stairOrigin = [
       this.house.stramien.in.we.b,
       this.house.stramien.in.ns.b - 5,
     ];
+    // this.stairOrigin = [0, 0];
 
+    // Calculated
     this.angle = round(
       Math.atan(this.totalRise / this.totalRun) * (180 / Math.PI),
       1
     );
-    // this.totalRise / Math.tan((40 * Math.PI) / 180);
-
     this.run = round(this.totalRun / this.steps);
     this.rise = round(this.totalRise / this.steps);
-    this.step = round(this.run * 2 + this.run);
+    this.optimizedStep = round(this.run * 2 + this.run);
     this.maxSteps = Math.ceil(this.totalRise / 0.182);
     this.minSteps = Math.ceil(this.totalRise / 0.22);
-    // this.totalWidth = this.walkWidth * 2 + this.midFlightSteps * this.run;
 
-    const [y1, y2] = [
+    this.stepsFlightMid = Math.floor(
+      (this.totalWidth - this.walkWidth * 2) / this.run
+    );
+
+    this.stepsFlightRight =
+      this.steps - this.stepsFlightMid - this.stepsFlightLeft;
+
+    const [yLeftSide, yRightSide] = [
       this.alongWalkLine(1)[1] - this.stairOrigin[1],
-      this.alongWalkLine(this.steps)[1] - this.stairOrigin[1],
-    ];
-    this.totalHeight = Math.max(y1, y2);
-    this.lesserHeight = Math.min(y1, y2);
+      this.alongWalkLine(this.steps + 1)[1] - this.stairOrigin[1],
+    ].map((x) => Math.max(this.walkWidth, x));
 
-    // this.calculateCorrectionArray();
+    this.totalHeight = Math.max(yLeftSide, yRightSide);
+    this.lesserHeight = Math.min(yLeftSide, yRightSide);
+    this.calculateCorrectionArray();
     const out: Stringer = {
       coords: [
-        offset(this.stairOrigin, [this.totalWidth * 0, y1]),
+        offset(this.stairOrigin, [this.totalWidth * 0, yLeftSide]),
         offset(this.stairOrigin, [this.totalWidth * 0, 0]),
         offset(this.stairOrigin, [this.totalWidth * 1, 0]),
-        offset(this.stairOrigin, [this.totalWidth * 1, y2]),
+        offset(this.stairOrigin, [this.totalWidth * 1, yRightSide]),
       ],
     };
     this.stringers = {
@@ -529,17 +531,14 @@ export class Stair {
     const leftSide = lengthLeft - quart - half;
     const rightSide = lengthRight - quart - half;
 
-    const leftSkip = 0;
-
-    const rightSkip = 0;
     this.intersections = {};
 
     // /////// lowerLeft
     const lowerLeftSteps = this.getEGMethod(
       leftSide + quart / 2,
-      this.alongWalkLine(1)[1] - (this.stairOrigin[1] + this.walkWidth),
-      leftSkip,
-      this.run * leftSkip,
+      this.alongWalkLine(0)[1] - (this.stairOrigin[1] + this.walkWidth),
+      0,
+      0,
       false
     );
 
@@ -547,7 +546,7 @@ export class Stair {
     const higherLeftSteps = this.getEGMethod(
       half + quart / 2,
       this.totalWidth / 2 - this.walkWidth,
-      lowerLeftSteps + leftSkip,
+      lowerLeftSteps,
       0,
       true
     );
@@ -555,29 +554,22 @@ export class Stair {
     const higherRightSteps = this.getEGMethod(
       half + quart / 2,
       this.totalWidth / 2 - this.walkWidth,
-      lowerLeftSteps + leftSkip + higherLeftSteps,
-      this.run,
+      lowerLeftSteps + higherLeftSteps,
+      0,
       false
     );
     // /////// lowerRight
-    this.getEGMethod(
+    const lowerRightSteps = this.getEGMethod(
       rightSide + quart / 2,
       this.alongWalkLine(this.steps)[1] -
         (this.stairOrigin[1] + this.walkWidth),
-      lowerLeftSteps + leftSkip + higherLeftSteps + higherRightSteps,
-      this.run * rightSkip,
+      lowerLeftSteps + 0 + higherLeftSteps + higherRightSteps,
+      0,
       true
     );
-    // console.log(this.intersections);
   }
 
-  getEGMethod(
-    walkLineLength,
-    stingerLength,
-    offsetStep,
-    skipLength,
-    reversed = false
-  ) {
+  getEGMethod(walkLineLength, stingerLength, offsetStep, skipLength, reversed) {
     let A, M, B, N, S;
     const correctedWalkline = walkLineLength - skipLength;
     const steps = Math.ceil(correctedWalkline / this.run);

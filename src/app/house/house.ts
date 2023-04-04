@@ -20,7 +20,7 @@ import { AppPolygon } from "../model/polygon.model";
 import { Construction } from "./construction.model";
 import { AppDistance } from "../model/distance.model";
 import { AppSVG } from "../model/svg.model";
-import { HouseUser } from "./house.model";
+import { HouseUser, StramienGroup, Tower } from "./house.model";
 export type xy = [number, number];
 export type xyz = [number, number, number];
 
@@ -832,7 +832,14 @@ export class House extends HouseUser {
       parent.parts.forEach(async (part: BaseSVG) => {
         if (part === undefined) return;
 
-        await part.update(theme, floor, meterPerPixel, redrawAll);
+        await part.update({
+          graphic,
+          print: false,
+          theme,
+          floor,
+          meterPerPixel,
+          redrawAll,
+        });
         if (part.parts !== undefined) loop(theme, part);
       });
     };

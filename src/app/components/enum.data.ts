@@ -155,6 +155,7 @@ export enum Graphic {
   stairCross = "stairCross",
   construction = "construction",
   House3D = "House3D",
+  map = "map",
   none = "none",
 }
 

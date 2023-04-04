@@ -102,20 +102,6 @@ export class HouseService {
         if (baseSVG.parts !== undefined) loop(baseSVG);
       });
     };
-
-    // loop(this, this);
-    // loop(this.cross, this.cross);
-    // loop(this.stair, this.stair);
-    // const loop = (parts) => {
-    //   Object.entries(parts).forEach(([selector, part]: [string, any]) => {
-    //     if ('newData' in part) {
-    //       part.svg = undefined;
-    //         loop(part.parts);
-    //       }
-    //     }
-    //   });
-    // };
-
     const house = this.house$.value;
     loop(house);
     loop(house.cross);

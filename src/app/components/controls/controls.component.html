@@ -1,12 +1,13 @@
 <ng-container *ngIf="(scroll$ |async) as scroll">
   <div class="container
+  graphic-{{scroll.graphic }}
 section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="column" fxLayoutAlign="end"
     fxLayoutGap="8px">
 
 
 
     <ng-container *ngIf="scroll.graphic === Graphic.house2D">
-      <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end end" fxLayoutGap="8px">
+      <div class="sub-controls" *ngIf="toc" fxLayout="column" fxLayoutAlign="end end" fxLayoutGap="8px">
         <ng-container *ngIf="(page$| async).startsWith('house')|| (page$| async).startsWith('?')">
 
           <div class="toc">
@@ -87,8 +88,8 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
         </ng-container>
 
       </div>
-      <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
-        <mat-icon style.transform="rotate({{extra?20:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
+      <button mat-mini-fab (click)="toc = !toc" color="accent" [class.active]="toc">
+        <mat-icon style.transform="rotate({{toc?20:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
         </mat-icon>
       </button>
       <ng-container *ngTemplateOutlet="floor"></ng-container>
@@ -98,12 +99,12 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
     <ng-container *ngIf="scroll.graphic === Graphic.cross">
 
-      <!-- <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end" fxLayoutGap="8px">
+      <!-- <div class="sub-controls" *ngIf="toc" fxLayout="column" fxLayoutAlign="end" fxLayoutGap="8px">
 
         
       </div>
-      <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
-        <mat-icon style.transform="rotate({{extra?-20:-180}}deg)" [style.transition]="'0.4s'">
+      <button mat-mini-fab (click)="toc = !toc" color="accent" [class.active]="toc">
+        <mat-icon style.transform="rotate({{toc?-20:-180}}deg)" [style.transition]="'0.4s'">
           keyboard_double_arrow_down
         </mat-icon>
       </button> -->
@@ -147,7 +148,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
     <ng-container *ngIf="scroll.graphic === Graphic.construction">
 
-      <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end end" fxLayoutGap="8px">
+      <div class="sub-controls" *ngIf="toc" fxLayout="column" fxLayoutAlign="end end" fxLayoutGap="8px">
 
         <div class="toc-text">
           <ng-container *ngFor="let part of constructionParts">
@@ -159,8 +160,8 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
       </div>
 
-      <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
-        <mat-icon style.transform="rotate({{extra?20:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
+      <button mat-mini-fab (click)="toc = !toc" color="accent" [class.active]="toc">
+        <mat-icon style.transform="rotate({{toc?20:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
         </mat-icon>
       </button>
 
@@ -180,7 +181,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
     <ng-container *ngIf="scroll.graphic === Graphic.House3D">
 
-      <div class="sub-controls" *ngIf="extra" fxLayout="column" fxLayoutAlign="end end" fxLayoutGap="8px">
+      <div class="sub-controls" *ngIf="toc" fxLayout="column" fxLayoutAlign="end end" fxLayoutGap="8px">
         <div class="toc-text">
 
           <ng-container *ngFor="let house3DPart of house3DParts">
@@ -198,11 +199,8 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
 
       </div>
+      <ng-container *ngTemplateOutlet="layers"></ng-container>
 
-      <button mat-mini-fab (click)="extra = !extra" color="accent" [class.active]="extra">
-        <mat-icon style.transform="rotate({{extra?20:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
-        </mat-icon>
-      </button>
       <button-state mat-mini-fab [class.active]="getState(Helpers3D.clipBoxEnabled)" (click)="
         appService.setState(Helpers3D.clipBoxEnabled)" color="accent">
         <span label>
@@ -242,7 +240,50 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
     </ng-container>
 
+    <ng-container *ngIf="scroll.graphic === Graphic.map">
 
+
+      <div class="sub-controls" *ngIf="toc" fxLayout="column" fxLayoutAlign="end end" fxLayoutGap="8px">
+        <div class="toc-text">
+          <app-map-layer></app-map-layer>
+        </div>
+
+
+      </div>
+      <ng-container *ngTemplateOutlet="layers"></ng-container>
+
+
+
+      <button-state (click)="mapService.zoomToHouse()">
+        <span label> Zoom to house</span>
+        <span icon>
+          <mat-icon>house</mat-icon>
+        </span>
+      </button-state>
+
+
+
+
+      <button-state (click)="olMeasureService.activate()" [disabled]="olMeasureService.active">
+        <span label> {{olMeasureService.active?'Stop': 'Start'}} measuring</span>
+        <span icon>
+          <mat-icon style="font-family:'Material Icons Outlined';">square_foot</mat-icon>
+        </span>
+      </button-state>
+
+
+      <!-- (click)="appService.setState(States.walkLine)" [floatLeft]=floatLeft
+      *ngIf="[ Graphic.stairPlan].includes(scroll.graphic)" -->
+      <button-state (click)="olBaseMapService.nextBasemap()">
+        <span label> {{olBaseMapService.basemap$ | async}}</span>
+        <span icon>
+          <mat-icon style="font-family:'Material Icons Outlined';">map</mat-icon>
+        </span>
+      </button-state>
+
+
+
+    </ng-container>
 
 
 
@@ -279,6 +320,19 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
     <span label>{{getState(States.measure)?'Remove measurements':'Add measurements'}}</span>
     <span icon>
       <mat-icon>square_foot</mat-icon>
+    </span>
+  </button-state>
+
+</ng-template>
+
+
+<ng-template #layers>
+
+  <button-state (click)="toc = !toc" [floatLeft]=floatLeft>
+    <span label>{{toc?'Close ':'Open '}} layers</span>
+    <span icon>
+      <mat-icon style.transform="rotate({{toc?0:180}}deg)" [style.transition]="'0.4s'">keyboard_double_arrow_down
+      </mat-icon>
     </span>
   </button-state>
 

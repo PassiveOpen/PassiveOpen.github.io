@@ -46,11 +46,13 @@ import { PagePlanningComponent } from "./pages/page-planning/page-planning.compo
 import { AppTablePlanningComponent } from "./pages/page-planning/table-planning/table-planning.component";
 import { PageFacadeComponent } from "./pages/page-facade/page-facade.component";
 import { AppFooterComponent } from "./components/footer/footer.component";
-import { MapButtonsComponent } from "./pages/page-map/map-buttons/map-buttons.component";
+import { MapLayerComponent } from "./pages/page-map/map-layer/map-layer.component";
 import { AppColorComponent } from "./components/color/color.component";
 import { ButtonStateComponent } from "./components/button-state/button-state.component";
 import { CheckboxStateComponent } from "./components/checkbox-state/checkbox-state.component";
 import { CheckboxTocComponent } from "./components/checkbox-toc/checkbox-toc.component";
+import { AppImgPageComponent } from "./components/img-page/img-page.component";
+import { MapOverlayComponent } from "./pages/page-map/map-overlay/map-overlay.component";
 @NgModule({
   declarations: [
     AppComponent,
@@ -86,10 +88,12 @@ import { CheckboxTocComponent } from "./components/checkbox-toc/checkbox-toc.com
     AppTableComponent,
     AppTablePlanningComponent,
     AppContextMenuComponent,
-    MapButtonsComponent,
+    MapLayerComponent,
     CheckboxStateComponent,
     CheckboxTocComponent,
+    AppImgPageComponent,
     ButtonStateComponent,
+    MapOverlayComponent,
   ],
   imports: [
     BrowserModule,

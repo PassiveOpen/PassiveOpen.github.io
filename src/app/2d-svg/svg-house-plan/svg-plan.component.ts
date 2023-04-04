@@ -2,10 +2,10 @@ import {
   Component,
   AfterViewInit,
   ElementRef,
+  ViewChild,
   OnChanges,
   SimpleChanges,
   OnDestroy,
-  ViewChild,
   HostListener,
 } from "@angular/core";
 import { AppService } from "src/app/app.service";
@@ -357,7 +357,6 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
       .attr("xlink:href", "/assets/img/top_render.jpg");
 
     this.scaleRenderImage();
-    d3.select("svg");
   }
 
   svgUpdateMarginAndSize() {
@@ -389,7 +388,6 @@ export class SvgComponent extends BasicSVG implements AfterViewInit, OnDestroy {
   scaleStairs() {
     this.svg
       .select(".plan-stair-plan")
-      // .attr('transform', 'rotate(180)')
       .attr(
         "transform-origin",
         `${this.stair.stairOrigin[0] + this.stair.totalWidth / 2} ${

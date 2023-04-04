@@ -29,10 +29,10 @@
     </controls>
 
     <ng-container *ngIf="(scroll$ |async).graphic as graphic">
-      <div class="floating floating-left">
+      <div *ngIf="graphic !== Graphic.none" class="floating floating-left">
         <app-svg-cross *ngIf="graphic === Graphic.cross" class="svg-cross"></app-svg-cross>
       </div>
-      <div class="floating floating-right">
+      <div *ngIf="graphic !== Graphic.none" class="floating floating-right">
         <ng-container *ngIf="graphic === Graphic.house2D">
           <app-svg-stair-plan [isChild]="true" class="svg-plan-stair-plan" fxFlex="0 0 0">
           </app-svg-stair-plan>

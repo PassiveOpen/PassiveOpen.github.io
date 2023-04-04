@@ -47,11 +47,8 @@ export class D3DistanceService {
 
   mousemove(e: MouseEvent) {
     const [mouseX, mouseY] = d3.pointer(e);
-    console.log(this.distanceSVG.visible);
-
     let mouse: xy = [round(mouseX), round(mouseY)];
     let threshold = 0.2;
-
     try {
       const x = e
         .composedPath()
@@ -91,6 +88,11 @@ export class D3DistanceService {
       (x) => x instanceof AppDistance
     ) as AppDistance;
 
+    if (!this.distanceSVG) {
+      console.error(`distanceSVG not found`, parts);
+      return;
+    }
+
     this.coords = [];
     parts.forEach((part) => {
       if (part instanceof AppPolyline) {
@@ -111,10 +113,8 @@ export class D3DistanceService {
     const graphic = this.appService.scroll$.value.graphic;
     const svg = document.querySelector(`svg.${graphic}`);
     // crosshair
-    console.log(svg, `svg.${graphic}`);
     if (!svg) {
       console.error(`svg not found`, `svg.${graphic}`);
-
       return;
     }
 
@@ -142,7 +142,6 @@ export class D3DistanceService {
     this.isDistance = true;
 
     this.distanceSVG.visible = true;
-    console.log(this.distanceSVG.visible);
 
     this.distanceSubscriptions.push(
       ...[
@@ -157,7 +156,5 @@ export class D3DistanceService {
         }),
       ]
     );
-
-    console.log(this.distanceSVG);
   }
 }

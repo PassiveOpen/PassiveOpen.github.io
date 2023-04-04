@@ -27,9 +27,12 @@ export class AppPolygon extends BaseSVG {
       .attr("transform", this.transform);
     this.setClass(this.svg);
   }
+
   redraw(floor: Floor) {
-    if (this.svg) {
+    if (this.svg !== undefined) {
       this.svg.attr("stroke-width", this.meterPerPixel * this.lineThickness);
+    } else {
+      console.log("error! svg = undefined", `#${this.selector}`, this.svg);
     }
   }
 

@@ -1,4 +1,4 @@
-<svg #svg class="stairs-plan" preserveAspectRatio="xMidYMid meet">
+<svg #svg class="stairs-plan" class="{{graphic}}" preserveAspectRatio="xMidYMid meet">
   <defs>
     <polygon id="clip-roof-ref"></polygon>
     <polygon id="clip-ground-floor-ref"></polygon>
@@ -11,28 +11,24 @@
   </clipPath>
 
   <g *ngIf="(house$ | async) as house" class="floor-clip" clip-path="url(#clip-ground-floor)">
+    <g class="g-step-plan">
+      <g id="step-plan-{{i}}" *ngFor="let item of [].constructor(25); let i = index;">
+        <polygon class="step-plan-lines"></polygon>
+        <polyline class="step-plan-rise"></polyline>
+        <text class="step-plan-text"></text>
+        <circle class="step-stinger" id="step-stinger-{{i}}">
+        </circle>
+      </g>
+    </g>
+    <!-- <polyline class="middleLine"></polyline>
+    <polyline class="left-corner-line"></polyline>
+    <polyline class="right-corner-line"></polyline> -->
     <g class="g-walk-line">
       <path id="walk-line"></path>
       <circle class="walk-line-dot" id="walk-line-{{i}}" *ngFor="let item of [].constructor(25); let i = index;">
       </circle>
     </g>
     <polygon id="outline" class="outline"></polygon>
-    <!-- <polyline class="middleLine"></polyline>
-    <polyline class="left-corner-line"></polyline>
-    <polyline class="right-corner-line"></polyline> -->
-
-    <!-- <g class="g-step-plan"> -->
-    <g class="g-step-plan">
-      <!-- <g clip-path="url(#clip-roof)"> -->
-      <g id="step-plan-{{i}}" *ngFor="let item of [].constructor(25); let i = index;">
-        <polygon class="step-plan-lines"></polygon>
-        <polyline class="step-plan-rise"></polyline>
-        <text class="step-plan-text"></text>
-        <!-- </g> -->
-        <circle class="step-stinger" id="step-stinger-{{i}}">
-        </circle>
-      </g>
-    </g>
 
     <g class="measure-stair" *ngIf="!isChild">
 
@@ -42,6 +38,6 @@
       <g id="total-height"></g>
       <g id="lesser-height"></g>
     </g>
-    <g id="distance"></g>
+    <g id="g-distance"></g>
   </g>
 </svg>

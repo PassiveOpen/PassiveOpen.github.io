@@ -28,6 +28,9 @@ export interface PlaneProperties {
   coords: xy[];
   xyz?: xyz;
 }
+export interface ExtrudeProperties extends PlaneProperties {
+  depth: number;
+}
 
 @Injectable({
   providedIn: "root",
@@ -77,6 +80,7 @@ export class ThreeService {
     this.rotateAroundAxis(mesh, degToRad(-90), Axis.red);
     return mesh;
   }
+
   flatShape(
     coords: xy[],
     z = 0,
@@ -106,6 +110,34 @@ export class ThreeService {
     mesh.receiveShadow = true;
     mesh.castShadow = true;
     this.translate(mesh, start[0], z, start[1]);
+    return mesh;
+  }
+
+  extrudedShape(extrudeProperties: ExtrudeProperties): THREE.Mesh {
+    const { material, coords, xyz, depth } = extrudeProperties;
+    if (coords.length < 3) return;
+    const shape = new THREE.Shape();
+    const start = coords[0];
+    shape.moveTo(0, 0);
+    coords.forEach((c) => {
+      shape.lineTo(c[0] - start[0], c[1] - start[1]);
+    });
+    shape.lineTo(0, 0);
+
+    const extrudeSettings = {
+      steps: 1,
+      depth,
+      bevelEnabled: false,
+    };
+    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    const mesh = new THREE.Mesh(
+      geometry,
+      this.threeMaterialService.getMaterial(material)
+    );
+    mesh.receiveShadow = true;
+    mesh.castShadow = true;
+    // this.translate(mesh, start[0], depth, start[1]);
+    this.translate(mesh, xyz[0], xyz[1], xyz[2] - depth);
     return mesh;
   }
 
@@ -177,7 +209,6 @@ export class ThreeService {
   importGLTF(name, callback) {
     var loader = new GLTFLoader();
     loader.load(`/assets/models/${name}`, (gltf: GLTF) => {
-      console.log("import dude");
       const mesh = gltf.scene;
       mesh.children.forEach((c) => {
         c.castShadow = true;

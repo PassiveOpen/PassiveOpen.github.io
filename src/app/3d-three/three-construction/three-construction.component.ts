@@ -123,180 +123,6 @@ export class ThreeConstructionComponent extends BaseThreeComponent<ConstructionP
     );
   }
 
-  focusCamera(side: "in" | "out" | "subGround") {
-    console.log("camera to", side);
-    var timeline = gsap.timeline();
-    var duration = 0.4;
-    // gsap.globalTimeline.clear();
-    let z = this.center.z;
-    if (["in"].includes(side)) z += -10;
-    if (["subGround"].includes(side)) z += 1;
-    if (["out"].includes(side)) z += 10;
-
-    this.pauseAll();
-    timeline.to(this.camera.position, {
-      duration,
-      x: this.center.x - 10,
-      y: ["subGround"].includes(side) ? 0 : 1.8, //height
-      z,
-      onUpdate: () => {
-        this.camera.lookAt(this.center.x, this.center.y, this.center.z);
-      },
-      onComplete: () => {
-        gsap.globalTimeline.play();
-      },
-    });
-  }
-
-  // Supporting functions
-  getRoofAndOffsetPoints(d) {
-    type RoofPointOffset = {
-      //@ts-ignore
-      [K in RoofPoint as K extends string ? `${K}Offset` : never]: RoofPoint[K];
-    };
-    let obj: {
-      [key in keyof RoofPointOffset | RoofPoint]?: xy;
-    } = {};
-    Object.keys(RoofPoint).forEach((key: RoofPoint) => {
-      obj[key] = this.construction.getRoofPoint(key);
-      obj[`${key}Offset`] = this.offsetDistanceBend(d, key);
-    });
-    return obj;
-  }
-
-  /**
-   * Gets a crossDepth of the roof, based on the roofPoint
-   */
-  offsetDistanceBend = (d, key: RoofPoint, materialThickness = false): xy => {
-    const xy = this.construction.getRoofPoint(key);
-
-    let diffAngle = 0;
-    let angle = 0;
-    if ([RoofPoint.bendInside, RoofPoint.bendOutside].includes(key)) {
-      diffAngle = (this.lowerAngle - this.upperAngle) / 2;
-      angle = this.edgeAngle + 90;
-    }
-    if ([RoofPoint.topInside, RoofPoint.topOutside].includes(key)) {
-      diffAngle = 0;
-      angle = 90;
-    }
-    if ([RoofPoint.lowestInside, RoofPoint.lowestOutside].includes(key)) {
-      diffAngle = 0;
-      angle = this.lowerAngle + 180;
-    }
-    if (
-      [
-        RoofPoint.groundFloorInside,
-        RoofPoint.groundFloorOutside,
-        RoofPoint.wallInside,
-        RoofPoint.wallOutside,
-      ].includes(key)
-    ) {
-      diffAngle = 0;
-      angle = 180;
-    }
-
-    let distance = d / Math.cos(degToRad(diffAngle));
-    if (materialThickness) distance = d;
-    return angleXY(angle, distance, xy);
-  };
-
-  getAngledProperties(low: RoofPoint, high: RoofPoint, thickness) {
-    const roof = this.getRoofAndOffsetPoints(thickness);
-    const totalWidth = distanceBetweenPoints(
-      roof[`${low}Offset`],
-      roof[`${high}Offset`]
-    );
-    const angle = angleBetween(roof[low], roof[high]);
-    const origin = this.useOppositeCorner(
-      roof[`${low}Offset`],
-      thickness,
-      angle
-    );
-    const rotation = [angle - 90, 0, 0];
-    return {
-      totalWidth,
-      angle,
-      origin,
-      rotation,
-    };
-  }
-
-  /**
-   * Dont remember
-   */
-  useOppositeCorner(origin, d, angle): xyz {
-    const [x, y] = angleXY(angle - 90, d, origin);
-    return [0, y, -x];
-  }
-
-  /// THREEJS ////
-
-  scaleZInOut(key: ConstructionParts, mesh, duration = 0.3, ease = "power3") {
-    this.animations[key].to(mesh.position, {
-      z: 0,
-      duration,
-      ease,
-    });
-    this.animations[key].to(
-      mesh.scale,
-      {
-        z: 0,
-        x: 0,
-        duration,
-        ease,
-      },
-      `<`
-    );
-    this.animations[key].to(mesh, {
-      visible: false,
-      duration: 0,
-    });
-  }
-  scaleYInOut(key: ConstructionParts, mesh, duration = 0.3, ease = "power3") {
-    this.animations[key].to(mesh.position, {
-      y: 0,
-      duration,
-      ease,
-    });
-    this.animations[key].to(
-      mesh.scale,
-      {
-        y: 0,
-        z: 0,
-        duration,
-        ease,
-      },
-      `<`
-    );
-    this.animations[key].to(mesh, {
-      visible: false,
-      duration: 0,
-    });
-  }
-  scaleXInOut(key: ConstructionParts, mesh, duration = 0.3, ease = "power3") {
-    const ani = this.animations[key];
-    this.animations[key].to(mesh.position, {
-      x: 0,
-      duration,
-      ease,
-    });
-    this.animations[key].to(
-      mesh.scale,
-      {
-        z: 0,
-        x: 0,
-        duration,
-        ease,
-      },
-      `<`
-    );
-    this.animations[key].to(mesh, {
-      visible: false,
-      duration: 0,
-    });
-  }
-
   //// LifeCircle ////
 
   AfterViewInitCallback() {
@@ -401,6 +227,189 @@ export class ThreeConstructionComponent extends BaseThreeComponent<ConstructionP
     ) {
       this.focusCamera("out");
     }
+  }
+  focusCamera(side: "in" | "out" | "subGround") {
+    // console.log("camera to", side);
+    var timeline = gsap.timeline();
+    var duration = 0.4;
+    // gsap.globalTimeline.clear();
+    let z = this.center.z;
+    if (["in"].includes(side)) z += -10;
+    if (["subGround"].includes(side)) z += 1;
+    if (["out"].includes(side)) z += 10;
+
+    this.pauseAll();
+    timeline.to(this.camera.position, {
+      duration,
+      x: this.center.x - 10,
+      y: ["subGround"].includes(side) ? 0 : 1.8, //height
+      z,
+      onUpdate: () => {
+        this.camera.lookAt(this.center.x, this.center.y, this.center.z);
+      },
+      onComplete: () => {
+        gsap.globalTimeline.play();
+      },
+    });
+  }
+
+  //// Supporting functions ////
+  getRoofAndOffsetPoints(d) {
+    type RoofPointOffset = {
+      //@ts-ignore
+      [K in RoofPoint as K extends string ? `${K}Offset` : never]: RoofPoint[K];
+    };
+    let obj: {
+      [key in keyof RoofPointOffset | RoofPoint]?: xy;
+    } = {};
+    Object.keys(RoofPoint).forEach((key: RoofPoint) => {
+      obj[key] = this.construction.getRoofPoint(key);
+      obj[`${key}Offset`] = this.offsetDistanceBend(d, key);
+    });
+    return obj;
+  }
+
+  /**
+   * Gets a crossDepth of the roof, based on the roofPoint
+   */
+  offsetDistanceBend = (d, key: RoofPoint, materialThickness = false): xy => {
+    const xy = this.construction.getRoofPoint(key);
+
+    let diffAngle = 0;
+    let angle = 0;
+    if ([RoofPoint.bendInside, RoofPoint.bendOutside].includes(key)) {
+      diffAngle = (this.lowerAngle - this.upperAngle) / 2;
+      angle = this.edgeAngle + 90;
+    }
+    if ([RoofPoint.topInside, RoofPoint.topOutside].includes(key)) {
+      diffAngle = 0;
+      angle = 90;
+    }
+    if ([RoofPoint.lowestInside, RoofPoint.lowestOutside].includes(key)) {
+      diffAngle = 0;
+      angle = this.lowerAngle + 180;
+    }
+    if (
+      [
+        RoofPoint.groundFloorInside,
+        RoofPoint.groundFloorOutside,
+        RoofPoint.wallInside,
+        RoofPoint.wallOutside,
+      ].includes(key)
+    ) {
+      diffAngle = 0;
+      angle = 180;
+    }
+
+    let distance = d / Math.cos(degToRad(diffAngle));
+    if (materialThickness) distance = d;
+    return angleXY(angle, distance, xy);
+  };
+
+  getAngledProperties(low: RoofPoint, high: RoofPoint, thickness) {
+    const roof = this.getRoofAndOffsetPoints(thickness);
+    const totalWidth = distanceBetweenPoints(
+      roof[`${low}Offset`],
+      roof[`${high}Offset`]
+    );
+    const angle = angleBetween(roof[low], roof[high]);
+    const origin = this.useOppositeCorner(
+      roof[`${low}Offset`],
+      thickness,
+      angle
+    );
+    const rotation = [angle - 90, 0, 0];
+    return {
+      totalWidth,
+      angle,
+      origin,
+      rotation,
+    };
+  }
+
+  /**
+   * Dont remember
+   */
+  useOppositeCorner(origin, d, angle): xyz {
+    const [x, y] = angleXY(angle - 90, d, origin);
+    return [0, y, -x];
+  }
+  plotRoofPoints() {
+    const offset = -this.cross.roofPoints[RoofPoint.wallInside][0];
+    Object.entries(this.cross.roofPoints).map(([key, p]) => {
+      if (!key.includes("Inside")) return;
+      console.log(key); // was here
+      const helper = new THREE.AxesHelper(1);
+      helper.position.set(0, p[1], -p[0] - offset);
+      this.scene.add(helper);
+    });
+  }
+
+  /// THREEJS ////
+
+  scaleZInOut(key: ConstructionParts, mesh, duration = 0.3, ease = "power3") {
+    this.animations[key].to(mesh.position, {
+      z: 0,
+      duration,
+      ease,
+    });
+    this.animations[key].to(
+      mesh.scale,
+      {
+        z: 0,
+        x: 0,
+        duration,
+        ease,
+      },
+      `<`
+    );
+    this.animations[key].to(mesh, {
+      visible: false,
+      duration: 0,
+    });
+  }
+  scaleYInOut(key: ConstructionParts, mesh, duration = 0.3, ease = "power3") {
+    this.animations[key].to(mesh.position, {
+      y: 0,
+      duration,
+      ease,
+    });
+    this.animations[key].to(
+      mesh.scale,
+      {
+        y: 0,
+        z: 0,
+        duration,
+        ease,
+      },
+      `<`
+    );
+    this.animations[key].to(mesh, {
+      visible: false,
+      duration: 0,
+    });
+  }
+  scaleXInOut(key: ConstructionParts, mesh, duration = 0.3, ease = "power3") {
+    const ani = this.animations[key];
+    this.animations[key].to(mesh.position, {
+      x: 0,
+      duration,
+      ease,
+    });
+    this.animations[key].to(
+      mesh.scale,
+      {
+        z: 0,
+        x: 0,
+        duration,
+        ease,
+      },
+      `<`
+    );
+    this.animations[key].to(mesh, {
+      visible: false,
+      duration: 0,
+    });
   }
 
   importDude() {
@@ -968,17 +977,6 @@ export class ThreeConstructionComponent extends BaseThreeComponent<ConstructionP
   }
 
   buildRoofTapes() {}
-
-  plotRoofPoints() {
-    const offset = -this.cross.roofPoints[RoofPoint.wallInside][0];
-    Object.entries(this.cross.roofPoints).map(([key, p]) => {
-      if (!key.includes("Inside")) return;
-      console.log(key); // was here
-      const helper = new THREE.AxesHelper(1);
-      helper.position.set(0, p[1], -p[0] - offset);
-      this.scene.add(helper);
-    });
-  }
 
   buildInsulation() {
     // this.plotRoofPoints();
@@ -1688,7 +1686,7 @@ export class ThreeConstructionComponent extends BaseThreeComponent<ConstructionP
     const rows = Math.ceil(this.demoWith / w);
     for (let row of [...Array(rows).keys()]) {
       row = rows - 1 - row;
-      const mesh = this.threeService.createCube({
+      const mesh = this.threeService.createBox({
         material: Material.hollowCoreSlap,
         whd: [w, h, d],
       });
@@ -1903,7 +1901,6 @@ export class ThreeConstructionComponent extends BaseThreeComponent<ConstructionP
       }
     );
   }
-
   buildOuterSheet() {
     const key = ConstructionParts.outerSheet;
     const totalLength = this.demoWith;

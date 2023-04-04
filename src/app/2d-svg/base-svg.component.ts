@@ -143,11 +143,12 @@ export class BasicSVG {
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
     if (this.observer) this.observer.unobserve(this.host.nativeElement);
-    this.houseService.destroyParts();
   }
   svgUpdateMarginAndSize() {}
 
   setUp() {
+    this.houseService.destroyParts();
+
     this.svg = d3.select<SVGElement, undefined>(this.svgEl.nativeElement);
     this.g = this.svg.select("g");
     // resize
