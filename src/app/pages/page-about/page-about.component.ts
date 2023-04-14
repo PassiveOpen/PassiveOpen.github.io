@@ -1,10 +1,5 @@
-import { AfterViewInit, Component, HostListener } from "@angular/core";
+import { Component } from "@angular/core";
 import { AppService } from "src/app/app.service";
-import { Section, Tag } from "src/app/components/enum.data";
-import { RoofStyle } from "src/app/house/cross.model";
-import { House } from "src/app/house/house.model";
-import { HouseService } from "src/app/house/house.service";
-import { round } from "src/app/shared/global-functions";
 import {
   faDiscord,
   faGithub,
@@ -31,8 +26,5 @@ export class PageAboutComponent {
   faPatreon = faPatreon;
   faInstagram = faInstagram;
 
-  constructor(
-    private houseService: HouseService,
-    private appService: AppService
-  ) {}
+  constructor(private appService: AppService) {}
 }

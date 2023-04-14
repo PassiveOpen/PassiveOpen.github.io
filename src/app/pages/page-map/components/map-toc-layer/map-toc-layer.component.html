@@ -1,0 +1,13 @@
+<ng-container *ngFor=" let layer of layers$|async">
+
+  <!-- <mat-slider min="0" max="1" step="0.01" (valueChange)="setOpacity(layer, $event)" [value]="layer.getOpacity()">
+    <input matSliderThumb>
+  </mat-slider> -->
+  <checkbox-toc [floatLeft]=false (stateChange)="setVisible(layer)" [state]="layer.getVisible()">
+    <span label> {{layer.getProperties()['name']}} </span>
+    <span icon>
+      {{layer.getProperties()['name']}}
+    </span>
+  </checkbox-toc>
+
+</ng-container>

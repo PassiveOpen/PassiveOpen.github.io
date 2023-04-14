@@ -15,7 +15,7 @@ import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import ImageArcGISRest from "ol/source/ImageArcGISRest.js";
 import { Point, Polygon } from "ol/geom";
-import { Select, Translate } from "ol/interaction.js";
+import { Draw, Select, Translate } from "ol/interaction.js";
 import {
   angleBetween,
   angleXY,
@@ -24,7 +24,7 @@ import {
 } from "src/app/shared/global-functions";
 import { OLBaseMapService } from "./openlayers/ol-basemap.service";
 import { OLMeasureService } from "./openlayers/ol-measure.service";
-import { fromEvent, map, tap } from "rxjs";
+import { fromEvent, map, tap, Subscription, startWith, of } from "rxjs";
 import { Circle, Fill, Icon, Stroke, Style, Text } from "ol/style";
 import { OLViewService } from "./openlayers/ol-view.service";
 import BaseLayer from "ol/layer/Base";
@@ -34,7 +34,6 @@ import { Floor, Graphic } from "src/app/components/enum.data";
 
 import RotateFeatureInteraction from "ol-rotate-feature";
 import { SelectEvent } from "ol/interaction/Select";
-import { Subscription } from "rxjs";
 import { degToRad, radToDeg } from "three/src/math/MathUtils";
 import { ColorService, Color } from "src/app/components/color/color.service";
 import { TurfService } from "./openlayers/turf.service";
@@ -47,9 +46,11 @@ import {
 import { AppService } from "src/app/app.service";
 import { OLLayerService } from "./openlayers/ol-layers.service";
 import { LayerKey, LayerProperties } from "./openlayers/ol-model";
-import { MapOverlayComponent } from "./map-overlay/map-overlay.component";
+import { MapOverlayComponent } from "./components/map-overlay/map-overlay.component";
 import { HttpClient } from "@angular/common/http";
 import { Coordinate } from "ol/coordinate";
+import { OLContextService } from "./openlayers/ol-context.service";
+import { OLPrintService } from "./openlayers/ol-print.service";
 
 @Component({
   selector: "app-page-map",
@@ -75,6 +76,7 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
     roofCenter: this.roofCenter,
     roofCenterShow: false,
   });
+  identifyActive = true;
 
   constructor(
     private zone: NgZone,
@@ -86,11 +88,13 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
     private colorService: ColorService,
     private turfService: TurfService,
     private appService: AppService,
-    private httpClient: HttpClient
+    private httpClient: HttpClient,
+    private olPrintService: OLPrintService,
+    private olContextService: OLContextService
   ) {}
 
   ngOnDestroy(): void {
-    [this.olViewService].forEach((x) => x.onDestroy());
+    [this.olViewService, this.olContextService].forEach((x) => x.onDestroy());
     this.subscriptions.forEach((x) => x.unsubscribe());
   }
 
@@ -101,8 +105,8 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
     });
     this.getHousePolygon();
     this.layers = [
-      ...this.olBaseMapService.getBaseLayers(),
-      ...this.olLayerService.getLayers(this.houseFeature),
+      ...this.olBaseMapService.initBaseLayers(),
+      ...this.olLayerService.initLayers(this.houseFeature),
     ];
 
     this.zone.runOutsideAngular(() => this.initMap());
@@ -144,21 +148,49 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
   initMap() {
     this.olViewService.init(this.origin, 15);
 
+    const printDpi = 300; // Print resolution in DPI
+    const pixelRatio = printDpi / 96; // Pixel ratio for the print resolution
+
     this.map = new Map({
       view: this.olViewService.view,
       layers: this.layers,
       target: this.mapEl.nativeElement,
       overlays: [this.overlay.overlay],
+      pixelRatio,
     });
 
+    this.olContextService.init(this.map, this.overlay);
+    this.olPrintService.init(this.map);
     this.addInteractions();
     this.olMeasureService.init(this.map);
     this.olBaseMapService.map = this.map;
     (window as any).map = this.map;
+    // this.draw();
   }
 
   zoom(resolution) {
     return Math.log2(156543.03390625) - Math.log2(resolution);
+  }
+
+  // Dev only allows to draw a polygon
+  draw() {
+    let draw; // global so we can remove it later
+
+    this.identifyActive = false;
+    const source = new VectorSource({
+      wrapX: false,
+    });
+    draw = new Draw({
+      source,
+      type: "Polygon",
+    });
+    this.map.addLayer(
+      new VectorLayer({
+        source,
+      })
+    );
+
+    this.map.addInteraction(draw);
   }
 
   addInteractions() {
@@ -294,6 +326,7 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
     };
     const select = new Select({
       style: createSelectStyle,
+      layers: [this.olLayerService.getLayer(LayerKey.House)],
     });
     const translate = new Translate({
       features: select.getFeatures(),
@@ -321,8 +354,17 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
           setPivot();
           const xy = rotate.getAnchor();
           if (!xy) return;
-          const [lng, lat] = toLonLat(xy).map((x) => x.toFixed(8));
-          console.log(`${this.rotation}°,  ${lat},${lng}`);
+          const [lng, lat] = toLonLat(xy);
+          console.log(
+            `${this.rotation}°,  ${lat.toFixed(8)},${lng.toFixed(8)}`
+          );
+          const house = this.houseService.house$.value;
+          house.orientation = {
+            rotation: this.rotation,
+            lat,
+            lng,
+          };
+          this.houseService.house$.next(house);
         }),
         fromEvent(rotate, "rotatestart").subscribe((e) => {
           this.houseFeature.setProperties({
@@ -340,6 +382,8 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
         }),
         fromEvent(select, "select").subscribe((e: SelectEvent) => {
           const selected = e.selected[0];
+          console.log(e);
+
           if (selected) {
             this.overlay.enabled = false;
             this.overlay.close();
@@ -354,54 +398,15 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
             this.map.removeInteraction(translate);
           }
         }),
-        fromEvent(this.map, "singleclick").subscribe(
-          (event: MapBrowserEvent<any>) =>
-            this.overlay.setPopup(event.coordinate, () =>
-              this.identify(event.coordinate)
-            )
-        ),
+        // fromEvent(this.map, "singleclick").subscribe(
+        //   (event: MapBrowserEvent<any>) => {
+        //     if (!this.identifyActive) return;
+        //     this.overlay.setPopup(event.coordinate, () =>
+        //       this.identify(event.coordinate)
+        //     );
+        //   }
+        // ),
       ]
     );
-  }
-
-  identify(coordinate: Coordinate) {
-    const layer = this.olLayerService.layers$.value.find(
-      (x) => x.getProperties().key === LayerKey.test
-    );
-    const url = layer.getSource().getUrl().trim("/") + "/identify";
-
-    const params = {
-      geometry: `${coordinate[0]}, ${coordinate[1]}`,
-      geometryType: "esriGeometryPoint",
-      sr: 3857,
-      layers: "all",
-      tolerance: "2",
-      mapExtent: `${coordinate[0]}, ${coordinate[1]},${coordinate[0]}, ${coordinate[1]}`,
-      imageDisplay: "2,2,2",
-      returnGeometry: false,
-      f: "pjson",
-    };
-
-    return this.httpClient
-      .get(url, {
-        params,
-      })
-      .pipe(
-        tap((response: any) => {
-          if (response.error) {
-            console.error(`ESRI error`, response.error);
-            throw new Error(response.error.message);
-          }
-        }),
-        map((response: any) => {
-          return response.results
-            .map((feature) => {
-              console.log(feature);
-
-              return `${feature.layerName} - ${feature.attributes.layerName}`;
-            })
-            .join("<br/>");
-        })
-      );
   }
 }

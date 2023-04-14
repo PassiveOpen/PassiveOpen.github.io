@@ -23,6 +23,7 @@ import {
   State,
   StatesExtended,
 } from "../enum.data";
+import { BasemapKey } from "src/app/pages/page-map/openlayers/ol-model";
 
 type SensorIcon = {
   state: SensorType;
@@ -43,6 +44,8 @@ export class ControlsComponent implements OnInit {
   set toc(state: boolean) {
     this.cookieService.set("toc", `${state}`);
   }
+
+  BasemapKeys = Object.values(BasemapKey);
 
   house$ = this.houseService.house$;
   Floor = Floor;

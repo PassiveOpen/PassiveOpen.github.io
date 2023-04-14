@@ -33,6 +33,10 @@
         <app-svg-cross *ngIf="graphic === Graphic.cross" class="svg-cross"></app-svg-cross>
       </div>
       <div *ngIf="graphic !== Graphic.none" class="floating floating-right">
+        <ng-container *ngIf="graphic === Graphic.scrollerHeat">
+          <app-svg-scoller-heat></app-svg-scoller-heat>
+        </ng-container>
+
         <ng-container *ngIf="graphic === Graphic.house2D">
           <app-svg-stair-plan [isChild]="true" class="svg-plan-stair-plan" fxFlex="0 0 0">
           </app-svg-stair-plan>

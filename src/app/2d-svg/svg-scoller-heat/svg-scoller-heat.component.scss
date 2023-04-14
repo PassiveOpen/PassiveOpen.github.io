@@ -1,0 +1,123 @@
+::ng-deep {
+  svg {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: 0.4s;
+  }
+
+  .curve-group {
+    g {
+      transition: 0.2s;
+    }
+    stroke: var(--color-80);
+    fill: var(--primary);
+  }
+  .link {
+    transition: all 200ms ease;
+    transition-property: opacity, fill;
+    opacity: 1;
+    .link-path {
+      stroke: var(--color-80);
+      fill: none;
+    }
+    .link-text {
+      text-anchor: middle;
+      dominant-baseline: middle;
+      stroke: var(--color-0);
+      stroke-opacity: 1;
+      stroke-width: 12px;
+      paint-order: stroke;
+    }
+  }
+  .balloon-group {
+    fill: black;
+    color: black;
+    .balloon {
+      transition: 0.2s;
+      rect {
+        fill: #ddd;
+        stroke: var(--color-80);
+      }
+      text {
+        text-anchor: middle;
+        dominant-baseline: middle;
+        font-size: 1.2em;
+        font-weight: 500;
+        letter-spacing: 130%;
+        transform: translate(0px, -14px);
+      }
+      &#balloon-electricity {
+        rect {
+          fill: rgb(255, 252, 85);
+        }
+      }
+      &#balloon-thermal {
+        rect {
+          fill: rgb(228, 105, 34);
+        }
+      }
+      foreignObject {
+        width: 60px;
+        height: 60px;
+        transform: translate(-30px, -10px);
+      }
+    }
+  }
+
+  @mixin no-balloon() {
+    rect {
+      fill: var(--color-5);
+      stroke-dasharray: 4 4;
+    }
+    foreignObject,
+    text {
+      opacity: 0.5;
+    }
+  }
+  @mixin no-heat-pump() {
+    #balloon-heat-pump {
+      @include no-balloon();
+    }
+    #link-heat-pump-thermal,
+    #link-electricity-heat-pump,
+    #link-heat-pump-tank {
+      opacity: 0.5;
+      stroke-dasharray: 4 4;
+    }
+  }
+
+  //<============== Sections ===============>//
+
+  .section-heat-storage {
+    @include no-heat-pump();
+  }
+
+  .section-energy-production-problem1 {
+    @include no-heat-pump();
+    #balloon-thermal {
+      @include no-balloon();
+    }
+    #solar-net-curve {
+      opacity: 0.6 !important;
+      stroke-width: 3px;
+    }
+  }
+
+  .section-energy-production-problem2 {
+    #link-solar-electricity,
+    #balloon-solar {
+      opacity: 0;
+    }
+  }
+
+  //<============== Sections ===============>//
+
+  //<============== Tags ===============>//
+
+  //<============== Tags ===============>//
+}
+
+//<============== States ===============>//
+
+//<============== States ===============>//

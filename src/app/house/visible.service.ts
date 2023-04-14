@@ -451,6 +451,8 @@ export class StateService {
       ].includes(section)
     ) {
       return Graphic.none;
+    } else if (section.startsWith("energy")) {
+      return Graphic.scrollerHeat;
     }
     return Graphic.none;
   }

@@ -32,19 +32,6 @@ p {
   line-height: 1.1em;
 }
 
-section {
-  border-left: 1px solid var(--color-0);
-  transition: 0.6s;
-  margin: 0 0 0 0;
-  padding: 8vh 4px 20vh 16px;
-  &.section-active {
-    border-left-color: var(--color-20);
-  }
-  &:hover {
-    border-left-color: var(--color-30);
-  }
-}
-
 a {
   color: rgb(31, 31, 31);
   text-decoration: none;
@@ -63,45 +50,75 @@ a.larger-link {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-
   line-height: 0rem;
   border-radius: 4px;
-
   &:hover {
     transition: 0.2s;
     background: var(--color-50) !important;
     color: var(--color-0) !important;
   }
 }
-// Sliders
-section > label {
-  width: 100%;
-  border: 1px solid var(--color-30);
-  display: block;
-  border-radius: 4px;
-  padding: 4px 16px;
-  margin: 16px 0;
-  box-sizing: border-box;
-  position: relative;
-  font-size: 1em;
 
-  & > span:first-of-type {
-    position: relative;
-    top: -0.2em;
-    padding: 0 1.5em;
-    display: block;
-    width: fit-content;
-    margin-top: -0.8em;
+section {
+  border-left: 1px solid var(--color-0);
+  transition: 0.6s;
+  margin: 0 0 0 0;
+  padding: 8vh 4px 20vh 16px;
+  &.section-active {
+    border-left-color: var(--color-20);
   }
-
-  .mat-slider {
+  &:hover {
+    border-left-color: var(--color-30);
+  }
+  &.section-invisible {
+    opacity: 0;
+    pointer-events: none;
+    padding: 0;
+  }
+  &.section-small {
+    margin-left: -8px;
+    padding: 0px 16px 24px;
+    transition: 0.6s;
+    h3 {
+      font-size: 1.1em;
+    }
+    &.section-active,
+    &:hover {
+      border: solid 1px var(--color-30);
+      border-radius: 4px;
+    }
+  }
+  & > label {
     width: 100%;
-  }
+    border: 1px solid var(--color-30);
+    display: block;
+    border-radius: 4px;
+    padding: 4px 16px;
+    margin: 16px 0;
+    box-sizing: border-box;
+    position: relative;
+    font-size: 1em;
+    transition: 0.2s;
 
-  &.technical {
-    font-size: 0.9em;
-    line-height: 1.1em;
-    color: green;
+    & > span:first-of-type {
+      position: relative;
+      top: -0.2em;
+      padding: 0 1.5em;
+      display: block;
+      width: fit-content;
+      margin-top: -0.8em;
+      border-radius: 4px;
+    }
+
+    .mat-slider {
+      width: 100%;
+    }
+
+    &.technical {
+      font-size: 0.9em;
+      line-height: 1.1em;
+      color: green;
+    }
   }
 }
 

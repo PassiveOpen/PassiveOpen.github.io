@@ -38,6 +38,7 @@
     "ngx-disqus": "^2.4.3",
     "ngx-google-analytics": "^14.0.0",
     "ol": "^7.1.0",
+    "ol-contextmenu": "^5.2.1",
     "ol-rotate-feature": "^3.0.1",
     "print-js": "^1.6.0",
     "rxjs": "~7.5.0",

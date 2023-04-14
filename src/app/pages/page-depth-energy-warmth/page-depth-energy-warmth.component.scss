@@ -1,0 +1,9 @@
+h3 {
+  font-weight: 500;
+}
+label {
+  &:hover {
+    background-color: var(--color-5);
+  }
+  cursor: help;
+}

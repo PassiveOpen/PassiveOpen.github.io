@@ -1,0 +1,110 @@
+<section [id]="Section.energyWelcome">
+  <h1>The energy flow</h1>
+</section>
+
+
+<ng-template #cop>
+  Short for 'coefficient of performance'. The COP is a measure of how efficient a heat pump is. See it as follow: if you
+  have a COP of 4, you can use 1 kWh of electricity to produce 4 kWh of heat. The heat is often coming from the outside
+  air or ground.
+</ng-template>
+
+
+
+
+<section [id]="Section.energyUsage">
+  <h2>Two types of energy</h2>
+  In a house we use <b>electricity</b> for lighting, heating, cooling, cooking, and entertainment.
+  <Br><br>
+  We use <b>thermal </b> energy (heat) for heating, and hot water. Often we use gas to heat water, or in modern homes
+  we use electricity.
+  <Br><br>
+  Even in modern houses a large part of the energy is used for heating.
+
+
+
+</section>
+
+<section [id]="Section.energyProduction">
+  <h2>Production</h2>
+
+  A modern house has a heat-pump to create thermal energy (heat). With a <tag [tag]="Tag.cop" [overlayTemplate]="cop">
+    COP</tag> often around 4, it
+  is very efficient. The heat-pump is powered by electricity, and the heat is stored in water tanks.
+  <br><br>
+  A very sustainable renewable electricity production is with <b>solar panels</b>.
+  <br><br>
+
+  <section [id]="Section.energyProductionProblem1" class="section-small">
+    <h3>Problem: Overproduction </h3>
+    If the sun is shining, your probably don't need so much power to heat your house. You probably sell
+    the
+    energy to the net. Of course some devices need electricity so panels can help with that.
+  </section>
+  <br>
+  <section [id]="Section.energyProductionProblem2" class="section-small">
+    <h3>Problem: Out of sync</h3>
+    The demand for energy is not in sync with the availability of sunlight. For example, electricity usage is
+    often highest in the evenings when the sun is not shining, and during the winter season, when the sun is less
+    efficient, there is typically a higher demand for heat.
+  </section>
+
+  <section [id]="Section.energyProduction" class="section-invisible">
+  </section>
+  <br>
+  A common solution for both problems is
+  With a net connection you can financially balance this, with selling energy back to the net. That is however not very
+  sustainable and often nets become overloaded. Not all net-suppliers or countries allow this. An other solution is to
+  store the electricity and heat.
+
+</section>
+
+
+
+
+
+
+
+
+
+
+<section [id]="Section.energyStorage">
+  <h2>Storage</h2>
+  A common solution is to have batteries to store energy to generate heat when the sun is not shining.
+  Batteries are expensive and not very sustainable. Of course some batteries could be
+  helpful in the nights. If you receive green energy you could store it in batteries and use it in the night. This is
+  especially useful if you have an hourly rate for electricity.
+
+  <br><br>
+  It is more affordable and better to store heat in water thanks. Since the most energy of a house in the winter is used
+  for heating, it is better to store the heat in water tanks instead of batteries.
+</section>
+
+
+
+<section [id]="Section.energyPreserve">
+  <h2>Preserve / Efficiency first</h2>
+
+  Hot fill. Machines that use hot water, like dishwashers, could be filled with hot water. Because the water is heated
+  sustainable or efficient (with a high COP), it is better to use hot water from the water buffer than let the machines
+  self heat the water.
+
+
+  COP 4 is much better. So to use the heatpump
+</section>
+
+
+<section [id]="Section.energyAlternatives">
+  <h2>Alternative heat production</h2>
+
+  The heat-pump is very efficient, but expensive and not the only solution. There are other ways to produce heat.
+
+  <ol>
+    <li>Solar thermal collector</li>
+    <li>Wood stove / fireplace</li>
+    <li>Biomeiler</li>
+    <li>City / block heating</li>
+    <li>Pallet stove</li>
+    <li>Bio gas</li>
+  </ol>
+</section>

@@ -25,6 +25,7 @@ export const animationSlideInOut = trigger("slideInOut", [
     ),
   ]),
 ]);
+
 export const animationFallInOut = trigger("fallInOut", [
   transition(":enter", [
     style({ transform: "translateY(-100%)" }),
@@ -42,10 +43,22 @@ export const animationFallInOut = trigger("fallInOut", [
 ]);
 
 export const stateSlideIn = trigger("stateSlideIn", [
-  state("false", style({ width: "0px", padding: 0 })),
-  state("true", style({ width: "*", padding: "*" })),
+  state("false", style({ width: "0px", padding: 0, borderWidth: 0 })),
+  state("true", style({ width: "*", padding: "*", borderWidth: "*" })),
   transition("* => void", [
-    animate("200ms ease-in", style({ width: "0px", padding: 0 })),
+    animate(
+      "200ms ease-in",
+      style({ width: "0px", padding: 0, borderWidth: 0 })
+    ),
+  ]),
+  transition("false => true", animate("200ms ease-in")),
+  transition("true => false", animate("200ms ease-out")),
+]);
+export const foldSlideIn = trigger("foldSlideIn", [
+  state("false", style({ transform: "scaleX(0)" })),
+  state("true", style({ transform: "*" })),
+  transition("* => void", [
+    animate("200ms ease-in", style({ transform: "scaleX(0)" })),
   ]),
   transition("false => true", animate("200ms ease-in")),
   transition("true => false", animate("200ms ease-out")),

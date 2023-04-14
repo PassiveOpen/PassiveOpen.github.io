@@ -1,19 +1,26 @@
 import {
+  CdkOverlayOrigin,
   ConnectionPositionPair,
   Overlay,
   OverlayRef,
-} from '@angular/cdk/overlay';
-import { ComponentPortal } from '@angular/cdk/portal';
-import { ComponentRef, ElementRef, Injectable } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
-import { BaseSVG } from 'src/app/model/base.model';
-import { Sensor } from 'src/app/model/specific/sensors/sensor.model';
-import { HouseService } from '../../house/house.service';
-import { TooltipComponent } from './tooltip.component';
+} from "@angular/cdk/overlay";
+import { ComponentPortal } from "@angular/cdk/portal";
+import {
+  ComponentRef,
+  ElementRef,
+  Injectable,
+  QueryList,
+  ViewChildren,
+} from "@angular/core";
+import { SafeHtml } from "@angular/platform-browser";
+import { BehaviorSubject, Subject, takeUntil } from "rxjs";
+import { BaseSVG } from "src/app/model/base.model";
+import { Sensor } from "src/app/model/specific/sensors/sensor.model";
+import { HouseService } from "../../house/house.service";
+import { TooltipComponent } from "./tooltip.component";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class TooltipService {
   tooltipHTML$ = new BehaviorSubject<SafeHtml>(undefined);
@@ -51,7 +58,6 @@ export class TooltipService {
     }
   }
   updateOverlay() {
-    // console.log(this.origin);
     // if (this.overlayRef && !this.overlayRef.hasAttached()) {
     //   this.overlayRef.updatePosition();
     // }
@@ -72,17 +78,17 @@ export class TooltipService {
       .flexibleConnectedTo(this.origin)
       .withPositions([
         new ConnectionPositionPair(
-          { originX: 'center', originY: 'top' },
-          { overlayX: 'center', overlayY: 'bottom' },
+          { originX: "center", originY: "top" },
+          { overlayX: "center", overlayY: "bottom" },
           0,
           -20
         ),
         new ConnectionPositionPair(
-          { originX: 'center', originY: 'bottom' },
-          { overlayX: 'center', overlayY: 'top' },
+          { originX: "center", originY: "bottom" },
+          { overlayX: "center", overlayY: "top" },
           0,
           20,
-          'flipped'
+          "flipped"
         ),
       ])
       .withPush(true);

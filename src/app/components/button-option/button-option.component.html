@@ -1,0 +1,27 @@
+<!-- <div class="container" [class.float-left]="floatLeft" [class.float-right]="!floatLeft" [@foldSlideIn]="hover"
+  (mouseleave)="mouseleave()">
+
+  <div class="content">
+
+    <ng-content select="[options]"></ng-content>
+  </div>
+  <div class="block"></div>
+</div>
+ -->
+
+
+<!-- <div class="app-nav-item" >
+  <ng-content select="[trigger]"></ng-content>
+</div> -->
+
+<button mat-mini-fab color="accent" (mouseenter)="mouseEnter(menuTrigger)">
+  <ng-content select="[icon]"></ng-content>
+</button>
+
+<div class="origin" [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger"></div>
+
+<mat-menu #menu="matMenu" [hasBackdrop]="false" style="z-index:99999" xPosition="before">
+  <div (mouseenter)="mouseEnter(menuTrigger)" (mouseleave)="mouseLeave(menuTrigger)">
+    <ng-content select="[options]"></ng-content>
+  </div>
+</mat-menu>

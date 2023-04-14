@@ -27,6 +27,10 @@ export enum Tag {
   airTight = "air-tight",
   pipeLayer = "pipe-layer",
   woodFiberPlate = "wood-fiber-plate",
+
+  noSun = "no-sun",
+  sun = "sun",
+  cop = "cop",
 }
 
 export enum Section {
@@ -133,6 +137,16 @@ export enum Section {
 
   //Extra
   House3D = "House3D",
+
+  // energy
+  energyWelcome = "energy-welcome",
+  energyUsage = "energy-use",
+  energyProduction = "energy-production",
+  energyProductionProblem1 = "energy-production-problem1",
+  energyProductionProblem2 = "energy-production-problem2",
+  energyStorage = "energy-storage",
+  energyPreserve = "energy-preserve",
+  energyAlternatives = "energy-alternatives",
 }
 export enum Floor {
   top = "top",
@@ -156,6 +170,7 @@ export enum Graphic {
   construction = "construction",
   House3D = "House3D",
   map = "map",
+  scrollerHeat = "scrollerHeat",
   none = "none",
 }
 

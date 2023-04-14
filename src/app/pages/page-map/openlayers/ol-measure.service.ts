@@ -13,25 +13,30 @@ import { Geometry, LineString, Point } from "ol/geom";
 import VectorSource from "ol/source/Vector.js";
 import { Vector as VectorLayer } from "ol/layer";
 import { getArea, getLength } from "ol/sphere";
-import { angleBetween } from "src/app/shared/global-functions";
-import { Subscription, fromEvent, filter } from "rxjs";
+import { angleBetween, round } from "src/app/shared/global-functions";
+import { Subscription, fromEvent, filter, Subject } from "rxjs";
 
-enum DrawType {
+export enum MeasuringDrawType {
   Length = "LineString",
   Area = "Polygon",
   Point = "Point", // only for style
+}
+
+enum Unit {
+  km = "km",
+  ha = "ha",
 }
 
 @Injectable({
   providedIn: "root",
 })
 export class OLMeasureService {
-  DrawType = DrawType; //enum
+  DrawType = MeasuringDrawType; //enum
   active = false;
   showSegments = true;
   clearPrevious = true;
   idle = true;
-  drawType = DrawType.Length;
+  drawType = MeasuringDrawType.Length;
   tipPoint;
   segmentStyles = [];
   source = new VectorSource();
@@ -40,8 +45,11 @@ export class OLMeasureService {
   map: Map;
   tip = "";
   halfAreaTip = `Click to start`;
+  unit = Unit.ha;
+  onDraw$ = new Subject();
+
   get type() {
-    return this.drawType === DrawType.Area ? "area" : "distance";
+    return this.drawType === MeasuringDrawType.Area ? "area" : "distance";
   }
   get idleTip() {
     return `Start measurement of ${this.type}`;
@@ -168,13 +176,14 @@ export class OLMeasureService {
   }
 
   nextType() {
-    if (this.drawType === DrawType.Area) {
-      this.drawType = DrawType.Length;
+    if (this.drawType === MeasuringDrawType.Area) {
+      this.drawType = MeasuringDrawType.Length;
     } else {
-      this.drawType = DrawType.Area;
+      this.drawType = MeasuringDrawType.Area;
     }
     this.source.clear();
     this.activate(false);
+    this.activate(true);
   }
 
   /**
@@ -291,7 +300,11 @@ export class OLMeasureService {
   formatArea(polygon) {
     const area = getArea(polygon);
     if (area > 10000) {
-      return Math.round((area / 1000000) * 100) / 100 + " km\xB2";
+      if (this.unit === Unit.km) {
+        return `${round(area / 1000000, 3)} km\xB2`;
+      } else if (this.unit === Unit.ha) {
+        return `${round(area / 10000, 3)} ha`;
+      }
     } else {
       return Math.round(area * 100) / 100 + " m\xB2";
     }
@@ -308,19 +321,19 @@ export class OLMeasureService {
     const drawType = geometry.getType();
     let point: Point, label: string, line: LineString;
 
-    if (drawType === DrawType.Area) {
+    if (drawType === MeasuringDrawType.Area) {
       point = geometry.getInteriorPoint();
       label = this.formatArea(geometry);
       line = new LineString(geometry.getCoordinates()[0]);
       this.tip =
         line.getCoordinates().length < 4 ? this.halfAreaTip : this.activeTip;
-    } else if (drawType === DrawType.Length) {
+    } else if (drawType === MeasuringDrawType.Length) {
       point = new Point(geometry.getLastCoordinate());
       label = this.formatLength(geometry);
       line = geometry;
       this.tip = this.idle ? this.idleTip : this.activeTip;
     }
-
+    this.onDraw$.next(undefined);
     if (this.showSegments && line) {
       let count = 0;
 
@@ -349,7 +362,7 @@ export class OLMeasureService {
     // New label at (re)start
     if (
       this.tip &&
-      drawType === DrawType.Point &&
+      drawType === MeasuringDrawType.Point &&
       !this.modify.getOverlay().getSource().getFeatures().length
     ) {
       this.tipPoint = geometry;

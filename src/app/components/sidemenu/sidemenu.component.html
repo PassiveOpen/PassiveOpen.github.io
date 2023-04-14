@@ -27,6 +27,7 @@
 </mat-menu>
 
 
+
 <mat-menu #house="matMenu">
   <button mat-menu-item routerLink="/house" [disabled]="house2d.isActive" #house2d="routerLinkActive"
     routerLinkActive="active" (click)="click()">
@@ -70,7 +71,19 @@
     <mat-icon>solar_power</mat-icon>
     <span>Installations</span>
   </button>
+  <button mat-menu-item [matMenuTriggerFor]="depth">More in depth</button>
 </mat-menu>
+
+<mat-menu #depth="matMenu">
+  <button mat-menu-item routerLink="/energy&heat" [disabled]="energyheat.isActive" #energyheat="routerLinkActive"
+    routerLinkActive="active" (click)="click()">
+    <mat-icon>fireplace</mat-icon>
+    <span>Energy & heat</span>
+  </button>
+</mat-menu>
+
+
+
 <mat-menu #planningAndCosts="matMenu">
   <button mat-menu-item routerLink="/costs" [disabled]="costs.isActive" #costs="routerLinkActive"
     routerLinkActive="active" (click)="click()">

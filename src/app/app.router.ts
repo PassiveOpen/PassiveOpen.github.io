@@ -11,6 +11,7 @@ import { PageCostsComponent } from "./pages/page-costs/page-costs.component";
 import { PageAboutComponent } from "./pages/page-about/page-about.component";
 import { Page3dHouseComponent } from "./pages/page-3d-house/page-3d-house.component";
 import { PagePlanningComponent } from "./pages/page-planning/page-planning.component";
+import { PageDepthEnergyWarmthComponent } from "./pages/page-depth-energy-warmth/page-depth-energy-warmth.component";
 
 export const routes: Routes = [
   { path: "map", component: PageMapComponent },
@@ -28,6 +29,9 @@ export const routes: Routes = [
       { path: "construction", component: PageConstructionComponent },
       { path: "house3d", component: Page3dHouseComponent },
       { path: "wired", component: PageWiredComponent },
+
+      { path: "energy&heat", component: PageDepthEnergyWarmthComponent },
+
       { path: "**", redirectTo: "house", pathMatch: "full" },
     ],
   },

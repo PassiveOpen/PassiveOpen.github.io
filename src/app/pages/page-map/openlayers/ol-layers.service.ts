@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { CookieService } from "ngx-cookie-service";
-import { BehaviorSubject, fromEvent, Subscription } from "rxjs";
+import { BehaviorSubject, fromEvent, Subject, Subscription } from "rxjs";
 import { View } from "ol";
 import { Coordinate } from "ol/coordinate";
 import { AnimationOptions } from "ol/View";
@@ -11,7 +11,9 @@ import VectorLayer from "ol/layer/Vector";
 import { environment } from "src/environments/environment";
 import ImageLayer from "ol/layer/Image";
 import ImageArcGISRest from "ol/source/ImageArcGISRest";
-import BaseLayer from "ol/layer/Base";
+import GeoJSON from "ol/format/GeoJSON.js";
+import { extraLayers } from "../data/layer.data";
+import { Layer } from "ol/layer";
 
 @Injectable({
   providedIn: "root",
@@ -19,12 +21,54 @@ import BaseLayer from "ol/layer/Base";
 export class OLLayerService {
   cookieKey = "ol-layer";
   subscriptions: Subscription[] = [];
-  layers$ = new BehaviorSubject<any[]>([]);
+  layers$ = new BehaviorSubject<Layer[]>([]);
+  update$ = new Subject();
 
-  constructor(private cookieService: CookieService) {}
+  constructor(private cookieService: CookieService) {
+    this.update$.subscribe(() => {
+      this.setStore();
+    });
+  }
+  update() {
+    this.update$.next(undefined);
+  }
 
-  getLayers(houseFeature) {
-    const layers: BaseLayer[] = [
+  getStore(layers: Layer[]) {
+    const cookie = this.cookieService.get(this.cookieKey);
+    if (cookie === "") return;
+    const cookieStr = JSON.parse(cookie);
+
+    cookieStr.forEach((config) => {
+      const layer = layers.find((x) => x.getProperties()["key"] === config.key);
+      if (!layer) return;
+      if (config.visible) layer.setVisible(config.visible);
+      if (config.opacity) layer.setOpacity(config.opacity || 1);
+    });
+    return layers;
+  }
+
+  setStore(): void {
+    const obj = this.layers$.value.map((layer) => {
+      return {
+        key: layer.getProperties()["key"],
+        visible: layer.getVisible(),
+        opacity: layer.getOpacity(),
+      };
+    });
+    this.cookieService.set(this.cookieKey, JSON.stringify(obj));
+  }
+
+  getLayer(key: LayerKey) {
+    const layers = this.layers$.getValue();
+    return layers.find((x) => x.getProperties()["key"] === key);
+  }
+  setLayerProperty(key: LayerKey, property: string, value: any) {
+    const layer = this.getLayer(key);
+    layer.setProperties({ [property]: value });
+  }
+
+  initLayers(houseFeature) {
+    let layers: Layer[] = [
       new VectorLayer({
         source: new VectorSource({
           features: [houseFeature],
@@ -50,56 +94,10 @@ export class OLLayerService {
     ];
 
     if (!environment.production) {
-      layers.push(
-        ...[
-          // new ImageLayer({
-          //   source: new ImageArcGISRest({
-          //     url: "https://maps.geoinfomittskane.se/arcgis/rest/services/GeoInfoMittskane/Fastighetsytor_Horby_Hoor/MapServer",
-          //   }),
-          // }),
-          new ImageLayer({
-            source: new ImageArcGISRest({
-              url: "https://maps.geoinfomittskane.se/arcgis/rest/services/ExternData/Omradesskydd_extern/MapServer",
-            }),
-            properties: new LayerProperties({
-              key: LayerKey.test,
-              name: "Test thing",
-            }),
-            zIndex: 1,
-            visible: false,
-          }),
-          // new ImageLayer({
-          //   source: new ImageArcGISRest({
-          //     url: "https://maps.geoinfomittskane.se/arcgis/rest/services/Planlagd_och_f%C3%B6reslagen_mark_f%C3%B6r_bostad__service_och_verksamhet_i_H%C3%B6rby_kommun_attach/MapServer",
-          //   }),
-          // }),
-          new ImageLayer({
-            source: new ImageArcGISRest({
-              url: "https://maps.geoinfomittskane.se/arcgis/rest/services/Orto/LAS2019/MapServer",
-              params: {},
-            }),
-            properties: new LayerProperties({
-              key: LayerKey.dem,
-              name: "DEM",
-            }),
-            zIndex: 1,
-            // opacity: 0.8,
-            visible: false,
-          }),
-          new ImageLayer({
-            source: new ImageArcGISRest({
-              url: "https://maps.geoinfomittskane.se/arcgis/rest/services/GeoInfoMittskane/Baskarta_tomtkarta_Hby/MapServer",
-            }),
-            properties: new LayerProperties({
-              key: LayerKey.parcel,
-            }),
-            visible: false,
-            zIndex: 1,
-          }),
-        ]
-      );
+      layers.push(...extraLayers);
     }
 
+    layers = this.getStore(layers);
     this.layers$.next(layers);
     return layers;
   }

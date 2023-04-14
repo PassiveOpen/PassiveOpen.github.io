@@ -6,9 +6,9 @@ import {
   Renderer2,
 } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
-import { faDiscord, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { distinct, filter, map } from "rxjs";
 import { AppService } from "./app.service";
+import { MatIconRegistry } from "@angular/material/icon";
 
 @Component({
   selector: "app-root",
@@ -18,7 +18,13 @@ import { AppService } from "./app.service";
 export class AppComponent implements OnInit, AfterViewInit {
   onStart = true;
 
-  constructor(private appService: AppService, private router: Router) {}
+  constructor(
+    private appService: AppService,
+    private router: Router,
+    private iconRegistry: MatIconRegistry
+  ) {
+    this.iconRegistry.setDefaultFontSetClass("material-symbols-outlined");
+  }
 
   //@ts-ignore
   isMobile = navigator.userAgentData.mobile;

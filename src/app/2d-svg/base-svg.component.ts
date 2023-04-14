@@ -236,9 +236,6 @@ export class BasicSVG {
       this.appService.setTransformCookie(transform, this.graphic);
     }
     this.g.transition().duration(duration).attr("transform", transform);
-    //   .on("end", () => {
-    //     this.updateSVG();
-    //   });
   }
 
   updateSVG(forceUpdate = false) {

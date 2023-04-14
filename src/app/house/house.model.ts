@@ -172,6 +172,9 @@ export class House extends HouseUser {
     this.createExtra();
   }
 
+  getLonLat() {
+    return [this.orientation.lng, this.orientation.lat];
+  }
   createExtra() {
     this.parts.push(new AppDistance());
     const part0 = new AppPolyline({

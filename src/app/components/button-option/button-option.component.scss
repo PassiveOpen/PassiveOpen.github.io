@@ -1,0 +1,50 @@
+.container {
+  display: block;
+  position: absolute;
+  float: right;
+  margin: 6px 0px;
+  width: initial;
+  bottom: 0px;
+  transform-origin: bottom right;
+
+  &.float-left {
+    left: 60px;
+  }
+  &.float-right {
+    right: 60px;
+  }
+}
+.content {
+  border: 2px solid var(--color-50);
+  background: var(--color-0);
+  overflow: hidden;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  border-radius: 4px;
+  line-height: 28px;
+  z-index: 2;
+  position: relative;
+}
+.origin {
+  position: absolute;
+  right: 60px;
+  width: 40px;
+  height: 40px;
+  z-index: -1;
+  pointer-events: none;
+}
+::ng-deep {
+  .mat-menu-panel {
+    overflow: visible;
+    & > div > div::before {
+      content: "";
+      position: absolute;
+      bottom: 40px;
+      right: -100px;
+      width: 90px;
+      height: 9px;
+      background: transparent;
+      z-index: -1;
+    }
+  }
+}

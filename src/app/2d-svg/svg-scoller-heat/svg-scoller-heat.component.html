@@ -1,0 +1,41 @@
+<svg #svg class="stairs-plan" class="{{graphic}}" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <marker id='head' orient="auto" markerWidth='8' markerHeight='8' refX='3' refY='4'>
+      <path d='M0,0 L2,4 L0,8 L4,4 Z' fill="black" />
+    </marker>
+  </defs>
+
+
+
+  <g class="scoller">
+
+    <g class="curve-group">
+      <g id="solar-net-curve" style="opacity: 0;"></g>
+    </g>
+
+    <g class="link-group">
+      <ng-container *ngFor="let balloon of balloons">
+        <g id="link-{{link.key}}" class="link" *ngFor="let link of balloon.links">
+          <path class="link-path"></path>
+          <text class="link-text"></text>
+        </g>
+      </ng-container>
+    </g>
+
+    <g class="balloon-group">
+      <g class="balloon" id="balloon-{{balloon.key}}" *ngFor="let balloon of balloons">
+        <rect class="balloon-rect"></rect>
+        <foreignObject x="0" y="0">
+          <i class="material-symbols-outlined" style="font-size: 28px;transform: translate(16px, 8px);"
+            *ngIf="balloon.icon.includes('mdi:')">{{balloon.icon.replace('mdi:','')}}</i>
+          <img class="img" style="width: 28px;height: 28px;transform: translate(14px, 10px);"
+            *ngIf="balloon.icon.includes('local:')" src="assets\svg\{{balloon.icon.replace('local:','')}}" />
+
+        </foreignObject>
+        <text>{{balloon.name}}</text>
+      </g>
+
+    </g>
+
+  </g>
+</svg>

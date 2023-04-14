@@ -1,11 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  HostListener,
-  Renderer2,
-} from "@angular/core";
-import { ActivatedRoute, NavigationEnd, Params, Router } from "@angular/router";
+import { Component } from "@angular/core";
 import {
   faDiscord,
   faGithub,
@@ -13,23 +6,7 @@ import {
   faPatreon,
   faYoutube,
 } from "@fortawesome/free-brands-svg-icons";
-import {
-  tap,
-  filter,
-  map,
-  startWith,
-  fromEvent,
-  throttle,
-  throttleTime,
-} from "rxjs";
 import { AppService } from "src/app/app.service";
-import { RoofStyle } from "src/app/house/cross.model";
-import { HouseService } from "src/app/house/house.service";
-import { StateService } from "src/app/house/visible.service";
-import { round } from "src/app/shared/global-functions";
-import { animationFallInOut, animationSlideInOut } from "../animations";
-import { Graphic, GraphicSide, State, Section, Tag } from "../enum.data";
-import { TooltipService } from "../tooltip/tooltip.service";
 
 @Component({
   selector: "app-footer",
@@ -53,5 +30,5 @@ export class AppFooterComponent {
 
   onStart = true;
 
-  constructor(private appService: AppService, private router: Router) {}
+  constructor(private appService: AppService) {}
 }

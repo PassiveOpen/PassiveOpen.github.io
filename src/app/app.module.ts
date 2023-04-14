@@ -46,13 +46,17 @@ import { PagePlanningComponent } from "./pages/page-planning/page-planning.compo
 import { AppTablePlanningComponent } from "./pages/page-planning/table-planning/table-planning.component";
 import { PageFacadeComponent } from "./pages/page-facade/page-facade.component";
 import { AppFooterComponent } from "./components/footer/footer.component";
-import { MapLayerComponent } from "./pages/page-map/map-layer/map-layer.component";
+import { MapLayerComponent } from "./pages/page-map/components/map-toc-layer/map-toc-layer.component";
 import { AppColorComponent } from "./components/color/color.component";
 import { ButtonStateComponent } from "./components/button-state/button-state.component";
 import { CheckboxStateComponent } from "./components/checkbox-state/checkbox-state.component";
 import { CheckboxTocComponent } from "./components/checkbox-toc/checkbox-toc.component";
 import { AppImgPageComponent } from "./components/img-page/img-page.component";
-import { MapOverlayComponent } from "./pages/page-map/map-overlay/map-overlay.component";
+import { MapOverlayComponent } from "./pages/page-map/components/map-overlay/map-overlay.component";
+import { PageDepthEnergyWarmthComponent } from "./pages/page-depth-energy-warmth/page-depth-energy-warmth.component";
+import { SVGScroller } from "./2d-svg/svg-scroller.component";
+import { SvgScrollerHeatComponent } from "./2d-svg/svg-scoller-heat/svg-scoller-heat.component";
+import { ButtonOptionComponent } from "./components/button-option/button-option.component";
 @NgModule({
   declarations: [
     AppComponent,
@@ -82,6 +86,7 @@ import { MapOverlayComponent } from "./pages/page-map/map-overlay/map-overlay.co
     BaseThreeComponent,
     TooltipComponent,
     OverlayDirective,
+    ButtonOptionComponent,
     ControlsComponent,
     AppMainPageComponent,
     SafeHtmlPipe,
@@ -94,6 +99,9 @@ import { MapOverlayComponent } from "./pages/page-map/map-overlay/map-overlay.co
     AppImgPageComponent,
     ButtonStateComponent,
     MapOverlayComponent,
+    SVGScroller,
+    PageDepthEnergyWarmthComponent,
+    SvgScrollerHeatComponent,
   ],
   imports: [
     BrowserModule,

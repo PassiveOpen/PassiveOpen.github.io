@@ -245,7 +245,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
       <div class="sub-controls" *ngIf="toc" fxLayout="column" fxLayoutAlign="end end" fxLayoutGap="8px">
         <div class="toc-text">
-          <app-map-layer></app-map-layer>
+          <app-map-toc-layer></app-map-toc-layer>
         </div>
 
 
@@ -264,22 +264,23 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
 
 
-      <button-state (click)="olMeasureService.activate()" [disabled]="olMeasureService.active">
-        <span label> {{olMeasureService.active?'Stop': 'Start'}} measuring</span>
-        <span icon>
-          <mat-icon style="font-family:'Material Icons Outlined';">square_foot</mat-icon>
-        </span>
-      </button-state>
 
 
       <!-- (click)="appService.setState(States.walkLine)" [floatLeft]=floatLeft
       *ngIf="[ Graphic.stairPlan].includes(scroll.graphic)" -->
-      <button-state (click)="olBaseMapService.nextBasemap()">
-        <span label> {{olBaseMapService.basemap$ | async}}</span>
+
+
+
+
+      <button-option *ngIf="olBaseMapService.basemap$ | async as basemap">
+        <span options>
+          <button mat-menu-item [disabled]="basemap === basemapKey" (click)="olBaseMapService.setBasemap(basemapKey)"
+            *ngFor="let basemapKey of BasemapKeys">{{basemapKey}}</button>
+        </span>
         <span icon>
           <mat-icon style="font-family:'Material Icons Outlined';">map</mat-icon>
         </span>
-      </button-state>
+      </button-option>
 
 
 
