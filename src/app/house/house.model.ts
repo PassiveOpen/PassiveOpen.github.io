@@ -1,5 +1,4 @@
 import { Cross } from "./cross.model";
-import { lindeLund } from "./lindelund/lindeLund";
 import { Room } from "../model/specific/room.model";
 import { Wall, WallSide, WallType } from "../model/specific/wall.model";
 import { AppPolyline } from "src/app/model/polyline.model";
@@ -172,6 +171,44 @@ export class House extends HouseUser {
     this.createExtra();
   }
 
+  /* Main draw function, which loops through parts */
+  redrawHouse(obj: SvgUpdate) {
+    const loop = (theme, parent) => {
+      parent.parts.forEach(async (part: BaseSVG) => {
+        if (part === undefined) return;
+        // if (part.selector === "L0-West") console.log(part, obj, theme);
+
+        await part.update({ ...obj, theme });
+        if (part.parts !== undefined) loop(theme, part);
+      });
+    };
+
+    if (obj.graphic === Graphic.house2D) {
+      loop(this, this);
+      loop(this.stair, this.stair);
+    }
+    if (obj.graphic === Graphic.cross) {
+      loop(this.cross, this.cross);
+    }
+
+    if ([Graphic.stairCross, Graphic.stairPlan].includes(obj.graphic)) {
+      loop(this.stair, this.stair);
+    }
+  }
+  /** On startup link all, and calculate a start */
+  linkParts() {
+    // Parent, Calculate first, Create selector
+    const load = (part: BaseSVG, parent) => {
+      if (part === undefined) return;
+      part.parent = parent;
+      part.onUpdate(this);
+      part.createSelector();
+      if (part.parts) part.parts.forEach((x) => load(x, part));
+      this.partsFlatten.push(part);
+    };
+    this.partsFlatten = [];
+    this.parts.forEach((x) => load(x, this)); // rooms have house as parent
+  }
   getLonLat() {
     return [this.orientation.lng, this.orientation.lat];
   }
@@ -356,7 +393,6 @@ export class House extends HouseUser {
     //
   }
 
-  // CHecked
   createMeasures() {
     this.parts.push(
       new Measure({
@@ -600,21 +636,6 @@ export class House extends HouseUser {
         this.origin = [2, 0];
       },
     });
-  }
-
-  /** On startup link all, and calculate a start */
-  linkParts() {
-    // Parent, Calculate first, Create selector
-    const load = (part: BaseSVG, parent) => {
-      if (part === undefined) return;
-      part.parent = parent;
-      part.onUpdate(this);
-      part.createSelector();
-      if (part.parts) part.parts.forEach((x) => load(x, part));
-      this.partsFlatten.push(part);
-    };
-    this.partsFlatten = [];
-    this.parts.forEach((x) => load(x, this)); // rooms have house as parent
   }
 
   calculateTower() {
@@ -902,32 +923,6 @@ export class House extends HouseUser {
         this.stramien.out.we.c,
         this.stramien.out.ns.b,
       ]);
-    }
-  }
-
-  /* Main draw function, which loops through parts */
-  redrawHouse(obj: SvgUpdate) {
-    // console.log("redrawHouse:", redrawAll);
-
-    const loop = (theme, parent) => {
-      parent.parts.forEach(async (part: BaseSVG) => {
-        if (part === undefined) return;
-
-        await part.update({ ...obj, theme });
-        if (part.parts !== undefined) loop(theme, part);
-      });
-    };
-
-    if (obj.graphic === Graphic.house2D) {
-      loop(this, this);
-      loop(this.stair, this.stair);
-    }
-    if (obj.graphic === Graphic.cross) {
-      loop(this.cross, this.cross);
-    }
-
-    if ([Graphic.stairCross, Graphic.stairPlan].includes(obj.graphic)) {
-      loop(this.stair, this.stair);
     }
   }
 }

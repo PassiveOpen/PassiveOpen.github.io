@@ -126,17 +126,31 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
       threeMaterialService
     );
     this.appService.fullscreen$.next(true);
+    this.setInitStates();
     this.preLoadWindow();
-    // this.appService.states$.next({
-    //   ...this.appService.states$.value,
-    //   [House3DParts.roof]: false,
-    //   [House3DParts.outerWall]: true,
-    //   [House3DParts.innerWall]: true,
-    //   [House3DParts.topFloor]: true,
-    //   [House3DParts.groundFloor]: true,
-    // });
     this.importDude();
   }
+
+  setInitStates() {
+    const states = this.appService.states$.value;
+    console.log(
+      Object.keys(House3DParts).map((x) => states[x]),
+      !Object.keys(House3DParts).some((x) => states[x] === true)
+    );
+
+    if (!Object.keys(House3DParts).some((x) => states[x] === true)) {
+      console.log("Reset states");
+      this.appService.states$.next({
+        ...this.appService.states$.value,
+        [House3DParts.roof]: true,
+        [House3DParts.outerWall]: true,
+        [House3DParts.innerWall]: true,
+        [House3DParts.topFloor]: true,
+        [House3DParts.groundFloor]: true,
+      });
+    }
+  }
+
   importDude() {
     this.threeService.importGLTF("Male_Standing.glb", (mesh: THREE.Mesh) => {
       this.scene.add(mesh);

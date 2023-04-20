@@ -14,13 +14,17 @@ import { HttpClient } from "@angular/common/http";
 import { OLContextService } from "./openlayers/ol-context.service";
 import ImageLayer from "ol/layer/Image";
 import { LayerProperties } from "./openlayers/ol-model";
-import { map, of, tap } from "rxjs";
+import { Subject, map, of, tap } from "rxjs";
 import VectorLayer from "ol/layer/Vector";
+import ImageArcGISRest from "ol/source/ImageArcGISRest";
+import GeoTIFF from "ol/source/GeoTIFF.js";
 
 @Injectable({
   providedIn: "root",
 })
 export class MapService {
+  update$ = new Subject();
+
   constructor(
     private houseService: HouseService,
     private olBaseMapService: OLBaseMapService,
@@ -48,8 +52,10 @@ export class MapService {
       .map((layer) => {
         const properties = layer.getProperties() as LayerProperties;
         if (properties.maptip !== true) return;
-        if (layer instanceof ImageLayer) {
-          const url = layer.getSource().getUrl().trim("/") + "/identify";
+        const source = layer.getSource();
+
+        if (source instanceof ImageArcGISRest) {
+          const url = `${source.getUrl()}/identify`;
           const params = {
             geometry: `${coordinate[0]}, ${coordinate[1]}`,
             geometryType: "esriGeometryPoint",
@@ -79,6 +85,14 @@ export class MapService {
                   .join("<br/>");
               })
             );
+        }
+        if (source instanceof GeoTIFF) {
+          const pixel =
+            this.olBaseMapService.map.getPixelFromCoordinate(coordinate);
+          const data = layer.getData(pixel);
+          console.log(coordinate, data);
+
+          return of(properties.maptipCallback(data));
         }
 
         if (layer instanceof VectorLayer) {

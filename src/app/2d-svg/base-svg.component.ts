@@ -143,11 +143,13 @@ export class BasicSVG {
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
     if (this.observer) this.observer.unobserve(this.host.nativeElement);
+    console.log("destroyParts", this.graphic);
+    this.houseService.destroyParts();
   }
   svgUpdateMarginAndSize() {}
 
   setUp() {
-    this.houseService.destroyParts();
+    console.log("setUp");
 
     this.svg = d3.select<SVGElement, undefined>(this.svgEl.nativeElement);
     this.g = this.svg.select("g");
@@ -306,7 +308,6 @@ export class BasicSVG {
       this.stringCache !== stringCache || this.stringCache === "";
     this.stringCache = stringCache;
     if (forceUpdate === false && !(redrawAll || zoomMotion)) return;
-    // console.log(stringCache, zoomed, forceUpdate);
 
     this.house.redrawHouse({
       floor: this.appService.floor$.value,

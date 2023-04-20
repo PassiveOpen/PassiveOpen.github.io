@@ -1,4 +1,4 @@
-<ng-container *ngFor=" let layer of layers$|async">
+<div *ngFor=" let layer of layers$|async" fxLayout="row" fxLayoutAlign="flex-end stretch">
 
   <!-- <mat-slider min="0" max="1" step="0.01" (valueChange)="setOpacity(layer, $event)" [value]="layer.getOpacity()">
     <input matSliderThumb>
@@ -10,4 +10,4 @@
     </span>
   </checkbox-toc>
 
-</ng-container>
+</div>

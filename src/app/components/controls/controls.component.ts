@@ -24,6 +24,8 @@ import {
   StatesExtended,
 } from "../enum.data";
 import { BasemapKey } from "src/app/pages/page-map/openlayers/ol-model";
+import { MatSlider } from "@angular/material/slider";
+import WebGLTileLayer from "ol/layer/WebGLTile";
 
 type SensorIcon = {
   state: SensorType;
@@ -104,5 +106,38 @@ export class ControlsComponent implements OnInit {
 
   swapCamera() {
     this.threeService.swapCamera();
+  }
+
+  debug = false;
+
+  set(x: MatSlider, y) {
+    if (this.debug) {
+      const min = x.value / 255;
+      const max = y.value / 255;
+      //@ts-ignore
+      const demLayer = window.demLayer as WebGLTileLayer;
+      demLayer.updateStyleVariables({ min, max, span: max - min });
+    } else {
+      const contrast = x.value;
+      const opacity = y.value;
+      //@ts-ignore
+      const shadowLayer = window.shadowLayer as WebGLTileLayer;
+      shadowLayer.setStyle({
+        contrast,
+        brightness: opacity,
+      });
+      console.log(contrast, opacity);
+
+      // shadowLayer.setOpacity(opacity);
+    }
+  }
+  get(i) {
+    if (this.debug) {
+      //@ts-ignore
+      return i == 1 ? window.demMin * 255 : window.demMax * 255;
+    } else {
+      //@ts-ignore
+      return i == 1 ? window.shadowContrast : window.shadowOpacity;
+    }
   }
 }

@@ -61,7 +61,6 @@ export class MapOverlayComponent implements AfterViewInit {
 
   setPopup(coordinate: Coordinate) {
     this.overlay.setPosition(coordinate);
-
     this.mapService.identify(coordinate).forEach((obs, i) => {
       obs.pipe(take(1)).subscribe((x) => {
         if (i === 0) this.row1$.next(x);

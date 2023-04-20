@@ -1,28 +1,38 @@
 import { Injectable, OnInit } from "@angular/core";
 import { BehaviorSubject, combineLatest, merge, Subject } from "rxjs";
-import { House } from "./house.model";
+import { House, HouseUser, xy } from "./house.model";
 import * as d3 from "d3";
 import { lindeLund } from "./lindelund/lindeLund";
 import { Wall, WallSide, WallType } from "../model/specific/wall.model";
-import { SensorType, State, Tag } from "../components/enum.data";
+import { Floor, SensorType, State, Tag } from "../components/enum.data";
 import { AppService } from "../app.service";
 import { BaseSVG } from "../model/base.model";
 import { Room } from "../model/specific/room.model";
 import { Door } from "../model/specific/door.model";
 import { Sensor } from "../model/specific/sensors/sensor.model";
 import { Window } from "../model/specific/window.model";
-import { round, sum } from "../shared/global-functions";
+import {
+  centerBetweenPoints,
+  rotateXY,
+  round,
+  sum,
+} from "../shared/global-functions";
 import { generateUUID } from "three/src/math/MathUtils";
 import { Cost, GroupRow } from "./cost.model";
 import { Measure } from "../model/specific/measure.model";
 import { AppSVG } from "../model/svg.model";
+import { fromLonLat } from "ol/proj";
+import { LineString, MultiLineString, Point, Polygon } from "ol/geom";
+import { TurfService } from "../pages/page-map/openlayers/turf.service";
+import { CookieService } from "ngx-cookie-service";
+import { Coordinate } from "ol/coordinate";
 
 @Injectable({
   providedIn: "root",
 })
 export class HouseService {
-  house$ = new BehaviorSubject(new House(lindeLund));
-
+  cookieKey = "house";
+  house$ = new BehaviorSubject(this.getStore(lindeLund));
   timeout;
 
   roomKeys = this.house$.value.partsFlatten
@@ -54,7 +64,48 @@ export class HouseService {
     .map((x) => x.selector)
     .sort((a, b) => a.localeCompare(b));
 
-  constructor(private appService: AppService) {}
+  constructor(
+    private appService: AppService,
+    private turfService: TurfService,
+    private cookieService: CookieService
+  ) {
+    this.house$.subscribe((house) => {
+      this.setStore();
+    });
+  }
+
+  getStore(standard: HouseUser) {
+    const cookie = this.cookieService.get(this.cookieKey);
+    if (cookie === "") return new House(standard);
+
+    const cookieStr = JSON.parse(cookie) as HouseUser;
+
+    const storedHome = { ...standard };
+    Object.keys(lindeLund).forEach((key) => {
+      if (key === "parts") {
+      } else if (key === "orientation") {
+        storedHome[key].lat = cookieStr[key].lat;
+        storedHome[key].lng = cookieStr[key].lng;
+        storedHome[key].rotation = cookieStr[key].rotation;
+      } else {
+        storedHome[key] = cookieStr[key];
+      }
+    });
+    // debug = obj.studAmount
+    storedHome.studAmount = 18;
+
+    const house = new House(storedHome);
+    return house;
+  }
+
+  setStore(): void {
+    let obj: Partial<HouseUser> = {};
+    Object.keys(lindeLund).forEach((key) => {
+      if (key === "parts") return;
+      obj[key] = this.house$.value[key];
+    });
+    this.cookieService.set(this.cookieKey, JSON.stringify(obj));
+  }
 
   /**
    * Updates after a value change.
@@ -65,7 +116,7 @@ export class HouseService {
     value,
     tag: Tag = undefined
   ) {
-    // console.log('updates');
+    console.log("updates");
 
     const house: House = this.house$.value;
 
@@ -256,5 +307,48 @@ export class HouseService {
       row.uuid = undefined;
       return row;
     }
+  }
+
+  fromLocalToLonLat(xy: xy): xy {
+    const house = this.house$.value;
+    xy = [xy[0] - house.centerHouse[0], xy[1] - house.centerHouse[1]];
+
+    var r_earth = 6378.137;
+    var pi = Math.PI;
+    const { lat, lng } = house.orientation;
+    const new_latitude = lat + ((xy[1] / r_earth) * (180 / pi)) / 1000;
+    const new_longitude =
+      lng +
+      ((xy[0] / r_earth) * (180 / pi)) / Math.cos((lat * pi) / 180) / 1000;
+    return fromLonLat([new_longitude, new_latitude]) as xy;
+  }
+
+  getHousePolygon(): [Polygon, MultiLineString] {
+    const house = this.house$.value;
+    const rotation = house.orientation.rotation;
+    const walls = house.partsFlatten.filter(
+      (x) => x instanceof Wall && x.type === WallType.outer
+    ) as Wall[];
+
+    let points = walls
+      .filter((x) => x.floor === Floor.all)
+      .flatMap((x) => x.sides[WallSide.out]);
+    const coords = points
+      .map((xy) => rotateXY(xy, house.centerHouse, 180 - rotation))
+      .map((xy) => this.fromLocalToLonLat(xy));
+    coords.push(coords[0]);
+    const polygon = this.turfService.coordsDissolveToPolygon(coords);
+
+    const weLine = new LineString([
+      centerBetweenPoints(coords[2], coords[3]),
+      centerBetweenPoints(coords[14], coords[15]),
+    ]);
+    const nsLine = new LineString([
+      centerBetweenPoints(coords[8], coords[9]),
+      centerBetweenPoints(coords[20], coords[21]),
+    ]);
+
+    const roofLines = new MultiLineString([weLine, nsLine]);
+    return [polygon, roofLines];
   }
 }

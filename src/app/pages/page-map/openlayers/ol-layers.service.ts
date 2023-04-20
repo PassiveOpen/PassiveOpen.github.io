@@ -1,19 +1,13 @@
 import { Injectable } from "@angular/core";
 import { CookieService } from "ngx-cookie-service";
 import { BehaviorSubject, fromEvent, Subject, Subscription } from "rxjs";
-import { View } from "ol";
-import { Coordinate } from "ol/coordinate";
-import { AnimationOptions } from "ol/View";
-import { Fill, Stroke, Style } from "ol/style";
-import { LayerKey, LayerProperties } from "./ol-model";
 import VectorSource from "ol/source/Vector";
 import VectorLayer from "ol/layer/Vector";
 import { environment } from "src/environments/environment";
-import ImageLayer from "ol/layer/Image";
-import ImageArcGISRest from "ol/source/ImageArcGISRest";
-import GeoJSON from "ol/format/GeoJSON.js";
-import { extraLayers } from "../data/layer.data";
 import { Layer } from "ol/layer";
+import { LayerKey, LayerProperties } from "./ol-model";
+import { DataOLLayerService } from "../data/layer.data";
+import { DataOLStyleService } from "../data/style.data";
 
 @Injectable({
   providedIn: "root",
@@ -24,7 +18,11 @@ export class OLLayerService {
   layers$ = new BehaviorSubject<Layer[]>([]);
   update$ = new Subject();
 
-  constructor(private cookieService: CookieService) {
+  constructor(
+    private cookieService: CookieService,
+    private dataOLLayerService: DataOLLayerService,
+    private dataOLStyleService: DataOLStyleService
+  ) {
     this.update$.subscribe(() => {
       this.setStore();
     });
@@ -41,8 +39,8 @@ export class OLLayerService {
     cookieStr.forEach((config) => {
       const layer = layers.find((x) => x.getProperties()["key"] === config.key);
       if (!layer) return;
-      if (config.visible) layer.setVisible(config.visible);
-      if (config.opacity) layer.setOpacity(config.opacity || 1);
+      if (config.opacity !== undefined) layer.setOpacity(config.opacity || 1);
+      if (config.visible !== undefined) layer.setVisible(config.visible);
     });
     return layers;
   }
@@ -58,7 +56,7 @@ export class OLLayerService {
     this.cookieService.set(this.cookieKey, JSON.stringify(obj));
   }
 
-  getLayer(key: LayerKey) {
+  getLayer<T>(key: LayerKey) {
     const layers = this.layers$.getValue();
     return layers.find((x) => x.getProperties()["key"] === key);
   }
@@ -78,23 +76,11 @@ export class OLLayerService {
           name: "Passive house",
         }),
         zIndex: 100,
-        style: [
-          new Style({
-            stroke: new Stroke({
-              color: "rgba(0, 0, 0, 0)",
-              width: 2,
-            }),
-            fill: new Fill({
-              color: "rgba(30, 30, 30, 0.9)",
-            }),
-            zIndex: 1,
-          }),
-        ],
       }),
     ];
 
     if (!environment.production) {
-      layers.push(...extraLayers);
+      layers.push(...this.dataOLLayerService.extraLayers);
     }
 
     layers = this.getStore(layers);

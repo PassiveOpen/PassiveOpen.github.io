@@ -35,6 +35,11 @@ const exportOptions: Partial<Options> = {
   },
 };
 
+const PaperSize = {
+  A4: [297, 210],
+  A3: [420, 297],
+};
+
 @Injectable({
   providedIn: "root",
 })
@@ -52,7 +57,8 @@ export class OLPrintService {
     zIndex: 1000,
   });
 
-  paperSize = [297, 210];
+  paperSizeKey = "A4";
+  paperSize = PaperSize[this.paperSizeKey];
   scale = 1000;
   padding = 40;
   center: Coordinate;
@@ -62,18 +68,22 @@ export class OLPrintService {
   texts = [
     { text: "↑", size: 32, offset: [120, -60] },
     { text: "Förhandsbesked", size: 14, offset: [20, -4] },
-    { text: "Lindelund", size: 16, offset: [20, 30] },
-    { text: "2023-04-14 V1", size: 12, offset: [20, 50] },
-    { text: `Scala 1:${this.scale}`, size: 12, offset: [20, 90] },
+    { text: "Lindelund", size: 16, offset: [20, 40] },
+    { text: "2023-04-14 V1", size: 12, offset: [20, 60] },
+    {
+      text: `Scala 1:${this.scale} (${this.paperSizeKey})`,
+      size: 12,
+      offset: [20, 80],
+    },
   ];
 
   init(map: Map) {
     this.map = map;
-    console.clear();
-    this.startPrint();
-    setTimeout(() => {
-      this.print();
-    }, 1000);
+    // console.clear();
+    // this.startPrint();
+    // setTimeout(() => {
+    //   this.print();
+    // }, 1000);
   }
   constructor(private colorService: ColorService) {}
 

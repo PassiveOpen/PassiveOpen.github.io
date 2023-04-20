@@ -29,11 +29,10 @@ export class AppPolygon extends BaseSVG {
   }
 
   redraw(floor: Floor) {
-    if (this.svg !== undefined) {
-      this.svg.attr("stroke-width", this.meterPerPixel * this.lineThickness);
-    } else {
-      console.log("error! svg = undefined", `#${this.selector}`, this.svg);
+    if (this.svg === undefined) {
+      this.draw(floor);
     }
+    this.svg.attr("stroke-width", this.meterPerPixel * this.lineThickness);
   }
 
   square(w: number, h: number, origin: xy) {

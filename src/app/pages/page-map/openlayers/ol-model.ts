@@ -1,4 +1,5 @@
 import { Feature } from "ol";
+import BaseLayer from "ol/layer/Base";
 
 export enum BasemapKey {
   OSM = "OSM",
@@ -16,15 +17,18 @@ export enum LayerKey {
   House = "House",
   parcel = "parcel",
   parcelBorders = "parcelBorders",
-  test = "Riksintressen",
+  test = "test",
   dem = "dem",
   heightLines = "heightLines",
   water = "water",
+  waterArea = "waterArea",
   roads = "roads",
   roadFills = "roadFills",
   building = "building",
   threes = "threes",
+  distanceLines = "distanceLines",
   kallmurar = "kallmurar",
+  shadow = "shadow",
 }
 
 export class LayerProperties {
@@ -34,7 +38,7 @@ export class LayerProperties {
   visible: boolean;
 
   maptip: boolean = false;
-  maptipCallback: (feature: Feature) => string;
+  maptipCallback: (x: any) => string;
 
   constructor(data: Partial<LayerProperties>) {
     Object.assign(this, data);

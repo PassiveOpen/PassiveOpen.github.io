@@ -30,15 +30,16 @@ export class AppPolyline extends BaseSVG {
     this.setClass(this.svg);
   }
   redraw(floor: Floor) {
-    if (this.svg) {
-      this.svg
-        .attr("stroke-width", this.meterPerPixel * this.lineThickness)
-        .attr(
-          "stroke-dasharray",
-          this.dash
-            .map((x) => x * this.meterPerPixel * this.lineThickness)
-            .join(" ")
-        );
+    if (this.svg === undefined) {
+      this.draw(floor);
     }
+    this.svg
+      .attr("stroke-width", this.meterPerPixel * this.lineThickness)
+      .attr(
+        "stroke-dasharray",
+        this.dash
+          .map((x) => x * this.meterPerPixel * this.lineThickness)
+          .join(" ")
+      );
   }
 }

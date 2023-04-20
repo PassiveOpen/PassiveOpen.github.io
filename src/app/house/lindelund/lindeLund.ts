@@ -40,11 +40,10 @@ export const lindeLund: HouseUser = {
   floorAboveGround: 0.7,
   crawlerHeight: 1.0,
   crawlerSpace: true,
-
   name: "Lindelund",
   orientation: {
-    lat: 55.91821937,
-    lng: 13.654319808,
+    lat: 55.91832399684094,
+    lng: 13.654632669220504,
     rotation: 10,
   },
   parts: [

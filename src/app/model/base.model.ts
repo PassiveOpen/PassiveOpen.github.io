@@ -38,7 +38,7 @@ export class BaseSVG<T = {}> {
   async draw(floor: Floor) {}
   redraw(floor: Floor) {}
   init(floor: Floor, house: House | Cross | Stair) {}
-  onUpdate: (house: House | Cross | Stair) => void;
+  onUpdate: (house: any) => void;
   tooltip = (x: T | Wall): SafeHtml => {
     return `<b>${this.name ? this.name : this.selector}</b>`;
   };

@@ -62,15 +62,12 @@ export class BalloonLink {
     if (this.textEl === undefined) return;
 
     if (this.isVisible) {
-      this.textEl
-        .transition()
-        .duration(1000)
-        .attr("x", (b1.x + b2.x) / 2)
-        .attr("y", (b1.y + b2.y) / 2);
     }
     this.textEl
       .transition()
       .duration(1000)
+      .attr("x", (b1.x + b2.x) / 2)
+      .attr("y", (b1.y + b2.y) / 2)
       .attr("font-size", `${this.isVisible ? 100 : 0}%`);
     if (this.text && this.isVisible) {
       this.textEl.text(this.text);
