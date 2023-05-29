@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkpassiveopen=self.webpackChunkpassiveopen||[]).push([[274],{2274:(o,s,e)=>{e.r(s),e.d(s,{default:()=>n});var a=e(4956),d=e(7490);class n extends d.Z{decodeBlock(l){return(0,a.rr)(new Uint8Array(l)).buffer}}}}]);
