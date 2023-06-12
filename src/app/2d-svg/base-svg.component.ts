@@ -4,7 +4,11 @@ import {
   HostListener,
   HostBinding,
   Input,
+  ChangeDetectorRef,
   ViewChild,
+  OnDestroy,
+  OnInit,
+  AfterViewInit,
 } from "@angular/core";
 import {
   BehaviorSubject,
@@ -25,23 +29,28 @@ import {
 import { AppService } from "src/app/app.service";
 import { HouseService } from "src/app/house/house.service";
 import { round } from "src/app/shared/global-functions";
-import { Graphic, Section, Tag } from "../components/enum.data";
+import { Floor, Graphic, Section, Tag } from "../components/enum.data";
 import { TooltipService } from "../components/tooltip/tooltip.service";
-import { House, SvgUpdate } from "../house/house.model";
+import { House, HousePart, SvgUpdate } from "../house/house.model";
 import * as d3 from "d3";
 import { Cross } from "../house/cross.model";
 import { Stair } from "../house/stairs.model";
 import { D3DistanceService } from "./d3Distance.service";
 import { ZoomTransform } from "d3";
 import { ContextMenuService } from "../components/context-menu/context-menu.service";
-import { D3Service } from "./d3.service";
+import { D3Service, SvgLoader } from "./d3.service";
+import { HousePartSVG } from "../house-parts/model/housePart.model";
+import { StatesService } from "../services/states.service";
+import { PrintService } from "./print.service";
+import { D3Transform, SVGTransformService } from "./svg-transform.service";
 
 @Component({
   selector: "app-svg-base",
   template: "",
 })
-export class BasicSVG {
+export abstract class BasicSVGComponent implements OnDestroy, AfterViewInit {
   stringCache = "";
+  zoomMotion: boolean;
 
   @HostListener("click", ["$event"]) onClick(e: PointerEvent) {
     this.contextMenuService.closeMenu();
@@ -74,7 +83,8 @@ export class BasicSVG {
     if (!id) {
       return exit();
     }
-    const obj = this.house.partsFlatten.find((x) => x.selector === id);
+
+    const obj = this.parts.find((x) => x.selector === id);
 
     if (!obj) {
       console.log(
@@ -85,6 +95,8 @@ export class BasicSVG {
       return exit();
     }
     document.body.classList.add("selection-active");
+    console.log(obj);
+
     obj.select();
 
     this.tooltipService.attachPopup([e.pageX, e.pageY], obj);
@@ -106,6 +118,9 @@ export class BasicSVG {
   house: House;
   cross: Cross;
   stair: Stair;
+  parts: HousePartSVG<any>[] = [];
+
+  theme: any;
 
   sections = Object.values(Section);
   section: Section;
@@ -128,6 +143,14 @@ export class BasicSVG {
 
   loaded = false;
 
+  svgUpdate: SvgUpdate;
+
+  selectors: {
+    [ket in HousePart]?: string[];
+  } = {};
+  HousePart = HousePart;
+  svgLoaders: SvgLoader[] = [];
+
   constructor(
     public houseService: HouseService,
     public appService: AppService,
@@ -135,8 +158,19 @@ export class BasicSVG {
     public host: ElementRef,
     public d3Service: D3Service,
     public d3DistanceService: D3DistanceService,
+    public statesService: StatesService,
+    public printService: PrintService,
+    public changeDetectorRef: ChangeDetectorRef,
+    public svgTransformService: SVGTransformService,
     public contextMenuService: ContextMenuService
   ) {}
+
+  abstract setMarginAndSize(): void;
+  abstract afterUpdate?(): void;
+  abstract updateHousePartSVGs?(): void;
+  abstract getHousePartsSelectors?(): void;
+  abstract afterInit?(): void;
+  abstract setHousePartVisibility?(): void;
 
   //// LifeCicle ////
 
@@ -146,22 +180,16 @@ export class BasicSVG {
     console.log("destroyParts", this.graphic);
     this.houseService.destroyParts();
   }
-  svgUpdateMarginAndSize() {}
 
-  setUp() {
-    console.log("setUp");
+  ngAfterViewInit(): void {
+    this.getHousePartsSelectors();
+    this.changeDetectorRef.detectChanges(); // adds elements to svg
+
+    console.log("ngAfterViewInit", this.graphic);
 
     this.svg = d3.select<SVGElement, undefined>(this.svgEl.nativeElement);
     this.g = this.svg.select("g");
-    // resize
-    this.observer = new ResizeObserver((x) => this.resize$.next(x));
-    this.observer.observe(this.host.nativeElement);
-
-    this.resize$.pipe(
-      catchError((e) => {
-        return of(undefined);
-      })
-    );
+    this.listenToResize();
 
     this.subscriptions.push(
       ...[
@@ -196,19 +224,28 @@ export class BasicSVG {
               this.house = house;
               this.cross = house.cross;
               this.stair = house.stair;
+              console.log("Got a house update", this.graphic);
             })
           )
           .subscribe((x) => {
-            this.updateSVG(true);
+            this.update(true);
+          }),
+        this.statesService.states$
+          .pipe(
+            tap((x) => {
+              // console.log("got a stateupdate", x);
+            })
+          )
+          .subscribe((x) => {
+            this.update(true);
           }),
         merge(
-          this.appService.states$,
-          this.appService.svgTransform$.pipe(
+          this.svgTransformService.svgTransform$.pipe(
             tap((svgTransform) => {
               if (this.loaded) return;
               if (this.graphic in svgTransform) {
-                const zoom: { k: number; x: number; y: number } =
-                  svgTransform[this.graphic];
+                const transformString = svgTransform[this.graphic];
+                const zoom = svgTransform[this.graphic];
                 this.setTransform(new ZoomTransform(zoom.k, zoom.x, zoom.y));
               }
             })
@@ -219,12 +256,9 @@ export class BasicSVG {
             // tap((x) => console.log("scrollresize"))
           )
         )
-          .pipe(
-            filter((x) => this.house !== undefined),
-            first()
-          )
+          .pipe(filter((x) => this.house !== undefined))
           .subscribe((x) => {
-            this.updateSVG();
+            this.update();
           }),
       ]
     );
@@ -232,18 +266,52 @@ export class BasicSVG {
     this.loaded = true;
   }
 
-  setTransform(transform: any = "translate(0,0) scale(1)", duration = 10000) {
-    if (this.printPreview) return;
-    if (this.loaded) {
-      this.appService.setTransformCookie(transform, this.graphic);
-    }
-    this.g.transition().duration(duration).attr("transform", transform);
+  update(forceUpdate = false) {
+    this.tooltipService.updateOverlay();
+    this.setMarginAndSize();
+    this.afterUpdate();
+    this.calculate();
+    this.setHousePartVisibility();
+
+    const redrawAll = this.checkForRedraw();
+    if (forceUpdate === false && !(redrawAll || this.zoomMotion)) return;
+
+    this.svgUpdate = {
+      floor: this.appService.floor$.value,
+      graphic: this.graphic,
+      redrawAll: redrawAll || forceUpdate,
+      meterPerPixel: this.meterPerPixel,
+      theme: this.theme,
+      print: this.printPreview,
+    };
+
+    this.updateHousePartSVGs();
+    // this.house.redrawHouse(this.svgUpdate);
   }
 
-  updateSVG(forceUpdate = false) {
-    this.tooltipService.updateOverlay();
-    this.svgUpdateMarginAndSize();
-    this.svgSpecificUpdate();
+  private listenToResize() {
+    this.observer = new ResizeObserver((x) => this.resize$.next(x));
+    this.observer.observe(this.host.nativeElement);
+    this.resize$.pipe(catchError((e) => of(undefined)));
+  }
+
+  private checkForRedraw() {
+    const stringCache = [
+      this.appService.floor$.value,
+      this.appService.scroll$.value.section,
+      Object.entries(this.statesService.states$.value)
+        .filter(([k, v]) => v === true)
+        .map(([k, v]) => k),
+      this.graphic,
+    ].join("-");
+
+    const redrawAll =
+      this.stringCache !== stringCache || this.stringCache === "";
+    this.stringCache = stringCache;
+    return redrawAll;
+  }
+
+  private calculate() {
     const [[x, y], [maxX, maxY]] = this.svgHouseSize;
     const minX = -this.marginInMeters[3] + x;
     const minY = -this.marginInMeters[0] + y;
@@ -269,7 +337,7 @@ export class BasicSVG {
     const scaleW = round(widthMeter / svgW);
     const scaleH = round(heightMeter / svgH);
     const meterPerPixel = Math.max(scaleW, scaleH) / this.getScale();
-    const zoomMotion = this.meterPerPixel !== meterPerPixel;
+    this.zoomMotion = this.meterPerPixel !== meterPerPixel;
     this.meterPerPixel = meterPerPixel;
     this.svgEl.nativeElement.setAttribute("meterPerPixel", `${meterPerPixel}`);
 
@@ -295,30 +363,25 @@ export class BasicSVG {
           );
       }
     }
-
-    const stringCache = [
-      this.appService.floor$.value,
-      this.appService.scroll$.value.section,
-      Object.entries(this.appService.states$.value)
-        .filter(([k, v]) => v === true)
-        .map(([k, v]) => k),
-      this.graphic,
-    ].join("-");
-    const redrawAll =
-      this.stringCache !== stringCache || this.stringCache === "";
-    this.stringCache = stringCache;
-    if (forceUpdate === false && !(redrawAll || zoomMotion)) return;
-
-    this.house.redrawHouse({
-      floor: this.appService.floor$.value,
-      graphic: this.graphic,
-      redrawAll: redrawAll || forceUpdate,
-      meterPerPixel: this.meterPerPixel,
-      theme: undefined,
-      print: this.printPreview,
-    });
   }
-  svgSpecificUpdate() {}
+
+  setTransform(
+    transform: D3Transform | string = "translate(0,0) scale(1)",
+    duration = 10000
+  ) {
+    if (this.printPreview) return;
+    if (this.loaded) {
+      this.svgTransformService.setTransformCookie(
+        transform as any,
+        this.graphic
+      );
+    }
+
+    this.g
+      .transition()
+      .duration(this.loaded ? duration : 0)
+      .attr("transform", transform as any);
+  }
 
   getScale(): number {
     const r = /scale\(\d+\.?\d*/g.exec(this.g.attr("transform"));

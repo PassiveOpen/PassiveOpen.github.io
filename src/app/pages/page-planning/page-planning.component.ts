@@ -1,5 +1,13 @@
 import { DatePipe } from "@angular/common";
-import { AfterViewInit, Component, HostListener, OnInit } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+} from "@angular/core";
 import { AppService } from "src/app/app.service";
 import { Section } from "src/app/components/enum.data";
 import { HouseService } from "src/app/house/house.service";
@@ -12,6 +20,7 @@ import {
   getDay,
   getWeek,
   getYear,
+  isSunday,
   sub,
 } from "date-fns";
 import {
@@ -20,29 +29,34 @@ import {
   column,
   Prop,
   GroupRow,
+  TotalRow,
+  getWeekString,
 } from "src/app/house/planning.model";
 import { DomSanitizer } from "@angular/platform-browser";
+import { Subscription, fromEvent } from "rxjs";
 import { generateUUID } from "three/src/math/MathUtils";
 
-const toWeekYear = (date: Date) => {
-  return `${getWeek(date)}-${getYear(date)}`;
-};
 @Component({
   selector: "app-page-planning",
   templateUrl: "./page-planning.component.html",
   styleUrls: ["./page-planning.component.scss"],
   providers: [DatePipe],
 })
-export class PagePlanningComponent implements OnInit {
+export class PagePlanningComponent implements OnInit, AfterViewInit {
   tables: PlanningTable[];
+  steps: GroupRow[];
   columns: column[] = [
-    { id: "folded", name: "", def: (x) => `${x}` },
+    {
+      id: "folded",
+      name: " ",
+      def: (x) => this.sanitizer.bypassSecurityTrustHtml(x),
+    },
     { id: Prop.name, name: "Name", def: (x) => `${x}` },
     { id: Prop.what, name: "What", def: (x) => `${x}` },
     // {
     //   id: Prop.firstDate,
     //   name: "First",
-    //   def: (x, y) => `${this.datePipe.transform(x, "dd-LL-YYYY")} `,
+    //   def: (x, y) => `${this.datePipe.transform(x, "-----====dd-LL-YYYY")} `,
     // },
     // { id: Prop.more, name: "Remarks", def: (x) => `${x}` },
     { id: Prop.days, name: "Days", def: (x) => ` ${x} ` },
@@ -52,165 +66,156 @@ export class PagePlanningComponent implements OnInit {
     //   def: (x, y) => `${this.datePipe.transform(x, "dd-LL-YYYY")} `,
     // },
   ];
-
   minFirstDate: Date;
   maxLastDate: Date;
   totalWeeks: number;
   totalDays: number;
   weeks: Date[];
 
-  starDate: Date = new Date(2024, 2, 1);
+  startDate: Date = new Date(2023, 6 - 1, 15);
+  subscriptions: Subscription[] = [];
 
-  constructor(
-    private datePipe: DatePipe,
-    private houseService: HouseService,
-    private appService: AppService,
-    private sanitizer: DomSanitizer
-  ) {
-    console.log();
-  }
+  constructor(private sanitizer: DomSanitizer) {}
+
+  ngAfterViewInit(): void {}
   ngOnInit(): void {
-    this.tables = this.calc([
+    const mainGroups = [
       this.getPreps(),
-      this.getFoundation(),
-      this.getFraming(),
-      this.getFinishing(),
+      this.getFoundationAndGround(),
+      this.getFrameAndWeather(),
       this.getInstallations(),
+      this.getInterior(),
       this.getOutside(),
-      // this.getFoundation()
-    ]);
+      this.getOther(),
+    ];
 
+    let previousDate = this.startDate;
+
+    const explodeDates = (steps: (PlanningStep | GroupRow)[]) => {
+      steps.forEach((step) => {
+        if (step.type === "group" && step instanceof GroupRow) {
+          explodeDates(step.steps);
+          step.setDays();
+        } else {
+          step.setDays(previousDate);
+          previousDate = step.lastDate;
+        }
+      });
+    };
+
+    mainGroups.forEach((groupRow, i) => {
+      groupRow.mainGroup = true;
+      explodeDates(groupRow.steps);
+      groupRow.setDays();
+      mainGroups[i].steps.push(
+        new TotalRow({
+          name: `SUB Total ${groupRow.name}`,
+          steps: groupRow.steps.filter((x) => x.type !== "total"),
+          lastDate: groupRow.lastDate,
+          firstDate: groupRow.firstDate,
+        })
+      );
+    });
     this.minFirstDate = new Date(
-      Math.min(
-        ...this.tables.flatMap((x) => x.steps).map((x) => x.firstDate.getTime())
-      )
+      Math.min(...mainGroups.map((x) => x.firstDate.getTime()))
     );
     this.maxLastDate = new Date(
-      Math.max(
-        ...this.tables.flatMap((x) => x.steps).map((x) => x.lastDate.getTime())
-      )
+      Math.max(...mainGroups.map((x) => x.lastDate.getTime()))
     );
-
     this.totalDays = differenceInDays(this.maxLastDate, this.minFirstDate);
     this.totalWeeks = differenceInCalendarWeeks(
       this.maxLastDate,
       this.minFirstDate
     );
-
     this.weeks = eachWeekOfInterval({
       start: this.minFirstDate,
       end: this.maxLastDate,
     });
-
     this.columns.push(
       ...this.weeks.map((d) => ({
-        id: `week-${formatISO(d, { representation: "date" })}`,
+        id: getWeekString(d),
         name: ` ${getWeek(d)} ${
           [1, 52, 53].includes(getWeek(d))
             ? "'" + getYear(d).toString().substring(2)
             : ""
         } `,
-        def: (x, y) =>
-          this.sanitizer.bypassSecurityTrustHtml(
+        def: (dates) => {
+          return this.sanitizer.bypassSecurityTrustHtml(
             `<div class="week-block">
-              <div class="week-block-fill" style="
-                width:${Math.round(Math.abs((x / 7) * 100))}%;
-                left: ${Math.round(Math.abs((y / 7) * 100))}%;
-              "></div>
-              <span>${Math.abs(x)}</span>
+              ${dates
+                .map((date) => {
+                  const start = getDay(date) - 1;
+                  return `<div class="week-block-fill ${
+                    isSunday(date) ? "sunday-block-fill" : ""
+                  }" style="
+                left: ${Math.round((start / 7) * 100)}%;
+              "></div>`;
+                })
+                .join("")}
+              <span>${dates.filter((x) => !isSunday(x)).length}</span>
             </div>`
-          ),
+          );
+        },
       }))
     );
 
-    this.tables.forEach((table) => {
-      table.steps.forEach((step) => {
-        try {
-          eachWeekOfInterval({
-            start: step.firstDate,
-            end: step.lastDate,
-          }).forEach((week, i, j) => {
-            const l = j.length;
-            const isoWeek = formatISO(week, { representation: "date" });
-            let a = 0;
-
-            if (l === 1) {
-              // only one week
-              a = step.days;
-              step[`week-${isoWeek}-extra`] = getDay(step.firstDate);
-            } else if (i === 0) {
-              a = 7 - getDay(step.firstDate); // sundays...
-              step[`week-${isoWeek}-extra`] = getDay(step.firstDate);
-            } else if (i === l - 1) {
-              a = getDay(step.lastDate) + 1;
-              step[`week-${isoWeek}-extra`] = 0;
-            } else {
-              a = 7;
-              step[`week-${isoWeek}-extra`] = 0;
-            }
-            // else if (week === lastWeek) {
-            //   a = step.lastDate.getDay();
-            // }extra
-            step[`week-${isoWeek}`] = a;
-            // console.log(i, l, step);
-          });
-        } catch (e) {
-          console.error(step);
-        }
-      });
-    });
-    console.log(this.tables);
-    console.log(
-      this.tables[1].steps[0].uuid,
-      (this.tables[1].steps[0] as GroupRow).steps[0].uuid
+    mainGroups.push(
+      new TotalRow({
+        name: `House totals `,
+        steps: mainGroups,
+        uuid: generateUUID(),
+      })
     );
-  }
 
-  calc(tables: PlanningTable[]) {
-    const hasDeadline = (step: PlanningStep) => !!step.deadline;
-    tables.forEach((table, ii) => {
-      if (ii === 0) {
-        table.firstDate = this.starDate;
-      } else {
-        table.firstDate = add(tables[ii - 1].lastDate, { days: 1 });
-      }
-
-      table.steps.forEach((step, i) => {
-        const previous = table.steps[i - 1];
-        if (!previous) {
-          step.firstDate = table.firstDate;
+    const parseStep = (step: PlanningStep, parentUUIDs: string[]) => {
+      step.parentUUIDs = parentUUIDs;
+      return step;
+    };
+    const explode = (
+      steps: (PlanningStep | GroupRow)[],
+      parentUUIDs: string[]
+    ) => {
+      return steps.flatMap((step) => {
+        const s = parseStep(step, parentUUIDs);
+        if (step.type === "total") return [s];
+        if (step instanceof GroupRow) {
+          return [s, ...explode(step.steps, [...parentUUIDs, step.uuid])];
         } else {
-          step.firstDate = add(previous.lastDate, { days: 1 });
+          return [s];
         }
-        step.lastDate = add(step.firstDate, {
-          days: Math.max(1, step.days - 1),
-        });
       });
+    };
 
-      table.lastDate = table.steps[table.steps.length - 1].lastDate;
-    });
-    return tables;
+    this.steps = explode(mainGroups, ["main"]);
+    this.steps.filter((x) => x.type === "total").forEach((x) => x.setDays());
+    console.log("full table", this.steps);
   }
 
   // DATA
 
   getPreps() {
-    return new PlanningTable({
-      section: Section.planningPreps,
-      alias: "Preparations",
+    return new GroupRow({
+      name: "Preparations",
       steps: [
-        new PlanningStep({ name: "Paper work", days: 3, more: "BigTODO" }),
+        new PlanningStep({ name: "Geologic research", days: 1 }),
+        new PlanningStep({ name: "Redesign", days: 10 }),
         new PlanningStep({
-          name: "Redesign",
-          days: 2,
-          // @ts-ignore
-          deadline: new Date("2024", "04", "21"),
+          name: "Bygglov",
+          days: 10,
+          isExpanded: true,
+          more: `
+          <a href="planning_in_depth">more in depth</a>
+<ul>
+  <li>side / floor plans</li>
+  <li>details</li>
+  <li><a>https://www.horby.se/bygga-bo-och-miljo/bygga-nytt-andra-eller-riva/bygglov/</a></li>
+</ul>`,
         }),
       ],
     });
   }
 
-  getFoundation() {
+  getFoundationAndGround() {
     const dirt = [
       new PlanningStep({ name: "Dirt work", what: "Ground preps", days: 2 }),
       new PlanningStep({
@@ -235,17 +240,14 @@ export class PagePlanningComponent implements OnInit {
         days: 7,
       }),
     ];
-    return new PlanningTable({
-      section: Section.planningFoundation,
-      alias: "Foundation",
+    return new GroupRow({
+      name: "Foundation & ground work",
       steps: [
         new GroupRow({
-          uuid: generateUUID(),
           name: `${dirt[0].name}`,
           steps: dirt,
         }),
         new GroupRow({
-          uuid: `${generateUUID()}`,
           name: `${footings[0].name}`,
           steps: footings,
         }),
@@ -267,10 +269,10 @@ export class PagePlanningComponent implements OnInit {
       ],
     });
   }
-  getFraming() {
-    return new PlanningTable({
-      section: Section.planningFraming,
-      alias: "Framing",
+
+  getFrameAndWeather() {
+    return new GroupRow({
+      name: "Framing & Weather seal",
       steps: [
         new PlanningStep({ name: "Ground Floor	Measure for Square", days: 1 }),
         new PlanningStep({ name: "Ground Floor	Snapping the lines", days: 1 }),
@@ -300,10 +302,9 @@ export class PagePlanningComponent implements OnInit {
     });
   }
 
-  getFinishing() {
-    return new PlanningTable({
-      section: Section.planningFinishing,
-      alias: "Finishing",
+  getInterior() {
+    return new GroupRow({
+      name: "Interior",
       steps: [
         new PlanningStep({ name: "Kitchen", days: 2 }),
         new PlanningStep({ name: "Kitchen Countertop", days: 5 }),
@@ -314,9 +315,8 @@ export class PagePlanningComponent implements OnInit {
   }
 
   getInstallations() {
-    return new PlanningTable({
-      section: Section.planningInstallations,
-      alias: "Installations",
+    return new GroupRow({
+      name: "Installations",
       steps: [
         new PlanningStep({ name: "Water	Plumming / Sewer", days: 3 }),
         new PlanningStep({ name: "Water	Warm Cold water", days: 3 }),
@@ -348,9 +348,8 @@ export class PagePlanningComponent implements OnInit {
   }
 
   getOutside() {
-    return new PlanningTable({
-      section: Section.planningOutside,
-      alias: "Outerside",
+    return new GroupRow({
+      name: "Outside",
       steps: [
         new PlanningStep({ name: "Walls	Prep El/Cables etc", days: 2 }),
         new PlanningStep({ name: "Walls	Corners", days: 2 }),
@@ -359,6 +358,16 @@ export class PagePlanningComponent implements OnInit {
         new PlanningStep({ name: "Walls	Farstu preps", days: 2 }),
         new PlanningStep({ name: "Walls	Insulation", days: 4 }),
         new PlanningStep({ name: "Walls	Outer planks", days: 8 }),
+      ],
+    });
+  }
+
+  getOther() {
+    return new GroupRow({
+      name: "Other",
+      steps: [
+        new PlanningStep({ name: "Inspections", days: 1 }),
+        new PlanningStep({ name: "Share", days: 1 }),
       ],
     });
   }

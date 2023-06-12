@@ -124,15 +124,6 @@ $sun-color: rgb(253, 200, 101);
       pointer-events: none;
       transition: 0.4s;
       opacity: 0;
-      // clip-path: polygon(
-      //   0% 0%,
-      //   100% 0%,
-      //   100% 130%,
-      //   51.7% 78.7%,
-      //   51.7% 52.9%,
-      //   42.4% 36.5%,
-      //   33.1% 36.5%
-      // );
     }
 
     .house-wind-rose
@@ -152,17 +143,18 @@ $sun-color: rgb(253, 200, 101);
       opacity: 0.6;
     }
 
-    .house-stramien {
+    .house-grid-line {
       transition: 0.4s, stroke-width 1ms;
       stroke: var(--first-color);
-      .house-stramien-out {
+      stroke-linecap: square;
+
+      *[id*="-out-"] {
         stroke: var(--second-color);
       }
-      .house-stramien-top,
-      .house-stramien-ground {
+      *[id*="-top-"],
+      *[id*="-ground-"] {
         stroke: var(--accent-color);
       }
-      stroke-linecap: square;
     }
 
     .house-wind-rose {
@@ -177,6 +169,8 @@ $sun-color: rgb(253, 200, 101);
     }
 
     .g-grid {
+      stroke: var(--color-30);
+      fill: red;
       .grid-main {
         stroke: var(--color-50);
       }
@@ -323,7 +317,7 @@ $sun-color: rgb(253, 200, 101);
   }
 
   //<============== Sections ===============>//
-  .section-welcome:not(.fullscreen) {
+  .section-main-welcome:not(.fullscreen) {
     // .all {
     //   transform: scale(0.6) translateX(25%);
     // }
@@ -335,7 +329,7 @@ $sun-color: rgb(253, 200, 101);
     }
   }
 
-  .section-basics {
+  .section-main-basics {
     .house-wind-rose,
     .g-grid {
       transition: 2s;
@@ -343,7 +337,7 @@ $sun-color: rgb(253, 200, 101);
     }
   }
 
-  .section-tower {
+  .section-main-tower {
     .room-f {
       transition: 2s;
       fill: var(--primary-color) !important;

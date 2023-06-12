@@ -85,7 +85,7 @@ export class TotalRow extends GroupRow {
   costs: (Cost | GroupRow)[] = [];
   type = "total";
 
-  constructor(partial: Partial<GroupRow>) {
+  constructor(partial: Partial<TotalRow>) {
     super(partial);
     Object.assign(this, partial);
   }

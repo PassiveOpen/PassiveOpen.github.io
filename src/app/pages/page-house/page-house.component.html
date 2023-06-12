@@ -1,6 +1,6 @@
 <ng-container *ngIf="(house$|async) as house">
 
-  <section [id]="Section.welcome">
+  <section [id]="Section.mainWelcome">
     <h1>Welcome to {{house.name}}</h1>
     <p class="mat-caption">
       A Passive House, but in a classical style, and all open-source. We love to share our plans with the community.
@@ -8,7 +8,7 @@
     </p>
   </section>
 
-  <section [id]="Section.passiv">
+  <section [id]="Section.mainPassiv">
     <h2>Passiv? <span style="font-size: 0.7em;">(Its German)</span></h2>
     <p>Passive houses are the future. Feel free to <a href="https://passivehouse.com/" target="_blank">search online for
         'Passiv Haus'</a>. We thought it is not really inspiring and that is a shame. Therefore, let us try to explain
@@ -62,7 +62,7 @@
 
   </section>
 
-  <section [id]="Section.basics">
+  <section [id]="Section.mainBasics">
     <h2>The basics</h2>
     <p>
       Using parametric design, we've created an interactive platform for designing this house. Play around with the
@@ -110,10 +110,19 @@
         </tr>
       </table>
     </label>
+
+
+    <label class="technical">
+      <span>Thoughts </span>
+      If we want 2 build in fridge and freezer, and a kitchen island of 4 blocks. Plus a wall would result in a
+      {{100+600*4}}mm wall next to the double door and the inner corner of the house. With a double door and the full
+      inner with it would be {{(100+600*4)*2+1800}}mm
+    </label>
+
   </section>
 
 
-  <section [id]="Section.extensions">
+  <section [id]="Section.mainExtensions">
     <h2>Extensions</h2>
     <p>
       The south-facing side of the house is designed with a <tag [tag]="tags.extensionToSouth"
@@ -232,7 +241,7 @@
   </section>
 
 
-  <section [id]="Section.tower" style="padding-bottom: 80px;">
+  <section [id]="Section.mainTower" style="padding-bottom: 80px;">
     <h3>Tower</h3>
     <p>Not only does the tower provide a functional backdoor, but it also adds an intriguing feature to the house's
       exterior. Additionally, the shower location within the tower is impressive and the tower itself could potentially
@@ -268,10 +277,11 @@
 
     <h2>Slicing it, the basics</h2>
     <p>Although high ceilings can be more expensive, they add a lot of value by making a house feel more open and airy.
+      Note that longer 3000mm will be more expensive, because of the max length of some building materials.
     </p>
     <label>
       <span>Ceiling height: {{house.cross.ceilingHeight}} m</span>
-      <mat-slider min="2.6" max="3.6" [ngModel]="house.cross.ceilingHeight"
+      <mat-slider min="2.6" max="3.3" [ngModel]="house.cross.ceilingHeight"
         (input)="update('cross','ceilingHeight',$event.value)" step="0.1" tickInterval="1"></mat-slider>
     </label>
 
@@ -339,7 +349,7 @@
 
     <label>
       <span>Move <tag [tag]="tags.bendPoint" [overlayTemplate]="bendPoint" cdkOverlayOrigin>bend point</tag></span>
-      <mat-slider min="0" max="2" [ngModel]="house.cross.roof70offset"
+      <mat-slider min="0.4" max="2" [ngModel]="house.cross.roof70offset"
         (input)="update('cross','roof70offset',$event.value,tags.bendPoint)" step="0.1" tickInterval="1"></mat-slider>
     </label>
 
@@ -353,6 +363,55 @@
       <span>Roof extension: {{house.cross.roof70Extension}}m</span>
       <mat-slider min="0" max="2" [ngModel]="house.cross.roof70Extension"
         (input)="update('cross','roof70Extension',$event.value)" step="0.1" tickInterval="1"></mat-slider>
+    </label>
+
+
+
+
+
+    <label class="technical">
+      <span>Technical </span>
+      It can be wise to have the rooftile pattern in mind while designing the roof.
+      The top roof. distance / x - 330 mm
+
+      Top should be 30mm from the roof ridge
+      h
+      The the last mansard bend 53-80 mm shorter (75 prefferd) The last row is just 300mm over the bend.
+
+
+      <br><br>
+      The upper roof is {{ house.cross.roof.roofLengths[RoofLength.upper] | number: '1.0-2'}}m long<br>
+      So {{house.cross.roof.upperRoofTiles}} tiles with {{house.cross.roof.upperRoofTilesSpacer *1000 | number:
+      '1.0-0' }}mm between
+      <br><br>
+      The lower roof is {{ house.cross.roof.roofLengths[RoofLength.lower] | number: '1.0-2'}}m long<br>
+      So {{house.cross.roof.lowerRoofTiles}} tiles with {{house.cross.roof.lowerRoofTilesSpacer *1000 | number:
+      '1.0-0' }}mm between
+
+      <br><br>
+      The roof foot is {{ house.cross.roof.roofLengths[RoofLength.sprocket] | number: '1.0-2'}}m long
+
+
+    </label>
+
+
+    <h2>Sprocket</h2>
+
+    One disadvantage of a mansard roof is that the lower roof is steep, and its harder to create a nice overhang.
+    Therefore we can create bigger eaves by flatting out the last {{house.cross.roof.kickerRoofTiles}} roof tiles.
+    This is called sprocketed eaves or Bellcast (French: Coyau )
+
+    <label>
+      <span>Size of the kicker {{house.cross.roof.kickerRoofTileLength | number:
+        '1.0-2'}}m</span>
+      <mat-slider min="0" max="4" [ngModel]="house.cross.roof.kickerRoofTiles"
+        (input)="update('roof','kickerRoofTiles',$event.value)" step="1" tickInterval="1"></mat-slider>
+    </label>
+
+    <label>
+      <span>Angle of the kicker {{house.cross.roof.kickerRoofAngle}}&deg;</span>
+      <mat-slider min="0" max="60" [ngModel]="house.cross.roof.kickerRoofAngle"
+        (input)="update('roof','kickerRoofAngle',$event.value)" step="0.5" tickInterval="1"></mat-slider>
     </label>
 
   </section>
@@ -385,51 +444,51 @@
 
 
 
+
+
+
+  <section [id]="Section.EndOfPageHouse">
+    <h3>This was the main design</h3>
+    <p>This site has a lot of info, if you are up for more. Feel free to join us at
+      this <br><a href="{{discord}}" target="_blank"
+        style="background: var(--primary-color); padding: 0 6px; color: white;">
+        <fa-icon [icon]="faDiscord"></fa-icon> discord
+        channel
+      </a>
+    </p>
+    <br>
+    <p>An other interesting page could be the layers of a wall/construction </p>
+    <div class="on-page-menu ">
+      <button mat-menu-item routerLink="/construction">
+        <mat-icon>handyman</mat-icon>
+        <span>Construction</span>
+      </button>
+    </div>
+
+    <p>There is a menu on the top-left with a lot more items. Some are listed here</p>
+    <br>
+    <div class="on-page-menu ">
+
+      <button mat-menu-item routerLink="/wired">
+        <mat-icon>bolt</mat-icon>
+        <span>Wired</span>
+      </button>
+      <button mat-menu-item routerLink="/installations">
+        <mat-icon>solar_power</mat-icon>
+        <span>Installations</span>
+      </button>
+      <button mat-menu-item routerLink="/map">
+        <mat-icon>pin_drop</mat-icon>
+        <span>Map</span>
+      </button>
+      <button mat-menu-item routerLink="/stairs">
+        <mat-icon style="font-family:'Material Icons Outlined';">stairs</mat-icon>
+        <span>Stairs</span>
+      </button>
+    </div>
+
+  </section>
+
 </ng-container>
-
-
-
-<section [id]="Section.EndOfPageHouse">
-  <h3>This was the main design</h3>
-  <p>This site has a lot of info, if you are up for more. Feel free to join us at
-    this <br><a href="{{discord}}" target="_blank"
-      style="background: var(--primary-color); padding: 0 6px; color: white;">
-      <fa-icon [icon]="faDiscord"></fa-icon> discord
-      channel
-    </a>
-  </p>
-  <br>
-  <p>An other interesting page could be the layers of a wall/construction </p>
-  <div class="on-page-menu ">
-    <button mat-menu-item routerLink="/construction">
-      <mat-icon>handyman</mat-icon>
-      <span>Construction</span>
-    </button>
-  </div>
-
-  <p>There is a menu on the top-left with a lot more items. Some are listed here</p>
-  <br>
-  <div class="on-page-menu ">
-
-    <button mat-menu-item routerLink="/wired">
-      <mat-icon>bolt</mat-icon>
-      <span>Wired</span>
-    </button>
-    <button mat-menu-item routerLink="/installations">
-      <mat-icon>solar_power</mat-icon>
-      <span>Installations</span>
-    </button>
-    <button mat-menu-item routerLink="/map">
-      <mat-icon>pin_drop</mat-icon>
-      <span>Map</span>
-    </button>
-    <button mat-menu-item routerLink="/stairs">
-      <mat-icon style="font-family:'Material Icons Outlined';">stairs</mat-icon>
-      <span>Stairs</span>
-    </button>
-  </div>
-
-</section>
-
 
 <!-- <disqus identifier="PassiveOpen-House"></disqus> -->

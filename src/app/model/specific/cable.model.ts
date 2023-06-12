@@ -1,10 +1,10 @@
-import * as d3 from 'd3';
-import { BaseSVG } from '../base.model';
-import { Floor, SensorType } from '../../components/enum.data';
-import { Wall } from './wall.model';
-import { Room } from './room.model';
-import { SafeHtml } from '@angular/platform-browser';
-import { round } from 'src/app/shared/global-functions';
+import * as d3 from "d3";
+import { BaseSVG } from "../base.model";
+import { Floor, SensorType } from "../../components/enum.data";
+import { Wall } from "../../house-parts/wall.model";
+import { Room } from "../../house-parts/room.model";
+import { SafeHtml } from "@angular/platform-browser";
+import { round } from "src/app/shared/global-functions";
 
 export class Cable extends BaseSVG {
   name;
@@ -27,8 +27,8 @@ export class Cable extends BaseSVG {
     }
 
     this.svg
-      .attr('points', this.points.join(' '))
-      .attr('transform', this.transform);
+      .attr("points", this.points.join(" "))
+      .attr("transform", this.transform);
   }
 
   getCableLength() {
@@ -38,15 +38,12 @@ export class Cable extends BaseSVG {
       if (i + 1 === this.points.length) return;
       length += dist(p, arr[i + 1]);
     });
-    return round(length,0);
+    return round(length, 0);
   }
-  
+
   redraw(floor: Floor) {
     if (this.svg) {
-      this.svg.attr(
-        "stroke-width",
-        this.meterPerPixel * this.lineThickness
-      );
+      this.svg.attr("stroke-width", this.meterPerPixel * this.lineThickness);
     }
   }
 }

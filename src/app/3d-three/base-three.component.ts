@@ -48,6 +48,7 @@ import Stats from "three/addons/libs/stats.module.js";
 import { Sky } from "three/addons/objects/Sky.js";
 import { ClipBox } from "./clip-box";
 import { environment } from "src/environments/environment";
+import { StatesService } from "../services/states.service";
 
 enum ViewSide {
   East = "East",
@@ -114,6 +115,7 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
     public houseService: HouseService,
     public host: ElementRef,
     public appService: AppService,
+    public statesService: StatesService,
     public cookieService: CookieService,
     public threeMaterialService: ThreeMaterialService
   ) {}
@@ -160,7 +162,7 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
         this.threeService.update$.subscribe(() => {
           this.onUpdate();
         }),
-        this.appService.states$.subscribe((states) => {
+        this.statesService.states$.subscribe((states) => {
           this.clipBox.states(states);
           this.setVisibility(states, this.animationDuration);
           this.drawAndClip();
@@ -336,7 +338,7 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
 
   drawAndClip() {
     // console.log("drawAndClip", this.scene.children.length);
-    const states = this.appService.states$.value;
+    const states = this.statesService.states$.value;
     const clipper = this.clipBox.box.clone();
     if (this.clipBox.enabled) {
       this.clearScene();
@@ -344,7 +346,7 @@ export class BaseThreeComponent<T> implements AfterViewInit, OnDestroy {
     }
 
     // if (this.clipBox.enabled) {
-    //   console.log(this.appService.states$.value.clipBoxEnabled);
+    //   console.log(this.statesService.states$.value.clipBoxEnabled);
 
     //   throw new Error("Bleghh22");
     // }

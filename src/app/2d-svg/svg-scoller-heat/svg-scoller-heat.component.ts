@@ -59,18 +59,6 @@ export class SvgScrollerHeatComponent extends SVGScroller {
   subscriptions: Subscription[] = [];
   update$ = new Subject();
 
-  constructor(
-    public houseService: HouseService,
-    public appService: AppService,
-    public tooltipService: TooltipService,
-    public host: ElementRef,
-    public d3Service: D3Service,
-    public d3DistanceService: D3DistanceService,
-    public contextMenuService: ContextMenuService
-  ) {
-    super(appService, tooltipService, host, d3Service);
-  }
-
   override localAfterViewInit() {
     const [width, height] = this.getSVGSizes();
 

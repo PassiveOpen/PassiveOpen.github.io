@@ -29,10 +29,10 @@ export class DataOLLayerService {
     properties: new LayerProperties({
       key: LayerKey.dem,
       name: "dem",
-      maptip: true,
+      maptip: false,
       maptipCallback: (data: Uint8Array) => {
         console.log(data);
-        return data ? `${data[0]} -` : "-";
+        return data ? `${data[0]}m` : "-";
       },
     }),
     zIndex: 1,
@@ -102,23 +102,23 @@ export class DataOLLayerService {
     this.demLayer,
     this.shadowLayer,
 
-    // new ImageLayer({
-    //   source: new ImageArcGISRest({
-    //     url: "https://maps.geoinfomittskane.se/arcgis/rest/services/Orto/LAS2019/MapServer",
-    //     params: {},
-    //   }),
-    //   properties: new LayerProperties({
-    //     key: LayerKey.dem,
-    //     name: "DEM",
-    //     maptip: true,
-    //     maptipCallback: (feature: any) =>
-    //       `Elevation ${round(feature.attributes["Pixel Value"], 0)}m`,
-    //   }),
+    new ImageLayer({
+      source: new ImageArcGISRest({
+        url: "https://maps.geoinfomittskane.se/arcgis/rest/services/Orto/LAS2019/MapServer",
+        params: {},
+      }),
+      properties: new LayerProperties({
+        key: LayerKey.dem2,
+        name: "DEM",
+        maptip: true,
+        maptipCallback: (feature: any) =>
+          `Elevation ${round(feature.attributes["Pixel Value"], 0)}m`,
+      }),
 
-    //   zIndex: 1,
-    //   opacity: 0.7,
-    //   visible: false,
-    // }),
+      zIndex: 1,
+      opacity: 0.7,
+      visible: false,
+    }),
 
     new VectorLayer({
       source: new VectorSource({

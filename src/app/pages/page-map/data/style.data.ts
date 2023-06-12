@@ -141,11 +141,11 @@ export class DataOLStyleService {
       new Style({
         stroke: new Stroke({
           color: standalone ? "rgba(33, 110, 26, 0.8)" : "transparent",
-          width: 0.3,
+          width: 0.6,
         }),
         fill: new Fill({
           color: standalone
-            ? "rgba(72, 153, 70, 0.651)"
+            ? "rgba(152, 235, 64, 0.5)"
             : isEvergreen
             ? "rgba(99, 141, 58, 0.5)"
             : "rgba(164, 216, 109, 0.5)",
@@ -267,7 +267,7 @@ export class DataOLStyleService {
     ],
   };
 
-  styleHouse = (feature: Feature, resolution, rotation, selected) => {
+  styleHouse = (feature: Feature, resolution, selected) => {
     var zoom = this.toZoom(resolution);
     const rotate = feature.getProperties()["roofCenterShow"] === true;
 
@@ -336,7 +336,11 @@ export class DataOLStyleService {
 
     if (rotate) {
       let offset = [-25, 25];
-      if (rotation > 90 || rotation < -90) offset = [25, -25];
+      if (
+        feature.getProperties()["rotation"] > 90 ||
+        feature.getProperties()["rotation"] < -90
+      )
+        offset = [25, -25];
       styles.push(
         new Style({
           image: new Circle({
@@ -355,14 +359,14 @@ export class DataOLStyleService {
             fill: new Fill({
               color: this.colorService.rgb(Color.primary),
             }),
-            text: `${rotation}°`,
+            text: `${feature.getProperties()["rotation"]}°`,
           }),
         })
       );
     }
     return styles;
   };
-  createRotateStyle = (feature, resolution, rotation) => {
+  createRotateStyle = (feature, resolution) => {
     var zoom = this.toZoom(resolution);
 
     const styleRotateIcon = new Style({
@@ -387,7 +391,7 @@ export class DataOLStyleService {
         text: `refresh`,
         font: "normal 20px Material Icons",
         fill: new Fill({ color: "white" }),
-        rotation: rotation,
+        rotation: feature.getProperties()["rotation"],
       }),
     });
 

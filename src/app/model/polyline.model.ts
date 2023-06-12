@@ -18,7 +18,7 @@ export class AppPolyline extends BaseSVG {
       this.svg = d3.select(`#${this.selector}`);
     }
 
-    if (!this.show(floor)) {
+    if (this.show(floor) === false) {
       this.svg.attr("points", "");
       return;
     }
@@ -29,6 +29,7 @@ export class AppPolyline extends BaseSVG {
 
     this.setClass(this.svg);
   }
+
   redraw(floor: Floor) {
     if (this.svg === undefined) {
       this.draw(floor);

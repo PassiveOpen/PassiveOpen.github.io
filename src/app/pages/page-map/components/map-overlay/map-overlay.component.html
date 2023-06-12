@@ -1,22 +1,28 @@
 <div #popup id="popup" class="ol-popup">
-  <span *ngIf="row1$ | async as row">
-    {{row }}
-  </span>
-  <span *ngIf="row2$ | async as row">
-    {{row }}
-  </span>
+  <div class="extra-info">
+
+    <span *ngIf="row1$ | async as row">
+      {{row }}
+    </span>
+    <span *ngIf="row2$ | async as row">
+      {{row }}
+    </span>
+  </div>
+
   <a #closer href="#" id="popup-closer" class="ol-popup-closer" (click)="close()"></a>
   <div #content id="popup-content">
 
+
+
     <mat-action-list>
 
-      <button mat-list-item (click)="print(); close()">
+      <button *ngIf="basic || focusPrint" mat-list-item (click)="print(); close()">
         <mat-icon style="font-family:'Material Icons Outlined';">{{(olPrintService.active$|async)? 'print_disabled':
           'print'}}</mat-icon>
         <span>{{(olPrintService.active$|async)? 'Stop print': 'Start Print'}} </span>
       </button>
 
-      <ng-container *ngIf="olPrintService.active$ |async">
+      <ng-container *ngIf="focusPrint || (olPrintService.active$ |async)">
         <button mat-list-item (click)="olPrintService.print(); close()">
           <mat-icon style="font-family:'Material Icons Outlined';">print</mat-icon>
           <span>Get PDF</span>
@@ -24,11 +30,12 @@
       </ng-container>
 
 
-      <button mat-list-item (click)="olMeasureService.activate(); close()">
+      <button *ngIf="basic || focusMeasure" mat-list-item (click)="olMeasureService.activate(); close()">
         <mat-icon style="font-family:'Material Icons Outlined';">square_foot</mat-icon>
         <span>{{olMeasureService.active?'Stop': 'Start'}} measuring</span>
       </button>
-      <ng-container *ngIf="olMeasureService.active">
+
+      <ng-container *ngIf="focusMeasure||olMeasureService.active">
         <button mat-list-item (click)="olMeasureService.nextType(); close()">
 
           <mat-icon style="font-family:'Material Icons Outlined';">square_foot</mat-icon>

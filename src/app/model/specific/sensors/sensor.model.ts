@@ -1,8 +1,8 @@
 import * as d3 from "d3";
 import { BaseSVG } from "../../base.model";
 import { CableType, Floor, SensorType } from "../../../components/enum.data";
-import { Wall, WallSide } from "../wall.model";
-import { Room } from "../room.model";
+import { Wall, WallSide } from "../../../house-parts/wall.model";
+import { Room } from "../../../house-parts/room.model";
 import { SafeHtml } from "@angular/platform-browser";
 import { angleBetween, angleXY, round } from "src/app/shared/global-functions";
 import { xy } from "src/app/house/house.model";

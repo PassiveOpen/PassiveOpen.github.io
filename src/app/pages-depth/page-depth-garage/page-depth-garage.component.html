@@ -1,0 +1,18 @@
+<h1>Garage</h1>
+
+<ng-container *ngIf="house$|async as house">
+  <section>
+    <h2>Garage inpiration</h2>
+
+    <a href="
+    https://www.mellbygarage.se/sv/blogg/levereratgarage/dubbelgarage-med-sadeltak-12/">
+      Dubbelgarage med sadeltak 22º och måtten 8,7×9,7 meter
+    </a>
+
+    <h2>This design</h2>
+    {{house.garage.width}}x{{house.garage.length}}m = {{house.garage.width * house.garage.length | number: '1.1-1'}}m2
+
+    <app-img-page height="360px"
+      src="https://sp-ao.shortpixel.ai/client/to_auto,q_lossy,ret_img/https://www.mellbygarage.se/wp-content/uploads/2017/12/922745211b0ff5e08440bb12fabcf6b9b4f084e0.jpg"></app-img-page>
+  </section>
+</ng-container>

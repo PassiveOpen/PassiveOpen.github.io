@@ -56,8 +56,8 @@ export class Construction {
     [Thicknesses.osb]: 15 / 1000,
     [Thicknesses.joists]: 300 / 1000,
     [Thicknesses.outerSheet]: 60 / 1000,
-    [Thicknesses.space]: 40 / 1000,
-    [Thicknesses.facade]: 40 / 1000,
+    [Thicknesses.space]: 40 / 1000, //34+28
+    [Thicknesses.facade]: 44 / 1000,
     [Thicknesses.roofJoists]: 400 / 1000,
   };
 

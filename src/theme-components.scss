@@ -29,7 +29,7 @@
   --color-70: #{mix($bg, $txt, 30%)};
   --color-80: #{mix($bg, $txt, 20%)};
   --color-90: #{mix($bg, $txt, 10%)};
-  --color-100: #{mix($bg, $txt, 00%)};
+  --color-100: #{mix($bg, $txt, 0%)};
 
   --accent-50: #{mix(mat-color($accent), $bg, 50%)};
 

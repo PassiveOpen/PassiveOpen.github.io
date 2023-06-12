@@ -18,11 +18,7 @@ import { MatIconRegistry } from "@angular/material/icon";
 export class AppComponent implements OnInit, AfterViewInit {
   onStart = true;
 
-  constructor(
-    private appService: AppService,
-    private router: Router,
-    private iconRegistry: MatIconRegistry
-  ) {
+  constructor(private router: Router, private iconRegistry: MatIconRegistry) {
     this.iconRegistry.setDefaultFontSetClass("material-symbols-outlined");
   }
 

@@ -8,7 +8,8 @@
   <button mat-menu-item [matMenuTriggerFor]="constructions">Construction</button>
   <button mat-menu-item [matMenuTriggerFor]="situation">Situation</button>
   <button mat-menu-item [matMenuTriggerFor]="installations">Installations</button>
-  <!-- <button mat-menu-item [matMenuTriggerFor]="planningAndCosts">Planning & Costs</button> -->
+  <button mat-menu-item [matMenuTriggerFor]="planningAndCosts" style="opacity:0.5;" *ngIf="private">Planning &
+    Costs</button>
   <button mat-menu-item routerLink="/about" [disabled]="about.isActive" #about="routerLinkActive"
     routerLinkActive="active" (click)="click()">
     <mat-icon>people_outline</mat-icon>
@@ -51,6 +52,13 @@
     <mat-icon style="font-family:'Material Icons Outlined';">stairs</mat-icon>
     <span>Stairs</span>
   </button>
+
+  <button style="opacity:0.5;" *ngIf="private" mat-menu-item routerLink="/garage" [disabled]="garage.isActive"
+    #garage="routerLinkActive" routerLinkActive="active" (click)="click()">
+    <mat-icon>garage</mat-icon>
+    <span>Garage</span>
+  </button>
+
 </mat-menu>
 <mat-menu #situation="matMenu">
   <button mat-menu-item routerLink="/map" [disabled]="map.isActive" #map="routerLinkActive" routerLinkActive="active"
@@ -71,6 +79,14 @@
     <mat-icon>solar_power</mat-icon>
     <span>Installations</span>
   </button>
+
+  <button style="opacity:0.5;" *ngIf="private" mat-menu-item routerLink="/solar" [disabled]="solar.isActive"
+    #solar="routerLinkActive" routerLinkActive="active" (click)="click()">
+    <mat-icon>solar_power</mat-icon>
+    <span>Solar</span>
+  </button>
+
+
   <button mat-menu-item [matMenuTriggerFor]="depth">More in depth</button>
 </mat-menu>
 
@@ -79,6 +95,11 @@
     routerLinkActive="active" (click)="click()">
     <mat-icon>fireplace</mat-icon>
     <span>Energy & heat</span>
+  </button>
+  <button mat-menu-item routerLink="/rain" [disabled]="rain.isActive" #rain="routerLinkActive" routerLinkActive="active"
+    (click)="click()">
+    <mat-icon>rainy</mat-icon>
+    <span>Rain</span>
   </button>
 </mat-menu>
 
@@ -95,6 +116,14 @@
     <mat-icon>calendar_month</mat-icon>
     <span>Planning</span>
   </button>
+
+  <button style="opacity:0.5;" *ngIf="private" mat-menu-item routerLink="/planning_in_depth"
+    [disabled]="planningDepth.isActive" #planningDepth="routerLinkActive" routerLinkActive="active" (click)="click()">
+    <mat-icon>calendar_month</mat-icon>
+    <span>Planning Depth</span>
+  </button>
+
+
 </mat-menu>
 
 

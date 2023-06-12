@@ -76,6 +76,11 @@
     Wood can last forever, think of all the old houses in old cities.
   </p>
 
+  Larsen studs
+  T-studs
+  I joist
+  Double wallåå
+  <!-- https://emupassive.com/2021/06/10/thermal-bridging-of-i-joist-vs-larsen-truss/#:~:text=A%20Larsen%20truss%2C%20with%20its,web%20of%20an%20I%2DJoist. -->
   <!-- https://www.posi-joist.se/ -->
   <!-- https://handbok.masonitebeams.se/vad-ska-du-bygga/villa -->
 </section>
@@ -86,7 +91,9 @@
   <p>
     Traditional seen, OSB is used for a airtight outside layer. It also helps the whole building to be more solid, it
     can deal with sheer stresses.
-    In this build, we will build <tag>damp open</tag> and OSB is a perfect airtight product, but will also block
+    In this build, we will build <tag>damp open</tag> and OSB3 ({{thickness(Thicknesses.osb, true)}}mm) is a perfect
+    airtight
+    product, but will also block
     moisture. Therefore it is actually great on the inside of the house
   </p>
 </section>
@@ -167,9 +174,23 @@
 
 <section [id]="Section.constructionRoofTiles">
   <h2 class="counter">Roof tiles</h2>
-  <p>
-    Tiles.
-  </p>
+  Tiles.
+
+  If you need to choose between a keramic tile or a concrete tile. A concrete tile is not baked. They say its more eco
+  friendly. However keramic tiles have a longer life span and look more natural.
+
+  <ol>
+    <li><a href="https://www.benders.se/sortiment/tak/betongtakpannor/palema/brilliant/">Palema from Benders</a></li>
+
+    <li>
+      <a href="https://bmisverige.se/produkter/yttertak/betongpannor/jonaker-elegant/jonaker-elegant-normalpanna">Jönåker
+        from Monier</a>
+    </li>
+    <li><a href="https://steriks.se/produktsortiment/tak/betongtakpannor/mjoback-blank-ytbehandlad-2-kupig/">Mjöbäck
+        from S: t Eriks</a></li>
+    <li><a href="https://steriks.se/produktsortiment/tak/betongtakpannor/ekeby-hogblank-2-kupig-betongpanna/">Ekeby from
+        S: t Eriks</a></li>
+  </ol>
 </section>
 
 
@@ -181,8 +202,22 @@
   <p>
     This step depends a lot on the outer finish. In this example we use vertical wooden planks. Therfore we need first
     vertical strips (the construction is vertical, and water needs to run down). On top of these strips are horizontal
-    strips so we can add vertical facade planks
+    strips so we can add vertical facade planks.
   </p>
+
+  Beijer says: https://www.beijerbygg.se/privat/sv/spika-ytterpanel
+  You dont need to cross the strips. Only horizontal is enough.
+
+  TrÄguiden says:
+  https://www.traguiden.se/konstruktion/konstruktiv-utformning/stomkomplettering/utvandig-bekladnad/staende-utvandig-panel/..
+
+  <q>Observera att i slagregnsutsatta lägen ska vertikal luftningsläkt monteras bakom spikläkten. Minsta dimension
+    för luftningsläkt 25x48.</q>
+
+
+  good instalation
+  https://www.youtube.com/watch?v=Ciy6goHNHao
+
 </section>
 
 
@@ -200,15 +235,21 @@
   <p>
     To prevent puncture in our air-tight OSB layer. There will be a service layer that contains all electric, water and
     such.
-    It comes with extra insulation. This makes (small) renovations possible in the future.
+    It comes with extra insulation ({{thickness(Thicknesses.serviceBeams, true)}}mm). This makes (small) renovations
+    possible in the future.
+
+    Gips/Drywall are often designed to have only vertical overlaps. So the service wall studs are best positioned
+    vertical. And follow the on-center distance.
+
+
   </p>
 </section>
 
 <section [id]="Section.constructionWallGips">
   <h2 class="counter">Gips / Drywall / wood-finish</h2>
   <p>
-    The inside wall will be either covered by gypsum/drywall. We also very like the idea of lower <a
-      href="https://en.wikipedia.org/wiki/Panelling">paneling</a>
+    The inside wall will be either covered by gypsum/drywall ({{thickness(Thicknesses.gips, true,1)}}mm). We also very
+    like the idea of lower <a href="https://en.wikipedia.org/wiki/Panelling">paneling</a>
   </p>
 </section>
 
@@ -225,6 +266,8 @@
 </section> -->
 
 
+
+<!-- Takfot, takskägg eller taksprång -->
 
 
 <h2>The water problem</h2>
@@ -330,6 +373,35 @@
 
   </ng-container>
 </section>
+
+
+<section>
+  <h2>Read more</h2>
+
+
+  <div class="app-card link-card">
+    <div>
+      <div>
+        <a href="https://www.chicagotribune.com/sns-201508311900--tms--askbildrctnab-a20150911-20150911-story.html"
+          target="_blank">Rain during construction</a>
+        <br>
+        Read more about rain and construction. Alternative there are tents to cover the building site.
+      </div>
+    </div>
+  </div>
+  <div class="app-card link-card">
+    <div>
+      <div>
+        <a href="https://richardpedranti.com/projects/scranton-passive-house/" target="_blank">Scranton passive
+          house</a>
+        <br>
+        A good example, with vertical facade and wall details
+      </div>
+    </div>
+  </div>
+
+</section>
+
 <disqus identifier="PassiveOpen-Construction"></disqus>
 
 <!-- https://wood-tube.com/sv/reglar/ -->

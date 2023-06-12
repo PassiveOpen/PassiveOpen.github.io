@@ -30,7 +30,7 @@ import { Circle, Fill, Icon, Stroke, Style, Text } from "ol/style";
 import { OLViewService } from "./openlayers/ol-view.service";
 import BaseLayer from "ol/layer/Base";
 import { fromLonLat, toLonLat } from "ol/proj";
-import { Wall, WallSide, WallType } from "src/app/model/specific/wall.model";
+import { Wall, WallSide, WallType } from "src/app/house-parts/wall.model";
 import { Floor, Graphic } from "src/app/components/enum.data";
 
 import RotateFeatureInteraction from "ol-rotate-feature";
@@ -56,6 +56,7 @@ import { OLDistanceService } from "./openlayers/ol-distance.service";
 import { DataOLLayerService } from "./data/layer.data";
 import { DataOLStyleService } from "./data/style.data";
 import { TranslateEvent } from "ol/interaction/Translate";
+import { MapService } from "./map.service";
 
 @Component({
   selector: "app-page-map",
@@ -73,14 +74,16 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
   layers: BaseLayer[];
   subscriptions: Subscription[] = [];
 
-  center: Coordinate = [0, 0];
-  rotation = 0;
-
   houseFeature = new Feature<LineString>({
     roofCenterShow: false,
     roofLines: undefined,
-    footPrint: undefined,
     rotation: 0,
+    center: 0,
+  });
+  garageFeature = new Feature<LineString>({
+    roofCenterShow: false,
+    rotation: 0,
+    center: 0,
   });
   identifyActive = true;
 
@@ -98,13 +101,15 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
     private olPrintService: OLPrintService,
     private olDistanceService: OLDistanceService,
     private olContextService: OLContextService,
-
+    private mapService: MapService,
     private dataOLLayerService: DataOLLayerService,
     private dataOLStyleService: DataOLStyleService
   ) {}
 
   ngOnDestroy(): void {
-    [this.olViewService, this.olContextService].forEach((x) => x.onDestroy());
+    [this.olViewService, this.olContextService, this.olLayerService].forEach(
+      (x) => x.onDestroy()
+    );
     this.subscriptions.forEach((x) => x.unsubscribe());
   }
 
@@ -113,21 +118,36 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
       ...this.appService.scroll$.value,
       graphic: Graphic.map,
     });
-    const { lat, lng, rotation } = this.houseService.house$.value.orientation;
-    this.center = fromLonLat([lng, lat]);
-    this.rotation = rotation;
-    this.setCore();
+
+    const house = this.houseService.house$.value;
+    const { lat, lng, rotation } = house.orientation;
+    const garage = this.houseService.house$.value.garage;
+    let { lat: latG, lng: lngG, rotation: rotationG } = garage.orientation;
+
+    this.houseFeature.setId("house");
+    this.houseFeature.setProperties({
+      center: fromLonLat([lng, lat]),
+      rotation,
+    });
+
+    console.log(house);
+
+    this.garageFeature.setId("garage");
+    this.garageFeature.setProperties({
+      center: fromLonLat([lngG, latG]),
+      rotation: rotationG,
+    });
 
     this.layers = [
       ...this.olBaseMapService.initBaseLayers(),
-      ...this.olLayerService.initLayers(this.houseFeature),
+      ...this.olLayerService.initLayers(this.houseFeature, this.garageFeature),
     ];
 
     this.zone.runOutsideAngular(() => this.initMap());
   }
 
   initMap() {
-    this.olViewService.init(this.center, 15);
+    this.olViewService.init(this.houseFeature.getProperties()["center"], 15);
 
     const printDpi = 300; // Print resolution in DPI
     const pixelRatio = printDpi / 96; // Pixel ratio for the print resolution
@@ -139,65 +159,91 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
       overlays: [this.overlay.overlay],
       pixelRatio,
     });
+    (window as any).map = this.map;
+    this.setCore();
 
     this.olContextService.init(this.map, this.overlay);
     this.olPrintService.init(this.map);
-    this.olDistanceService.init(this.map, this.houseFeature);
+    // this.olDistanceService.init(this.map, this.houseFeature);
     this.addInteractions();
     this.olMeasureService.init(this.map);
     this.olBaseMapService.map = this.map;
-    (window as any).map = this.map;
 
-    this.houseFeature.setStyle((f: any, r) =>
-      this.dataOLStyleService.styleHouse(f, r, this.rotation, false)
+    [this.houseFeature, this.garageFeature].forEach((x) =>
+      x.setStyle((f: any, r) => this.dataOLStyleService.styleHouse(f, r, false))
     );
-    // this.draw();
   }
 
   setCore() {
-    const line = new LineString([
-      this.center,
-      angleXY(this.rotation, 10, this.center as xy) as Coordinate,
-    ]);
-    this.houseFeature.setGeometry(line);
-    this.drawHouse();
+    [this.houseFeature, this.garageFeature].forEach((feature) => {
+      const geom = new LineString([
+        feature.getProperties()["center"],
+        angleXY(
+          feature.getProperties()["rotation"],
+          10,
+          feature.getProperties()["center"] as xy
+        ) as Coordinate,
+      ]);
+      feature.setGeometry(geom);
+    });
   }
 
-  drawHouse(silent: boolean = true) {
-    const [polygon, roofLines] = this.houseService.getHousePolygon();
-    this.houseFeature.setProperties(
+  drawGarage(silent: boolean = true) {
+    const { polygon } = this.houseService.getGaragePolygon();
+    this.garageFeature.setProperties(
       {
-        roofCenter: new Point(this.center),
-        roofLines: roofLines,
+        roofCenter: new Point(this.garageFeature.getProperties()["center"]),
         footPrint: polygon,
       },
       silent
     );
   }
+
+  drawHouse(silent: boolean = true) {
+    const { polygon, roofLines } = this.houseService.getFootPrintPolygon();
+    this.houseFeature.setProperties(
+      {
+        roofCenter: new Point(this.houseFeature.getProperties()["center"]),
+        roofLines: roofLines,
+        footPrint: polygon,
+      },
+      silent
+    );
+    this.mapService.getElevationPoints();
+  }
   updateHouse() {
-    const [lng, lat] = toLonLat(this.center);
+    const [lng, lat] = toLonLat(this.houseFeature.getProperties()["center"]);
     const house = this.houseService.house$.value;
     house.orientation = {
-      rotation: this.rotation,
+      rotation: this.houseFeature.getProperties()["rotation"],
       lat,
       lng,
+    };
+    const [lngG, latG] = toLonLat(this.garageFeature.getProperties()["center"]);
+    house.garage.orientation = {
+      rotation: this.garageFeature.getProperties()["rotation"],
+      lat: latG,
+      lng: lngG,
     };
     this.houseService.house$.next(house);
   }
 
   addInteractions() {
-    const getRotatePoint = () => {
-      return angleXY(radToDeg(rotate.getAngle()) - 90, -30, this.center as xy);
+    const getRotatePoint = (feature) => {
+      return angleXY(
+        radToDeg(rotate.getAngle()) - 90,
+        -30,
+        feature.getProperties()["center"] as xy
+      );
     };
-    const setPivot = () => {
-      const coords = this.houseFeature.getGeometry().getCoordinates() as xy[];
-      this.rotation = round(angleBetween(coords[1], coords[0], 1) + 180, 1);
-      this.houseFeature.setProperties({ rotation: this.rotation });
+    const setPivot = (feature) => {
+      const coords = feature.getGeometry().getCoordinates() as xy[];
+      const rotation = round(angleBetween(coords[1], coords[0], 1) + 180, 1);
+      feature.setProperties({ rotation: rotation });
     };
 
     const select = new Select({
-      style: (f: any, r) =>
-        this.dataOLStyleService.styleHouse(f, r, this.rotation, true),
+      style: (f: any, r) => this.dataOLStyleService.styleHouse(f, r, true),
       layers: [this.olLayerService.getLayer(LayerKey.House)],
     });
     const translate = new Translate({
@@ -205,51 +251,66 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
     });
     const rotate = new RotateFeatureInteraction({
       features: select.getFeatures(),
-      style: (f, r) =>
-        this.dataOLStyleService.createRotateStyle(f, r, this.rotation),
+      style: (f, r) => this.dataOLStyleService.createRotateStyle(f, r),
     });
 
-    const setRotateIcon = () => {
-      rotate.setAnchor(this.center);
+    const setRotateIcon = (feature) => {
+      rotate.setAnchor(feature.getProperties()["center"]);
       rotate.setAngle((0 * Math.PI) / 180);
-      rotate.arrowFeature_.getGeometry().setCoordinates(getRotatePoint());
+      rotate.arrowFeature_
+        .getGeometry()
+        .setCoordinates(getRotatePoint(feature));
     };
 
     this.map.addInteraction(select);
 
     this.subscriptions.push(
       ...[
-        fromEvent(this.houseFeature, "change").subscribe((e) => {
-          this.updateHouse();
-          this.drawHouse();
-        }),
+        ...[this.houseFeature, this.garageFeature].map((feature) =>
+          fromEvent(feature, "change").subscribe((e) => {
+            this.updateHouse();
+            this.drawHouse();
+            this.drawGarage();
+          })
+        ),
         fromEvent(translate, "translateend").subscribe((e) => {
-          this.center = this.houseFeature.getGeometry().getCoordinates()[0];
-          setRotateIcon();
+          const feature = select.getFeatures().item(0) as Feature<LineString>;
+          feature.setProperties({
+            center: feature.getGeometry().getCoordinates()[0],
+          });
+          setRotateIcon(feature);
           this.drawHouse();
+          this.drawGarage();
         }),
         fromEvent(translate, "translating").subscribe((e: TranslateEvent) => {
-          this.center = this.houseFeature.getGeometry().getCoordinates()[0];
-          setRotateIcon();
+          const feature = select.getFeatures().item(0) as Feature<LineString>;
+          feature.setProperties({
+            center: feature.getGeometry().getCoordinates()[0],
+          });
+          setRotateIcon(feature);
         }),
 
         fromEvent(rotate, "rotatestart").subscribe((e) => {
-          this.houseFeature.setProperties({
+          const feature = select.getFeatures().item(0) as Feature<LineString>;
+          feature.setProperties({
             roofCenterShow: true,
           });
         }),
         fromEvent(rotate, "rotating").subscribe((e) => {
-          setPivot();
+          const feature = select.getFeatures().item(0) as Feature<LineString>;
+          setPivot(feature);
         }),
         fromEvent(rotate, "rotateend").subscribe((e) => {
-          this.houseFeature.setProperties({
+          const feature = select.getFeatures().item(0) as Feature<LineString>;
+          feature.setProperties({
             roofCenterShow: false,
           });
           rotate.features_.pop();
-          rotate.features_.push(this.houseFeature);
-          setPivot();
-          setRotateIcon();
+          rotate.features_.push(feature);
+          setPivot(feature);
+          setRotateIcon(feature);
           this.drawHouse();
+          this.drawGarage();
         }),
         fromEvent(select, "select").subscribe((e: SelectEvent) => {
           const selected = e.selected[0];
@@ -258,17 +319,17 @@ export class PageMapComponent implements AfterViewInit, OnDestroy {
             this.overlay.close();
             this.map.addInteraction(rotate);
             this.map.addInteraction(translate);
-            setPivot();
-            setRotateIcon();
+            setPivot(selected);
+            setRotateIcon(selected);
             (rotate.arrowFeature_ as Feature).setStyle((f, r) =>
-              this.dataOLStyleService.createRotateStyle(f, r, this.rotation)
+              this.dataOLStyleService.createRotateStyle(f, r)
             );
           } else {
             this.overlay.enabled = true;
             this.map.removeInteraction(rotate);
             this.map.removeInteraction(translate);
           }
-          this.houseFeature.changed();
+          selected.changed();
         }),
       ]
     );

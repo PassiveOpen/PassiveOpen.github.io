@@ -15,29 +15,29 @@ import {
   ChangeDetectorRef,
   ViewContainerRef,
   EmbeddedViewRef,
-} from '@angular/core';
+} from "@angular/core";
 import {
   ConnectionPositionPair,
   Overlay,
   OverlayRef,
-} from '@angular/cdk/overlay';
+} from "@angular/cdk/overlay";
 
-import { takeUntil, tap } from 'rxjs/operators';
-import { concat, fromEvent, merge, Subject } from 'rxjs';
-import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
+import { takeUntil, tap } from "rxjs/operators";
+import { concat, fromEvent, merge, Subject } from "rxjs";
+import { ComponentPortal, TemplatePortal } from "@angular/cdk/portal";
 import {
   animate,
   AnimationBuilder,
   AnimationMetadata,
   AnimationPlayer,
   style,
-} from '@angular/animations';
-import { environment } from 'src/environments/environment';
-import { AppService } from 'src/app/app.service';
-import { Tag } from '../enum.data';
+} from "@angular/animations";
+import { environment } from "src/environments/environment";
+import { AppService } from "src/app/app.service";
+import { Tag } from "../enum.data";
 
 @Directive({
-  selector: '[overlayTemplate]',
+  selector: "[overlayTemplate]",
 })
 export class OverlayDirective implements OnInit, OnDestroy {
   @Input() overlayTemplate: TemplateRef<any>;
@@ -64,17 +64,17 @@ export class OverlayDirective implements OnInit, OnDestroy {
   // resize() {
   //   this.updateOnChange();
   // }
-  @HostListener('mouseover')
+  @HostListener("mouseover")
   mouseover() {
     this.attachOverlay();
   }
 
-  @HostListener('mouseout')
+  @HostListener("mouseout")
   mouseout() {
     this.appService.popupActive$.next(false);
     this.detachOverlay();
   }
-  @HostListener('window:resize', ['$event'])
+  @HostListener("window:resize", ["$event"])
   onResize(event) {
     this.updateOnChange();
   }
@@ -85,21 +85,21 @@ export class OverlayDirective implements OnInit, OnDestroy {
       .flexibleConnectedTo(this.viewContainerRef.element.nativeElement)
       .withPositions([
         new ConnectionPositionPair(
-          { originX: 'start', originY: 'top' },
-          { overlayX: 'start', overlayY: 'bottom' },
+          { originX: "start", originY: "top" },
+          { overlayX: "start", overlayY: "bottom" },
           -this.btn.getBoundingClientRect().left +
             this.pageEl.getBoundingClientRect().left +
             8,
           -20
         ),
         new ConnectionPositionPair(
-          { originX: 'start', originY: 'bottom' },
-          { overlayX: 'start', overlayY: 'top' },
+          { originX: "start", originY: "bottom" },
+          { overlayX: "start", overlayY: "top" },
           -this.btn.getBoundingClientRect().left +
             this.pageEl.getBoundingClientRect().left +
             8,
           20,
-          'flipped'
+          "flipped"
         ),
       ])
       .withPush(true);
@@ -111,7 +111,7 @@ export class OverlayDirective implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.pageEl = document.querySelector('.center');
+    this.pageEl = document.querySelector(".center");
     this.btn = this.viewContainerRef.element.nativeElement as HTMLElement;
     const positionStrategy = this.getPositionStrategy();
     const scrollStrategy = this.getScrollStrategy();
@@ -173,16 +173,16 @@ export class OverlayDirective implements OnInit, OnDestroy {
   }
 
   createMakeMeAPopup() {
-    this.overlayRef.overlayElement.classList.add('popup', 'base');
-    this.arrowEl = document.createElement('div');
-    this.arrowEl.classList.add('popup-arrow', 'base');
+    this.overlayRef.overlayElement.classList.add("popup", "base");
+    this.arrowEl = document.createElement("div");
+    this.arrowEl.classList.add("popup-arrow", "base");
     this.setArrow();
     this.overlayRef.overlayElement.append(this.arrowEl);
   }
   setArrow() {
     const { left, width } = this.btn.getBoundingClientRect();
-    const { x } = this.pageEl.getBoundingClientRect();
-    this.arrowEl.style.left = `${left - x - 20 + width / 2}px`;
+    const { top } = this.pageEl.getBoundingClientRect();
+    this.arrowEl.style.left = `${left - top - 20 + width / 2}px`;
   }
 
   private updateOnChange() {
@@ -208,10 +208,10 @@ export class OverlayDirective implements OnInit, OnDestroy {
   }
 
   private enterAnimation(copPanelEl: HTMLElement): AnimationMetadata[] {
-    copPanelEl.style.maxWidth = '100%';
+    copPanelEl.style.maxWidth = "100%";
     return [
-      style({ 'max-width': '0%' }),
-      animate('150ms ease-out', style({ 'max-width': '100%' })),
+      style({ "max-width": "0%" }),
+      animate("150ms ease-out", style({ "max-width": "100%" })),
     ];
     // } else if (this.copOverlayAnimation === OverlayAnimation.scaleLeft) {
     //   copPanelEl.style.transform = 'scaleX(0)';
@@ -245,7 +245,7 @@ export class OverlayDirective implements OnInit, OnDestroy {
   }
 
   private leaveAnimation(): AnimationMetadata[] {
-    return [animate('200ms ease-in', style({ 'max-width': '0%' }))];
+    return [animate("200ms ease-in", style({ "max-width": "0%" }))];
     //   } else if (this.copOverlayAnimation === OverlayAnimation.scaleLeft) {
     //     return [animate('200ms ease-in', style({ transform: 'scaleX(0.0001)' }))];
     //   } else if (this.copOverlayAnimation === OverlayAnimation.slideTop) {

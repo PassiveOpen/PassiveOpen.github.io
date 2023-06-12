@@ -39,6 +39,10 @@ export class MapOverlayComponent implements AfterViewInit {
 
   MeasuringDrawType = MeasuringDrawType;
 
+  basic = true;
+  focusPrint = false;
+  focusMeasure = false;
+
   constructor(
     public houseService: HouseService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -83,7 +87,11 @@ export class MapOverlayComponent implements AfterViewInit {
   print() {
     if (this.olPrintService.active$.value) {
       this.olPrintService.onDestroy();
+      this.basic = true;
+      this.focusPrint = false;
     } else {
+      this.focusPrint = true;
+      this.basic = false;
       this.olPrintService.startPrint({
         center: fromLonLat(this.houseService.house$.value.getLonLat()),
       });

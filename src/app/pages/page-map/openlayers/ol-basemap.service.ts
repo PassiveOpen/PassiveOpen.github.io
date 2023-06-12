@@ -24,6 +24,8 @@ export class OLBaseMapService {
     this.basemap$.subscribe(() => this.onChangeBasemap());
   }
 
+  onDestroy(): void {}
+
   setBasemap(basemap: BasemapKey) {
     this.basemap$.next(basemap);
   }
@@ -40,6 +42,7 @@ export class OLBaseMapService {
     if (!environment.production) {
       layers.push(...extraBaseLayers);
     }
+
     return layers;
   }
 

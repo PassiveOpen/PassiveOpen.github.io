@@ -41,11 +41,12 @@ export class PageConstructionComponent implements AfterViewInit {
   ngAfterViewInit(): void {}
 
   currentJoist = () =>
-    this.joists.findIndex(
-      (y) =>
-        y === this.house$.value.construction.Thicknesses[Thicknesses.joists]
-    );
+    this.joists.findIndex((y) => y === this.thickness(Thicknesses.joists));
 
+  thickness(thicknesses: Thicknesses, inMM = false, decimals = 0) {
+    const meter = this.house$.value?.construction?.thickness[thicknesses];
+    return inMM ? round(meter * 1000, decimals) : meter;
+  }
   updateJoist(index) {
     this.update("construction", "thicknessJoist", this.joists[index]);
   }

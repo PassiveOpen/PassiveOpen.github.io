@@ -75,6 +75,9 @@ export class OLDistanceService {
       ]
     );
   }
+  onDestroy(): void {
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+  }
   updateLines() {
     this.lines.forEach((line) => {
       if (line.geometry === undefined) {

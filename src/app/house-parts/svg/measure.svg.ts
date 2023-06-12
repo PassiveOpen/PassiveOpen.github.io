@@ -1,83 +1,70 @@
-import { SafeHtml } from "@angular/platform-browser";
 import * as d3 from "d3";
-import { House, xy } from "../../house/house.model";
-import { Cross } from "../../house/cross.model";
-import { Wall } from "./wall.model";
-import { BaseSVG } from "../base.model";
-import { angleXY, ptToScale, round } from "../../shared/global-functions";
-import { Floor } from "../../components/enum.data";
+import { HousePartSVG } from "../model/housePart.model";
+import { Measure } from "../measure.model";
+import { angleXY, ptToScale } from "src/app/shared/global-functions";
+import { round } from "@turf/turf";
+import { xy } from "src/app/house/house.model";
 
-export class Measure extends BaseSVG {
+export class MeasureSVG extends HousePartSVG<Measure> {
   svgLine: d3.Selection<SVGPolylineElement, unknown, HTMLElement, any>;
   svgText: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
   svgArrow1: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
   svgArrow2: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
 
-  textRotate = 0;
   fontSize = 12;
-  a: xy = [0, 0];
-  b: xy = [4, 4];
-  offsetPixels = 0;
-  offsetMeters = 0;
-  direction = 90;
   _lineThickness = 0.6;
 
-  decimals = 1;
-  classes = ["measure"];
-
-  constructor(data: Partial<Measure>) {
-    super();
-    Object.assign(this, data);
+  setD3(): void {
+    this.svg = d3.select(`#${this.model.selector}`);
+    this.setClass(this.svg);
+    this.svgLine = this.svg.append("polyline");
+    this.svgArrow1 = this.svg.append("text");
+    this.svgArrow2 = this.svg.append("text");
+    this.svgText = this.svg.append("text");
   }
-
-  between(a, b) {
-    return [a[0] + (b[0] - a[0]) / 2, a[1] + (b[1] - a[1]) / 2];
+  drawWhenNotVisible(): void {
+    this.svgLine.attr("points", "");
+    this.svgText.text("");
+    this.svgArrow1.text("");
+    this.svgArrow2.text("");
   }
-  async draw(floor: Floor) {
-    if (this.svg === undefined) {
-      this.svg = d3.select(`#${this.selector}`);
-      this.setClass(this.svg);
-      this.svgLine = this.svg.append("polyline");
-      this.svgArrow1 = this.svg.append("text");
-      this.svgArrow2 = this.svg.append("text");
-      this.svgText = this.svg.append("text");
-    }
-
-    if (!this.show(floor)) {
-      this.svgLine.attr("points", "");
-      this.svgText.text("");
-      this.svgArrow1.text("");
-      this.svgArrow2.text("");
-      return;
-    }
-    let a: xy = [...this.a];
-    let b: xy = [...this.b];
+  initDraw(): void {
+    let a: xy = [...this.model.a];
+    let b: xy = [...this.model.b];
     let textOffset = [0, 0];
-    if (this.direction === 90) {
+    if (this.model.direction === 90) {
       a = [a[0], Math.max(a[1], b[1])];
       b = [b[0], Math.max(a[1], b[1])];
     }
-    if (this.direction === -90) {
+    if (this.model.direction === -90) {
       a = [a[0], Math.min(a[1], b[1])];
       b = [b[0], Math.min(a[1], b[1])];
     }
-    if (this.direction === 0) {
+    if (this.model.direction === 0) {
       a = [Math.max(a[0], b[0]), a[1]];
       b = [Math.max(a[0], b[0]), b[1]];
     }
-    if (this.direction === 180) {
+    if (this.model.direction === 180) {
       a = [Math.min(a[0], b[0]), a[1]];
       b = [Math.min(a[0], b[0]), b[1]];
     }
-    const pixels = this.offsetPixels * this.meterPerPixel;
+    const pixels = this.model.offsetPixels * this.meterPerPixel;
 
-    const aX = angleXY(this.direction, pixels + this.offsetMeters, a);
-    const bX = angleXY(this.direction, pixels + this.offsetMeters, b);
+    const aX = angleXY(
+      this.model.direction,
+      pixels + this.model.offsetMeters,
+      a
+    );
+    const bX = angleXY(
+      this.model.direction,
+      pixels + this.model.offsetMeters,
+      b
+    );
     const arrowSize = 0.3;
-    const textOrigin = this.between(aX, bX);
+    const textOrigin = this.model.between(aX, bX);
     var aa = bX[0] - aX[0];
     var bb = bX[1] - aX[1];
-    var lengthMeters = round(Math.sqrt(aa * aa + bb * bb), this.decimals);
+    var lengthMeters = round(Math.sqrt(aa * aa + bb * bb), this.model.decimals);
 
     if (lengthMeters === 0) {
       this.svg.style("visibility", "hidden");
@@ -85,7 +72,14 @@ export class Measure extends BaseSVG {
       this.svg.style("visibility", "");
     }
 
-    this.svgLine.attr("points", [this.a, a, aX, bX, b, this.b].join(" "));
+    const coordMap = [this.model.a, a, aX, bX, b, this.model.b];
+
+    if (coordMap.some((x) => isNaN(x[0]) || isNaN(x[1]))) {
+      console.log(`Some NaN ${this.selector}`, coordMap);
+      return;
+    }
+
+    this.svgLine.attr("points", coordMap.join(" "));
 
     this.svgText
       .attr("text-anchor", "middle")
@@ -96,13 +90,13 @@ export class Measure extends BaseSVG {
         translate(${textOrigin[0] + textOffset[0]} ${
           textOrigin[1] + textOffset[1]
         }) 
-        rotate(${this.textRotate})
+        rotate(${this.model.textRotate})
         `
       )
       .text(lengthMeters);
 
     let arrowCorrection = 90;
-    if ([90, 0].includes(this.direction)) {
+    if ([90, 0].includes(this.model.direction)) {
       arrowCorrection = -90;
     }
 
@@ -114,7 +108,7 @@ export class Measure extends BaseSVG {
         "transform",
         `
         translate(${aX[0]} ${aX[1]}) 
-        rotate(${this.direction + arrowCorrection})
+        rotate(${this.model.direction + arrowCorrection})
         `
       )
       .text("<");
@@ -126,13 +120,12 @@ export class Measure extends BaseSVG {
         "transform",
         `
           translate(${bX[0]} ${bX[1]}) 
-          rotate(${this.direction + arrowCorrection + 180})
+          rotate(${this.model.direction + arrowCorrection + 180})
           `
       )
       .text("<");
   }
-
-  redraw(floor: Floor) {
+  updateScale(): void {
     if (this.svgArrow2) {
       this.svgArrow2.attr(
         "font-size",

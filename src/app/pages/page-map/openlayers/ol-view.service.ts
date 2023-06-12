@@ -33,6 +33,10 @@ export class OLViewService {
       fromEvent(this.view, "change").subscribe(() => this.setStore())
     );
   }
+  onDestroy(): void {
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+    this.view.dispose();
+  }
 
   set centerAndZoom(centerAndZoom: CenterAndZoom) {
     if (centerAndZoom.center) {
@@ -45,10 +49,6 @@ export class OLViewService {
       center: this.view.getCenter(),
       zoom: this.view.getZoom(),
     };
-  }
-
-  onDestroy(): void {
-    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
   getStore(): CenterAndZoom {

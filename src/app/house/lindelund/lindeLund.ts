@@ -1,29 +1,30 @@
 import { House, HouseUser, xy } from "../house.model";
-import { Room } from "../../model/specific/room.model";
+import { Room } from "../../house-parts/room.model";
 import {
   CornerType,
   Wall,
   WallSide,
   WallType,
-} from "../../model/specific/wall.model";
-import { Door } from "src/app/model/specific/door.model";
+} from "../../house-parts/wall.model";
+import { Door } from "src/app/house-parts/door.model";
 import { CableType, Floor, SensorType } from "../../components/enum.data";
 import { mixPoints, offset } from "../../shared/global-functions";
-import { Window, WindowForm } from "../../model/specific/window.model";
+import { Window, WindowForm } from "../../house-parts/window.model";
 import { Sensor } from "../../model/specific/sensors/sensor.model";
 import { lindeLundUpstairs } from "./lindeLund.upstairs";
-import { Footprint } from "src/app/model/specific/footprint";
+import { Footprint } from "src/app/house-parts/footprint.model";
 import { SensorLight } from "src/app/model/specific/sensors/sensorLight.model";
 import { Vent } from "src/app/model/specific/sensors/vent.model";
 import { Water } from "src/app/model/specific/sensors/water.model";
 import { AppSVG } from "src/app/model/svg.model";
 import { RoofPoint } from "../cross.model";
+import { lindelundOther } from "./lindeLund.other";
 
 const groundToiletWidth = 0.8;
 const standardWindowWidth = 1.2;
 
 export const lindeLund: HouseUser = {
-  studAmount: 12,
+  studAmount: 13,
   studDistance: 0.6,
   towerWidth: 1,
   wallInnerThickness: 0.07,
@@ -46,7 +47,17 @@ export const lindeLund: HouseUser = {
     lng: 13.654632669220504,
     rotation: 10,
   },
+  garage: {
+    width: 8.7,
+    length: 9.7,
+    orientation: {
+      lat: 55.91832399684094,
+      lng: 13.654632669220504,
+      rotation: 45,
+    },
+  },
   parts: [
+    ...lindelundOther,
     //// Outerwalls ////
     new Footprint({
       // tower
@@ -91,7 +102,7 @@ export const lindeLund: HouseUser = {
               floor: Floor.all,
               gable: gables.includes(i),
               tower: towerCorners.includes(i),
-              onUpdate: function (this: Wall, house: House) {
+              onUpdate: function (this: Wall, house) {
                 const getCorner = (i) => {
                   if (i === towerCorners[0] || i === towerCorners[4] + 1)
                     return CornerType.inside;

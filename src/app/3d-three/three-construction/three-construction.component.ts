@@ -40,6 +40,7 @@ import { Window } from "src/app/house/window.model";
 import { CSG } from "three-csg-ts";
 import { Material, ThreeMaterialService } from "../three-material.service";
 import { BaseThreeComponent } from "../base-three.component";
+import { StatesService } from "src/app/services/states.service";
 
 @Component({
   selector: "app-three-construction",
@@ -105,6 +106,7 @@ export class ThreeConstructionComponent extends BaseThreeComponent<ConstructionP
     public host: ElementRef,
     public appService: AppService,
     public cookieService: CookieService,
+    public statesService: StatesService,
     public threeMaterialService: ThreeMaterialService
   ) {
     super(
@@ -112,10 +114,11 @@ export class ThreeConstructionComponent extends BaseThreeComponent<ConstructionP
       houseService,
       host,
       appService,
+      statesService,
       cookieService,
       threeMaterialService
     );
-    this.appService.setState(
+    this.statesService.setState(
       [Helpers3D.clipBoxShow, Helpers3D.clipBoxEnabled],
       false,
       false,
@@ -431,7 +434,7 @@ export class ThreeConstructionComponent extends BaseThreeComponent<ConstructionP
       textureWidth: window.innerWidth * window.devicePixelRatio,
       textureHeight: window.innerHeight * window.devicePixelRatio,
     });
-    this.mirror.visible = this.appService.states$.value[Helpers3D.mirror];
+    this.mirror.visible = this.statesService.states$.value[Helpers3D.mirror];
 
     this.mirror.position.set(
       -2,
@@ -1388,7 +1391,7 @@ export class ThreeConstructionComponent extends BaseThreeComponent<ConstructionP
       );
       this.subModels[key].forEach((x) => this.scene.add(x));
       this.animations[key].progress(
-        this.appService.states$.value[key] === true ? 0 : 1
+        this.statesService.states$.value[key] === true ? 0 : 1
       );
     }); // loader
   }

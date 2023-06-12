@@ -26,53 +26,8 @@
       </g>
     </g>
 
-    <g class="house-stramien">
-      <g clas="house-stramien" class="house-stramien-in">
-        <polyline clas="house-stramien" id="house-stramien-in-we-a"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-in-we-b"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-in-we-c"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-in-we-d"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-in-ns-a"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-in-ns-b"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-in-ns-c"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-in-ns-d"></polyline>
-
-
-
-      </g>
-      <g clas="house-stramien" class="house-stramien-ground">
-        <polyline clas="house-stramien" id="house-stramien-ground-we-hall"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-ground-ns-hall"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-ground-we-toilet"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-ground-ns-toilet"></polyline>
-
-        <polyline clas="house-stramien" id="house-stramien-top-we-hall"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-top-ns-hall"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-top-we-toilet"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-top-ns-toilet"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-top-we-walkway"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-top-ns-walkway"></polyline>
-
-      </g>
-      <g clas="house-stramien" class="house-stramien-out">
-        <polyline clas="house-stramien" id="house-stramien-out-we-a"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-out-we-b"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-out-we-c"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-out-we-d"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-out-ns-a"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-out-ns-b"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-out-ns-c"></polyline>
-        <polyline clas="house-stramien" id="house-stramien-out-ns-d"></polyline>
-
-      </g>
-    </g>
-
-    <g class="g-grid">
-      <!-- <circle id="grid-index-circle" r="0.05" cx="0" cy="0" fill="var(--color-50)"></circle> -->
-      <polyline class="grid-vertical" id="grid-index-{{i}}" *ngFor="let item of [].constructor(55); let i = index;">
-      </polyline>
-      <polyline class="grid-horizontal" id="grid-index-{{i}}" *ngFor="let item of [].constructor(55); let i = index;">
-      </polyline>
+    <g class="house-grid-line">
+      <polyline [id]="key" *ngFor="let key of selectors[HousePart.gridLines]"></polyline>
     </g>
 
     <g class="house-wind-rose">
@@ -82,7 +37,7 @@
     </g>
 
     <g class="g-room">
-      <g [id]="key" *ngFor="let key of roomKeys"></g>
+      <g [id]="key" *ngFor="let key of selectors[HousePart.rooms]"></g>
     </g>
 
     <g class="plan-stair-plan included-stairs-plan">
@@ -90,7 +45,7 @@
     </g>
 
     <g class="g-wall">
-      <g [id]="key" *ngFor="let key of wallKeys">
+      <g [id]="key" *ngFor="let key of selectors[HousePart.walls]">
         <polyline class="wall-left"></polyline>
         <polyline class="wall-right"></polyline>
         <polygon class="wall-fill"></polygon>
@@ -99,21 +54,26 @@
     </g>
 
     <g class="g-door">
-      <g [id]="key" *ngFor="let key of doorKeys">
+      <g [id]="key" *ngFor="let key of selectors[HousePart.doors]">
         <polygon class="door-wall-opening"></polygon>
         <path class="door-swing"></path>
       </g>
     </g>
 
     <g class="g-window">
-      <g [id]="key" *ngFor="let key of windowKeys">
+      <g [id]="key" *ngFor="let key of selectors[HousePart.windows]">
         <polygon class="window-wall-opening"></polygon>
         <path class="window-pane"></path>
       </g>
     </g>
 
     <g class="extra">
-      <polyline id="balcony-edge"></polyline>
+
+      <polyline [id]="key" *ngFor="let key of selectors[HousePart.otherPolylines]">
+      </polyline>
+      <polygon [id]="key" *ngFor="let key of selectors[HousePart.otherPolygons]">
+      </polygon>
+      <!-- <polyline id="balcony-edge"></polyline>
       <polyline id="hall-edge"></polyline>
       <polyline id="view-lines"></polyline>
       <polygon id="central-void" filter="url(#inset-shadow)"></polygon>
@@ -123,25 +83,15 @@
       <polyline id="roof-line-2"></polyline>
       <polyline id="roof-line-3"></polyline>
       <polyline id="roof-line-4"></polyline>
-      <polyline id="roof-line-5"></polyline>
+      <polyline id="roof-line-5"></polyline> -->
     </g>
 
     <g class="house-measure">
-      <g id="house-total-height"></g>
-      <g id="house-total-width"></g>
-      <g id="house-width-1"></g>
-      <g id="house-width-2"></g>
-      <g id="house-width-3"></g>
-      <g id="house-height-1"></g>
-      <g id="house-height-2"></g>
-      <g id="house-height-inner"></g>
-      <g id="house-height-3"></g>
+      <g class="measure" [id]="key" *ngFor="let key of selectors[HousePart.measures]"> </g>
     </g>
 
 
     <g class="g-sensor">
-
-
       <polyline *ngFor="let key of sensorKeys" id="{{key}}" class="sensor-cable"></polyline>
       <g id="{{key}}" *ngFor="let key of sensorKeys" class="sensor-g">
         <use id="{{key}}" class="sensor-icon" />
@@ -150,9 +100,7 @@
     </g>
 
     <g class="g-example">
-      <g id="{{key}}" *ngFor="let key of exampleKeys" class="example-g">
-        <!-- <use id="{{key}}" class="svg-example" /> -->
-      </g>
+      <g id="{{key}}" *ngFor="let key of exampleKeys" class="example-g"> </g>
 
     </g>
 

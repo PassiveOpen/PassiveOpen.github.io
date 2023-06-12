@@ -4,7 +4,7 @@ import * as d3 from "d3";
 import { Selection } from "d3";
 import { AppService } from "src/app/app.service";
 import { HouseService } from "src/app/house/house.service";
-import { BasicSVG } from "../base-svg.component";
+import { BasicSVGComponent } from "../base-svg.component";
 import { BehaviorSubject } from "rxjs";
 import { Floor, Graphic, Section } from "src/app/components/enum.data";
 import { TooltipService } from "src/app/components/tooltip/tooltip.service";
@@ -17,7 +17,7 @@ import { D3Service } from "../d3.service";
   templateUrl: "./svg-stair-plan.component.html",
   styleUrls: ["./svg-stair-plan.component.scss"],
 })
-export class SvgStairPlanComponent extends BasicSVG implements AfterViewInit {
+export class SvgStairPlanComponent extends BasicSVGComponent {
   graphic = Graphic.stairPlan;
   floor = Floor.all;
   marginInMeters = [0, 0, 0, 0];
@@ -25,33 +25,13 @@ export class SvgStairPlanComponent extends BasicSVG implements AfterViewInit {
   figure;
   steps = new BehaviorSubject(25);
 
-  constructor(
-    public houseService: HouseService,
-    public appService: AppService,
-    public tooltipService: TooltipService,
-    public host: ElementRef,
-    public d3Service: D3Service,
-    public d3DistanceService: D3DistanceService,
-    public contextMenuService: ContextMenuService
-  ) {
-    super(
-      houseService,
-      appService,
-      tooltipService,
-      host,
-      d3Service,
-      d3DistanceService,
-      contextMenuService
-    );
-  }
+  updateHousePartSVGs() {}
+  afterUpdate() {}
+  getHousePartsSelectors() {}
+  afterInit() {}
+  setHousePartVisibility() {}
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.setUp();
-    }, 0);
-  }
-
-  svgUpdateMarginAndSize() {
+  setMarginAndSize() {
     this.svgHouseSize = [
       this.stair.stairOrigin,
       [this.stair.totalWidth, this.stair.totalHeight],

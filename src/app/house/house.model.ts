@@ -1,24 +1,22 @@
-import { Cross } from "./cross.model";
-import { Room } from "../model/specific/room.model";
-import { Wall, WallSide, WallType } from "../model/specific/wall.model";
-import { AppPolyline } from "src/app/model/polyline.model";
-import {
-  angleXY,
-  distanceBetweenPoints,
-  offset,
-  round,
-  sum,
-} from "src/app/shared/global-functions";
-import * as d3 from "d3";
-import { Floor, Graphic } from "../components/enum.data";
 import { BaseSVG } from "src/app/model/base.model";
-import { Stair } from "./stairs.model";
-import { Measure } from "../model/specific/measure.model";
-import { Windrose } from "../model/specific/windrose.model";
-import { AppPolygon } from "../model/polygon.model";
-import { Construction } from "./construction.model";
+import { AppPolyline } from "src/app/model/polyline.model";
+import { angleXY, offset, round, sum } from "src/app/shared/global-functions";
+import { Floor, Graphic } from "../components/enum.data";
 import { AppDistance } from "../model/distance.model";
-import { AppSVG } from "../model/svg.model";
+import { Measure, createMeasures } from "../house-parts/measure.model";
+import { AppPolygon } from "../model/polygon.model";
+import { HousePartModel } from "../house-parts/model/housePart.model";
+import { GridLine, getGridLines } from "../house-parts/gridLine.model";
+import { Room } from "../house-parts/room.model";
+import { Wall, WallSide, WallType } from "../house-parts/wall.model";
+import { Construction } from "./construction.model";
+import { Cross } from "./cross.model";
+import { Garage } from "./garage.model";
+import { Stair } from "./stairs.model";
+import { Studs } from "./studs.model";
+import { StudsSvg } from "./studs.svg";
+import { Other } from "../house-parts/other.model";
+
 export type xy = [number, number];
 export type xyz = [number, number, number];
 
@@ -31,10 +29,22 @@ export enum Stramien {
   hall = "hall",
   walkway = "walkway",
 }
+export enum GridType {
+  in = "in",
+  out = "out",
+  ground = "ground",
+  top = "top",
+}
 
 export interface StramienGroup {
   we: { [key in Stramien]?: number };
   ns: { [key in Stramien]?: number };
+}
+
+export interface Orientation {
+  lat: number;
+  lng: number;
+  rotation: number;
 }
 
 export class HouseUser {
@@ -57,14 +67,11 @@ export class HouseUser {
   crawlerHeight: number;
   crawlerSpace: boolean;
 
-  orientation: {
-    lat: number;
-    lng: number;
-    rotation: number;
-  };
-  parts: BaseSVG[];
+  orientation: Orientation;
+  parts: any[];
   a?: any;
   b?: any;
+  garage: Garage;
 }
 
 export interface Tower {
@@ -93,6 +100,20 @@ export interface SvgUpdate {
   print: boolean;
 }
 
+export enum HousePart {
+  rooms = "rooms",
+  walls = "walls",
+  gridLines = "gridLines",
+  footprint = "footprint",
+  doors = "doors",
+  windows = "windows",
+  studs = "studs",
+  measures = "measures",
+  otherPolygons = "otherPolygons",
+  otherPolylines = "otherPolylines",
+}
+export type HousePartType = Wall | Room | GridLine;
+
 export class House extends HouseUser {
   outerBase = undefined;
   innerBase = undefined;
@@ -120,10 +141,18 @@ export class House extends HouseUser {
     ground: StramienGroup;
     top: StramienGroup;
   };
-  partsFlatten: BaseSVG[];
+  partsFlatten: any[];
 
   cross = new Cross();
   stair = new Stair();
+
+  studs = new Studs();
+  studsSvg = new StudsSvg(this.studs);
+
+  houseParts: {
+    [key in HousePart]?: HousePartModel[];
+  } = {};
+
   construction = new Construction();
 
   stats: any = {
@@ -161,14 +190,40 @@ export class House extends HouseUser {
     // Main calculations
     this.calculateHouse();
 
+    this.houseParts.gridLines = getGridLines(this);
+    this.houseParts.measures = createMeasures(this);
+    this.activateHousePartOnUpdate(); // Generated Like above
+
+    this.activateHousePartAfterUpdate(); // All
+
     // Main logic
     this.linkParts();
+
+    // this.studs.houseUpdate(this);
+    // this.studsSvg.initSVGElements();
+    // this.parts.push(...this.studsSvg.parts);
+    // this.linkParts();
+
     this.calculateStats();
 
-    this.createStramien();
-    this.createGrid();
-    this.createMeasures();
-    this.createExtra();
+    this.parts.push(new AppDistance());
+  }
+
+  activateHousePartOnUpdate() {
+    Object.keys(HousePart).forEach((key) => {
+      this.houseParts[key]?.forEach((housePart: HousePartModel) => {
+        housePart.onUpdate(this);
+      });
+    });
+  }
+
+  activateHousePartAfterUpdate() {
+    Object.keys(HousePart).forEach((key) => {
+      if (this.houseParts[key] === undefined) this.houseParts[key] = []; // Generated
+      this.houseParts[key]?.forEach((housePart: HousePartModel) => {
+        housePart.afterUpdate();
+      });
+    });
   }
 
   /* Main draw function, which loops through parts */
@@ -177,9 +232,10 @@ export class House extends HouseUser {
       parent.parts.forEach(async (part: BaseSVG) => {
         if (part === undefined) return;
         // if (part.selector === "L0-West") console.log(part, obj, theme);
-
-        await part.update({ ...obj, theme });
-        if (part.parts !== undefined) loop(theme, part);
+        try {
+          await part.update({ ...obj, theme });
+          if (part.parts !== undefined) loop(theme, part);
+        } catch (e) {}
       });
     };
 
@@ -198,444 +254,31 @@ export class House extends HouseUser {
   /** On startup link all, and calculate a start */
   linkParts() {
     // Parent, Calculate first, Create selector
+
     const load = (part: BaseSVG, parent) => {
       if (part === undefined) return;
       part.parent = parent;
       part.onUpdate(this);
-      part.createSelector();
+      try {
+        part.createSelector();
+      } catch (e) {}
+
+      if (part instanceof HousePartModel) {
+        part.afterUpdate();
+        if (part.housePart === undefined)
+          throw new Error(`Unknown house part: ${part.constructor.name}`);
+        this.houseParts[part.housePart].push(part);
+      }
+
       if (part.parts) part.parts.forEach((x) => load(x, part));
       this.partsFlatten.push(part);
     };
     this.partsFlatten = [];
     this.parts.forEach((x) => load(x, this)); // rooms have house as parent
   }
+
   getLonLat() {
     return [this.orientation.lng, this.orientation.lat];
-  }
-  createExtra() {
-    this.parts.push(new AppDistance());
-    const part0 = new AppPolyline({
-      selector: "balcony-edge",
-      floor: Floor.ground,
-      lineThickness: 1,
-      dash: [1, 8],
-      onUpdate: function (this: AppPolyline, house: House) {
-        const s = house.stramien.in;
-        const o = house.balconyWidth + house.balconyEdge;
-        const point1: xy = [s.we.b, s.ns.b + o];
-        const point2: xy = [s.we.c, s.ns.b + o];
-        this.coords = [point1, point2];
-      },
-    });
-    this.parts.push(part0);
-
-    const part1 = new AppPolyline({
-      selector: "hall-edge",
-      floor: Floor.ground,
-      lineThickness: 1,
-      dash: [1, 8],
-      onUpdate: function (this: AppPolyline, house: House) {
-        const s = house.stramien.in;
-        const w = house.stair.totalWidth - house.stair.walkWidth;
-        const o = house.wallInnerThickness * 3 + 1 * 2;
-        const point1: xy = [s.we.b, s.ns.b - o];
-        const point2: xy = [s.we.b + w, s.ns.b - o];
-        this.coords = [point1, point2];
-      },
-    });
-    this.parts.push(part1);
-
-    const part = new AppPolyline({
-      selector: "view-lines",
-      floor: Floor.ground,
-      lineThickness: 3,
-      onUpdate: function (this: AppPolyline, house: House) {
-        const s = house.stramien.in;
-        const o = house.studDistance * 3;
-        const we = s.we.b + 1;
-        const ns = s.ns.b + (s.ns.c - s.ns.b) / 2;
-        const pointN: xy = [we, house.stair.stairOrigin[1]];
-        const pointS: xy = [we, s.ns.d + o];
-        const pointW: xy = [s.we.a - o, ns];
-        const pointE: xy = [s.we.d + o, ns];
-        const central: xy = [we, ns];
-
-        this.coords = [pointN, pointS, central, pointW, pointE];
-      },
-    });
-
-    this.parts.push(part);
-    const part2 = new AppPolygon({
-      selector: "tower-walls",
-      floor: Floor.all,
-      onUpdate: function (this: AppPolygon, house: House) {
-        this.visible = house.tower.footprintVisible;
-        this.coords = [
-          ...house.tower.innerCoords,
-          house.tower.innerCoords[0],
-          ...[...house.tower.outerCoords].reverse(), // make copy!
-          house.tower.outerCoords[7],
-        ];
-      },
-    });
-    this.parts.push(part2);
-
-    this.parts.push(
-      new AppPolyline({
-        selector: "roof-line-1",
-        floor: Floor.top,
-        lineThickness: 1,
-        dash: [10, 10],
-        onUpdate: function (this: AppPolyline, house: House) {
-          const s = house.stramien.in;
-          const point1: xy = [s.we.a, s.ns.b];
-          const point2: xy = [s.we.b, s.ns.b];
-          const point3: xy = [s.we.b, s.ns.a];
-          this.coords = [
-            offset(point1, [0, house.cross.minimumHeightWidth]),
-            offset(point2, [
-              house.cross.minimumHeightWidth,
-              house.cross.minimumHeightWidth,
-            ]),
-            offset(point3, [house.cross.minimumHeightWidth, 0]),
-          ];
-        },
-      })
-    );
-    this.parts.push(
-      new AppPolyline({
-        selector: "roof-line-2",
-        floor: Floor.top,
-        lineThickness: 1,
-        dash: [10, 10],
-        onUpdate: function (this: AppPolyline, house: House) {
-          const s = house.stramien.in;
-          const point1: xy = [s.we.c, s.ns.a];
-          const point2: xy = house.tower.show
-            ? [
-                s.we.c,
-                s.ns.b -
-                  house.tower.houseIncrement -
-                  house.cross.minimumHeightWidth,
-              ]
-            : [s.we.c, s.ns.b];
-          this.coords = [
-            offset(point1, [-house.cross.minimumHeightWidth, 0]),
-            offset(point2, [
-              -house.cross.minimumHeightWidth,
-              house.cross.minimumHeightWidth,
-            ]),
-          ];
-        },
-      })
-    );
-    this.parts.push(
-      new AppPolyline({
-        selector: "roof-line-3",
-        floor: Floor.top,
-        lineThickness: 1,
-        dash: [10, 10],
-        onUpdate: function (this: AppPolyline, house: House) {
-          const s = house.stramien.in;
-          const point1: xy = house.tower.show
-            ? [
-                s.we.c +
-                  house.tower.houseIncrement +
-                  house.cross.minimumHeightWidth,
-                s.ns.b,
-              ]
-            : [s.we.c, s.ns.b];
-          const point2: xy = [s.we.d, s.ns.b];
-          this.coords = [
-            offset(point1, [
-              -house.cross.minimumHeightWidth,
-              house.cross.minimumHeightWidth,
-            ]),
-            offset(point2, [0, house.cross.minimumHeightWidth]),
-          ];
-        },
-      })
-    );
-    this.parts.push(
-      new AppPolyline({
-        selector: "roof-line-4",
-        floor: Floor.top,
-        lineThickness: 1,
-        dash: [10, 10],
-        onUpdate: function (this: AppPolyline, house: House) {
-          const s = house.stramien.in;
-          const point1: xy = [s.we.d, s.ns.c];
-          const point2: xy = [s.we.c, s.ns.c];
-          this.coords = [
-            offset(point1, [0, -house.cross.minimumHeightWidth]),
-            offset(point2, [0, -house.cross.minimumHeightWidth]),
-          ];
-        },
-      })
-    );
-    this.parts.push(
-      new AppPolyline({
-        selector: "roof-line-5",
-        floor: Floor.top,
-        lineThickness: 1,
-        dash: [10, 10],
-        onUpdate: function (this: AppPolyline, house: House) {
-          const s = house.stramien.in;
-          const point1: xy = [s.we.b, s.ns.c];
-          const point2: xy = [s.we.a, s.ns.c];
-          this.coords = [
-            offset(point1, [0, -house.cross.minimumHeightWidth]),
-            offset(point2, [0, -house.cross.minimumHeightWidth]),
-          ];
-        },
-      })
-    );
-    //
-  }
-
-  createMeasures() {
-    this.parts.push(
-      new Measure({
-        selector: "house-total-width",
-        floor: Floor.all,
-        direction: 90,
-        textRotate: 0,
-        onUpdate: function (this: Measure, house: House) {
-          const pushOff = house.houseLength + house.studDistance * 2;
-          this.offsetPixels = 16;
-          this.a = [house.stramien.out.we.a, pushOff];
-          this.b = [house.stramien.out.we.d, pushOff];
-        },
-      })
-    );
-
-    for (let i = 0; i < 3; i++) {
-      const letters = ["a", "b", "c", "d"];
-      const letter = letters[i];
-      this.parts.push(
-        new Measure({
-          selector: "house-width-" + (i + 1),
-          floor: Floor.all,
-          direction: 90,
-          textRotate: 0,
-          onUpdate: function (this: Measure, house: House) {
-            const pushOff = house.houseLength + house.studDistance * 2;
-            this.offsetPixels = 0;
-            this.a = [house.stramien.out.we[letters[i + 0]], pushOff];
-            this.b = [house.stramien.out.we[letters[i + 1]], pushOff];
-          },
-        })
-      );
-    }
-
-    this.parts.push(
-      new Measure({
-        selector: "house-height-1",
-        floor: Floor.all,
-        direction: 0,
-        textRotate: 0,
-        onUpdate: function (this: Measure, house: House) {
-          const pushOff = house.houseWidth + house.studDistance * 1;
-          this.offsetPixels = 8;
-          this.offsetMeters = house.studDistance;
-          this.b = [pushOff, house.stramien.out.ns.a];
-          this.a = [pushOff, house.stramien.out.ns.b];
-        },
-      })
-    );
-    this.parts.push(
-      new Measure({
-        selector: "house-height-inner",
-        floor: Floor.all,
-        direction: 180,
-        textRotate: 0,
-        onUpdate: function (this: Measure, house: House) {
-          const pushOff = -house.studDistance * 1;
-          this.offsetPixels = 8;
-          this.offsetMeters = house.studDistance;
-          this.b = [pushOff, house.stramien.in.ns.b];
-          this.a = [pushOff, house.stramien.in.ns.c];
-        },
-      })
-    );
-
-    this.parts.push(
-      new Measure({
-        selector: "house-height-2",
-        floor: Floor.all,
-        direction: 0,
-        textRotate: 0,
-        onUpdate: function (this: Measure, house: House) {
-          const pushOff = house.houseWidth + house.studDistance * 1;
-          this.offsetPixels = 8;
-          this.offsetMeters = house.studDistance;
-          this.b = [pushOff, house.stramien.out.ns.b];
-          this.a = [pushOff, house.stramien.out.ns.c];
-        },
-      })
-    );
-    this.parts.push(
-      new Measure({
-        selector: "house-height-3",
-        floor: Floor.all,
-        direction: 0,
-        textRotate: 0,
-        onUpdate: function (this: Measure, house: House) {
-          const pushOff = house.houseWidth + house.studDistance * 1;
-          this.offsetPixels = 8;
-          this.offsetMeters = house.studDistance;
-          this.b = [pushOff, house.stramien.out.ns.c];
-          this.a = [pushOff, house.stramien.out.ns.d];
-        },
-      })
-    );
-    this.parts.push(
-      new Measure({
-        selector: "house-total-height",
-        floor: Floor.all,
-        direction: 0,
-        textRotate: 0,
-        onUpdate: function (this: Measure, house: House) {
-          const pushOff = house.houseWidth + house.studDistance * 1;
-          this.offsetPixels = 32;
-          this.offsetMeters = house.studDistance;
-          this.b = [pushOff, house.stramien.out.ns.a];
-          this.a = [pushOff, house.stramien.out.ns.d];
-        },
-      })
-    );
-  }
-  createStramien() {
-    const margin = 3 * this.studDistance;
-
-    const floor = (side: string): Floor => {
-      if (side === "in") return Floor.all;
-      if (side === "out") return Floor.all;
-      if (side === "ground") return Floor.ground;
-      if (side === "top") return Floor.top;
-    };
-    for (let side of ["in", "out", "ground", "top"]) {
-      for (let d of ["we", "ns"]) {
-        for (let i of Object.keys(Stramien)) {
-          const id = `house-stramien-${side}-${d}-${i}`;
-          if (d === "ns") {
-            this.parts.push(
-              new AppPolyline({
-                floor: floor(side),
-                selector: id,
-                lineThickness: 1.5,
-                onUpdate: function (this: AppPolyline, house: House) {
-                  this.coords = [
-                    [-margin, house.stramien[side][d][i]],
-                    [house.houseWidth + margin, house.stramien[side][d][i]],
-                  ];
-                },
-              })
-            );
-          } else {
-            this.parts.push(
-              new AppPolyline({
-                floor: floor(side),
-                selector: id,
-                lineThickness: 1.5,
-                onUpdate: function (this: AppPolyline, house: House) {
-                  this.coords = [
-                    [house.stramien[side][d][i], -margin],
-                    [house.stramien[side][d][i], house.houseLength + margin],
-                  ];
-                },
-              })
-            );
-          }
-        }
-      }
-    }
-  }
-  createGrid() {
-    const margin = this.studDistance * 3;
-    const extra = 1;
-    this.gridSizeY = Math.round(
-      this.houseWidth / this.studDistance + extra * 2 + 1
-    );
-    for (let i = 0; i < 55; i++) {
-      // vertical lines
-      const main = [
-        0,
-        this.studAmountWest,
-        this.studAmountWest + this.studAmount,
-        this.studAmountWest + this.studAmount + this.studAmountEast,
-      ].includes(i - extra);
-      const id = `grid-index-${i}.grid-vertical`;
-      const part = new AppPolyline({
-        selector: id,
-        lineThickness: main ? 0.8 : 0.6,
-        index: i,
-        floor: Floor.all,
-        onUpdate: function (house: House) {
-          const step = (i - extra) * house.studDistance;
-          const length = house.houseLength;
-          this.points =
-            this.index < house.gridSizeY
-              ? [
-                  [step, -margin],
-                  [step, length + margin],
-                ]
-              : [];
-          this.classes = [
-            main ? "grid-main" : (i - 1) % 5 ? "grid-sub" : "grid-subsub",
-          ];
-          // this.main = this.index % house.studAmount === 0;
-        },
-      });
-      part.createSelector();
-      this.parts.push(part);
-    }
-    this.gridSizeX = Math.round(
-      this.houseLength / this.studDistance + extra * 2 + 1
-    );
-    for (let i = 0; i < 55; i++) {
-      // horizontal lines
-
-      const main = [
-        0,
-        this.studAmountNorth,
-        this.studAmountNorth + this.studAmount,
-        this.studAmountNorth + this.studAmount + this.studAmountSouth,
-      ].includes(i - extra);
-
-      const id = `grid-index-${i}.grid-horizontal`;
-      this.parts.push(
-        new AppPolyline({
-          lineThickness: main ? 0.8 : 0.6,
-          selector: id,
-          index: i,
-          floor: Floor.all,
-          onUpdate: function (house: House) {
-            const step = (i - extra) * house.studDistance;
-            const length = house.houseWidth;
-            this.points =
-              this.index < house.gridSizeX
-                ? [
-                    [-margin, step],
-                    [length + margin, step],
-                  ]
-                : [];
-            this.classes = [
-              main ? "grid-main" : (i - 1) % 5 ? "grid-sub" : "grid-subsub",
-            ];
-          },
-        })
-      );
-    }
-
-    this.parts[".house-wind-rose"] = new Windrose({
-      rotate: 0,
-      floor: Floor.all,
-      parent: this,
-      onUpdate: function (this: Windrose, house: House) {
-        this.origin = [2, 0];
-      },
-    });
   }
 
   calculateTower() {
@@ -704,6 +347,7 @@ export class House extends HouseUser {
     const hallStramienWE =
       inObj.we.b + this.stair.totalWidth - this.stair.walkWidth;
     const hallStramienNS = inObj.ns.b - 5;
+
     this.stramien = {
       in: inObj,
       out: {
@@ -740,6 +384,7 @@ export class House extends HouseUser {
         },
       },
     };
+
     this.centerHouse = [
       inObj.we.c - (inObj.we.c - inObj.we.b) / 2,
       inObj.ns.c - (inObj.ns.c - inObj.ns.b) / 2,
@@ -762,6 +407,7 @@ export class House extends HouseUser {
     this.stair.calculate(this);
     this.construction.calculate(this);
   }
+
   calculateStats() {
     this.getWallLength();
     this.getWallArea();
@@ -843,6 +489,7 @@ export class House extends HouseUser {
       };
     });
     this.stats.floor = total;
+    return this.stats.floor;
   }
   calculateTowerCoords() {
     if (this.tower.show === false) {

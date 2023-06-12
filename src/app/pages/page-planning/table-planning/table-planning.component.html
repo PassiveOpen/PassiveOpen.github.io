@@ -1,18 +1,37 @@
-<table mat-table #table [dataSource]="dataSource" class="mat-elevation-z0" multiTemplateDataRows style="
+<mat-table #table [dataSource]="dataSource" class="mat-elevation-z0" multiTemplateDataRows style="
 width: fit-content !important;">
-  <ng-container [matColumnDef]="col['id']" *ngFor="let col of columns">
 
-    <th mat-header-cell *matHeaderCellDef> <span>{{col['name']}}</span> </th>
-    <td mat-cell *matCellDef="let row" (mouseenter)="mouseenter($event)" (mouseleave)="mouseleave($event)">
-      <span [innerHTML]="col['prefix']"></span>
-      <div *ngIf="row[col['id']]" [innerHTML]="col['def']( row[col['id']], row[col['id']+'-extra'] )"></div>
-      <span [innerHTML]="col['postfix']"></span>
+  <ng-container [matColumnDef]="col['id']" *ngFor="let col of columns; let i = index" [sticky]="i<3">
+    <mat-header-cell *matHeaderCellDef>
+      <div>{{col['name']}}</div>
+    </mat-header-cell>
+    <mat-cell *matCellDef="let row">
+      <div>
+        <span [innerHTML]="col['prefix']"></span>
+        <div *ngIf="row[col['id']]"
+          [innerHTML]="col['def']( row[col['id']], row[col['id']+'-extra'], row[col['id']+'-extra-2'] )"></div>
+        <span [innerHTML]="col['postfix']"></span>
+      </div>
+    </mat-cell>
+  </ng-container>
+
+
+
+  <mat-header-row *matHeaderRowDef="columnNames; let i = index;  sticky: true"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: columnNames; let i = index;" (click)="rowClick($event, row)" #tableRows
+    [class]="rowClasses(row)" [title]="row.firstDate">
+  </mat-row>
+
+  <mat-row *matRowDef="let row; columns: ['expandedDetail']" class="row-planning-details"
+    [class.row-planning-details-collapsed]="!row.isExpanded"></mat-row>
+
+  <ng-container matColumnDef="expandedDetail">
+    <td mat-cell *matCellDef="let row" [attr.colspan]="columns.length">
+      <div class="row-planning-detail" [@detailExpand]="row.isExpanded ? 'expanded' : 'collapsed'"
+        [innerHTML]="row.more">
+
+      </div>
     </td>
   </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columnNames" #tableHeader></tr>
-  <ng-container *matRowDef="let row; columns: columnNames;">
-    <tr mat-row (click)="rowClick(row)" #tableRows class="table-row group-{{row.uuid}} row-{{row.type}}"
-      [class.row-folded]="row.uuid"></tr>
-  </ng-container>
 
-</table>
+</mat-table>

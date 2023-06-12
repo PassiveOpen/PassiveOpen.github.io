@@ -26,6 +26,7 @@ import {
 import { BasemapKey } from "src/app/pages/page-map/openlayers/ol-model";
 import { MatSlider } from "@angular/material/slider";
 import WebGLTileLayer from "ol/layer/WebGLTile";
+import { StatesService } from "src/app/services/states.service";
 
 type SensorIcon = {
   state: SensorType;
@@ -53,7 +54,7 @@ export class ControlsComponent implements OnInit {
   Floor = Floor;
   floor$ = this.appService.floor$;
   scroll$ = this.appService.scroll$;
-  states$ = this.appService.states$;
+  states$ = this.statesService.states$;
   setFloor = () => this.appService.setFloor();
 
   Graphic = Graphic;
@@ -95,6 +96,7 @@ export class ControlsComponent implements OnInit {
     public olMeasureService: OLMeasureService,
     public olBaseMapService: OLBaseMapService,
     public threeService: ThreeService,
+    public statesService: StatesService,
     public mapService: MapService
   ) {}
 

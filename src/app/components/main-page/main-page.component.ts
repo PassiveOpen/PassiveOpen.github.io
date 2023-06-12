@@ -18,7 +18,7 @@ import {
 import { AppService } from "src/app/app.service";
 import { RoofStyle } from "src/app/house/cross.model";
 import { HouseService } from "src/app/house/house.service";
-import { StateService } from "src/app/house/visible.service";
+import { StatesService } from "src/app/services/states.service";
 import { round } from "src/app/shared/global-functions";
 import { animationFallInOut, animationSlideInOut } from "../animations";
 import { Graphic, GraphicSide, State, Section, Tag } from "../enum.data";
@@ -49,7 +49,7 @@ export class AppMainPageComponent implements AfterViewInit {
   scroll$ = this.appService.scroll$;
   floor$ = this.appService.floor$;
   tag$ = this.appService.tag$;
-  states$ = this.appService.states$;
+  states$ = this.statesService.states$;
   page$ = this.appService.page$;
 
   cssStates$ = this.states$.pipe(
@@ -69,7 +69,8 @@ export class AppMainPageComponent implements AfterViewInit {
     private houseService: HouseService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private stateService: StateService
+
+    private statesService: StatesService
   ) {
     fromEvent(window, "scroll")
       // .pipe(throttleTime(600))
@@ -98,7 +99,8 @@ export class AppMainPageComponent implements AfterViewInit {
       const id = el.id;
       this.sectionScroll[id] = {
         id,
-        top: el.offsetTop,
+        elTop: el.offsetTop,
+        elBottom: el.offsetTop + el.offsetHeight,
       };
     });
     this.calcSection();
@@ -117,19 +119,18 @@ export class AppMainPageComponent implements AfterViewInit {
 
   calcSection() {
     this.section = this.getSection();
-    if (this.section === undefined) {
+
+    if (this.section === undefined || this.section === "") {
       this.graphic = Graphic.none;
       this.graphicSide = GraphicSide.none;
     } else {
-      const graphic = this.stateService.setGraphic(this.section);
+      const graphic = this.appService.setGraphic(this.section);
       if (this.graphic !== graphic) {
-        console.log("Swap side!");
+        // console.log("Swap side!");
         this.tooltipService.detachOverlay();
       }
       this.graphic = graphic;
-
-      this.graphicSide = this.stateService.getSide(this.graphic);
-
+      this.graphicSide = this.appService.getSide(this.graphic);
       document
         .querySelector(`section#${this.section}`)
         .classList.add("section-active");
@@ -145,7 +146,7 @@ export class AppMainPageComponent implements AfterViewInit {
     });
 
     // should be after scroll$.next
-    this.stateService.updateStateBasedOnSection(this.section, this.loaded);
+    this.statesService.updateStateBasedOnSection(this.section, this.loaded);
 
     const queryParams: Params = {
       section: this.section,
@@ -170,17 +171,20 @@ export class AppMainPageComponent implements AfterViewInit {
   }
 
   getSection(): Section {
-    var windowHalf = round(window.innerHeight * this.goalLine, 0);
+    var goalLine = round(window.innerHeight * this.goalLine, 0);
     var windowTop = round(window.pageYOffset, 0);
-    var goalLine = windowTop + windowHalf;
+    var goal = windowTop + goalLine;
     this.sectionEls.forEach((el) => {
       const id = el.id;
-      this.sectionScroll[id].past = this.sectionScroll[id].top < goalLine;
+      this.sectionScroll[id].start = this.sectionScroll[id].elTop <= goal;
+      this.sectionScroll[id].end = this.sectionScroll[id].elBottom <= goal;
+      this.sectionScroll[id].overlap =
+        this.sectionScroll[id].start && !this.sectionScroll[id].end;
       el.classList.remove("section-active");
     });
     const next = Object.values(this.sectionScroll)
-      .filter((x) => x.past)
-      .sort((a, b) => b.top - a.top);
+      .filter((x) => x.overlap)
+      .sort((a, b) => b.elTop - a.elTop);
     return next && next[0] ? next[0].id : undefined;
   }
 }

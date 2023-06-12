@@ -7,8 +7,8 @@ import { Cross, RoofType } from "src/app/house/cross.model";
 import { House } from "src/app/house/house.model";
 import { HouseService } from "src/app/house/house.service";
 import { BehaviorSubject } from "rxjs";
-import { Measure } from "src/app/model/specific/measure.model";
-import { BasicSVG } from "src/app/2d-svg/base-svg.component";
+import { Measure } from "src/app/house-parts/measure.model";
+import { BasicSVGComponent } from "src/app/2d-svg/base-svg.component";
 import { Floor, Graphic, Section } from "src/app/components/enum.data";
 import { TooltipService } from "src/app/components/tooltip/tooltip.service";
 import { D3DistanceService } from "../d3Distance.service";
@@ -20,7 +20,10 @@ import { D3Service } from "../d3.service";
   templateUrl: "./svg-stair-steps.component.html",
   styleUrls: ["./svg-stair-steps.component.scss"],
 })
-export class SvgStairsComponent extends BasicSVG implements AfterViewInit {
+export class SvgStairsComponent
+  extends BasicSVGComponent
+  implements AfterViewInit
+{
   graphic = Graphic.stairCross;
   floor = Floor.all;
   // marginInPixel = [0, 0.5, 0, 1];
@@ -28,34 +31,13 @@ export class SvgStairsComponent extends BasicSVG implements AfterViewInit {
   figure;
   steps = new BehaviorSubject(1);
 
-  constructor(
-    public houseService: HouseService,
-    public appService: AppService,
-    public tooltipService: TooltipService,
-    public host: ElementRef,
-    private httpClient: HttpClient,
-    public d3Service: D3Service,
-    public d3DistanceService: D3DistanceService,
-    public contextMenuService: ContextMenuService
-  ) {
-    super(
-      houseService,
-      appService,
-      tooltipService,
-      host,
-      d3Service,
-      d3DistanceService,
-      contextMenuService
-    );
-  }
+  updateHousePartSVGs() {}
+  afterUpdate() {}
+  getHousePartsSelectors() {}
+  afterInit() {}
+  setHousePartVisibility() {}
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.setUp();
-    }, 0);
-  }
-
-  svgUpdateMarginAndSize() {
+  setMarginAndSize() {
     const maxRun = this.stair.totalRise / Math.tan(30 * (Math.PI / 180));
 
     if ([Section.stairCheck, Section.stairPlan].includes(this.section)) {

@@ -11,6 +11,8 @@ import {
   Tag,
   StatesExtended,
 } from "./components/enum.data";
+import { StatesService } from "./services/states.service";
+import { RoofStyle } from "./house/cross.model";
 
 interface Scroll {
   scroll;
@@ -37,10 +39,8 @@ export class AppService {
   update$ = new Subject<void>();
   tag$ = new BehaviorSubject(undefined);
   graphic$ = new BehaviorSubject(undefined);
-  states$ = new BehaviorSubject<StateObj>({});
   popupActive$ = new BehaviorSubject(false);
   fullscreen$ = new BehaviorSubject(true);
-  svgTransform$ = new BehaviorSubject(undefined);
   page$ = this.router.events.pipe(
     filter((event) => event instanceof NavigationEnd),
     startWith(this.router),
@@ -59,73 +59,14 @@ export class AppService {
     graphicSide: undefined,
     graphic: undefined,
   });
-  silentStates: StateObj;
+
   constructor(private cookieService: CookieService, private router: Router) {
     this.getCookies();
   }
 
-  setStatesSilent(
-    states: StatesExtended[],
-    overrule?: boolean,
-    checkCookie?: boolean
-  ) {
-    states.flatMap((state) =>
-      this.setState(state, overrule, checkCookie, false)
-    );
-  }
-  hardSetStates(stateObj: StateObj) {
-    const oldStates = this.states$.value;
-    Object.entries(stateObj).forEach(([k, v]) => {
-      oldStates[k] = v;
-    });
-    this.commitState(oldStates);
-  }
-  setState(
-    keys: StatesExtended | StatesExtended[],
-    overrule?: boolean,
-    checkCookie?: boolean,
-    commit = true
-  ) {
-    const states = this.states$.value;
-
-    (keys instanceof Array ? keys : [keys]).flatMap((key) => {
-      if (checkCookie) {
-        states[key] = Boolean(this.cookieService.get("states"));
-      }
-      if (overrule !== undefined) {
-        states[key] = overrule;
-      } else {
-        if (states[key] !== undefined) {
-          states[key] = !states[key];
-        } else {
-          states[key] = true;
-        }
-      }
-    });
-
-    if (commit) {
-      this.commitState(states);
-    } else {
-      this.silentStates = states;
-    }
-  }
-
-  commitState(newState: StateObj) {
-    this.states$.next(newState);
-    this.cookieService.set("states", JSON.stringify(newState));
-  }
-
-  setTransformCookie(e, graphic) {
-    this.svgTransform$.next({
-      [graphic]: e,
-    });
-    this.cookieService.set(
-      "svgTransform",
-      JSON.stringify(this.svgTransform$.value)
-    );
-  }
-
   getCookies() {
+    console.log("getCookies");
+
     // ======= floor =======
     let floor = this.cookieService.get("floor");
     if (floor === "") {
@@ -142,13 +83,6 @@ export class AppService {
     }
     this.fullscreen$.next(fullscreen as boolean);
 
-    // ======= zoomLevel =======
-    let svgTransform = this.cookieService.get("svgTransform");
-    if (svgTransform === "" || fullscreen === false) {
-      svgTransform = "{}";
-    }
-    this.svgTransform$.next(JSON.parse(svgTransform));
-
     // ======= darkmode =======
     let darkMode: boolean | string = this.cookieService.get("darkMode");
     if (darkMode === "") {
@@ -159,13 +93,123 @@ export class AppService {
     } else {
       this.setDarkMode(darkMode === "true");
     }
+  }
 
-    // ======= States =======
-    let statesString: string = this.cookieService.get("states");
-    if (statesString === "") {
-      statesString = "{}";
+  getSide(graphic: Graphic): GraphicSide {
+    if ([Graphic.cross].includes(graphic)) {
+      return GraphicSide.left;
     }
-    this.states$.next(JSON.parse(statesString));
+    if ([Graphic.none].includes(graphic)) {
+      return GraphicSide.none;
+    }
+    return GraphicSide.right;
+  }
+
+  setGraphic(section: Section) {
+    if (
+      [
+        Section.mainWelcome,
+        Section.mainPassiv,
+        Section.mainBasics,
+        Section.mainExtensions,
+        Section.mainTower,
+        Section.wiredWelcome,
+        Section.wiredPower,
+        Section.wiredEthernet,
+        Section.wiredExtra,
+        Section.wiredLight,
+        Section.wiredSafety,
+        Section.wiredVent,
+        Section.wiredWater,
+      ].includes(section)
+    ) {
+      return Graphic.house2D;
+    } else if (
+      [
+        Section.roof70,
+        Section.roofBasics,
+        Section.roofChoice,
+        Section.roofCircle,
+        Section.roofEdge,
+        Section.roofIntermezzo,
+        Section.EndOfPageHouse,
+      ].includes(section)
+    ) {
+      return Graphic.cross;
+    } else if ([Section.roof70].includes(section)) {
+      // this.houseService.update("cross", "viewedRoofStyle", RoofStyle.roof70);
+    } else if ([Section.roofBasics, Section.roofCircle].includes(section)) {
+      // this.houseService.update(
+      //   "cross",
+      //   "viewedRoofStyle",
+      //   RoofStyle.roofCircle
+      // );
+    } else if (
+      [Section.stairStart, Section.stairBasic, Section.stairCheck].includes(
+        section
+      )
+    ) {
+      return Graphic.stairCross;
+    } else if ([Section.stairPlan].includes(section)) {
+      return Graphic.stairPlan;
+    } else if (
+      [
+        Section.constructionParameters,
+        Section.facadeStart,
+        Section.facadeWindow,
+        Section.facadeDoor,
+      ].includes(section)
+    ) {
+      return Graphic.none;
+    } else if (
+      [
+        Section.constructionWelcome,
+        Section.constructionFoundation,
+        Section.constructionCrawlerSpace,
+        Section.constructionFloor,
+        Section.constructionRoof,
+        Section.constructionWallFinish,
+        Section.constructionWallSole,
+        Section.constructionWallJoists,
+        Section.constructionWallOSB,
+        Section.constructionWallTape,
+        Section.constructionWallOuterSheet,
+        Section.constructionWallSpace,
+        Section.constructionWallFacade,
+        Section.constructionWallInsulation,
+        Section.constructionWallService,
+        Section.constructionWallGips,
+        Section.constructionFloor,
+
+        Section.constructionFloorLVL,
+        Section.constructionGroundFloor,
+
+        Section.constructionRoofRidge,
+        Section.constructionRoofJoist,
+        Section.constructionRoofInside,
+        Section.constructionRoofOuterSheet,
+        Section.constructionRoofSpace,
+        Section.constructionRoofTiles,
+      ].includes(section)
+    ) {
+      return Graphic.construction;
+    } else if ([Section.House3D].includes(section)) {
+      return Graphic.House3D;
+    } else if (
+      [
+        Section.installationDrinkWater,
+        Section.installationElectricity,
+        Section.installationGreyWater,
+        Section.installationHeating,
+        Section.installationSmartHome,
+        Section.installationVentilation,
+      ].includes(section)
+    ) {
+      return Graphic.none;
+    } else if (section.startsWith("energy")) {
+      return Graphic.scrollerHeat;
+    }
+    return Graphic.none;
   }
 
   setFloor(floor: Floor = undefined) {

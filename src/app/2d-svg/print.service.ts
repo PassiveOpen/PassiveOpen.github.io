@@ -1,23 +1,21 @@
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 
 import html2canvas from "html2canvas";
-import printJS from "print-js";
 import { AppService } from "../app.service";
-import { Floor } from "../components/enum.data";
-import { HouseService } from "../house/house.service";
-import { BasicSVG } from "./base-svg.component";
+import { Floor, State } from "../components/enum.data";
+import { StatesService } from "../services/states.service";
+import { BasicSVGComponent } from "./base-svg.component";
 
 @Injectable({
   providedIn: "root",
 })
 export class PrintService {
   constructor(
-    private houseService: HouseService,
+    public statesService: StatesService,
     private appService: AppService
   ) {}
 
-  print(obj: BasicSVG) {
+  print(obj: BasicSVGComponent) {
     console.log("Printing the SVG");
 
     this.prepareToPrint(obj);
@@ -30,25 +28,27 @@ export class PrintService {
     // }, 2000);
   }
 
-  prepareToPrint(obj: BasicSVG) {
+  prepareToPrint(obj: BasicSVGComponent) {
     obj.printPreview = true;
     this.appService.floor$.next(Floor.ground);
-    this.appService.states$.next({
-      ...this.appService.states$.value,
-      measure: true,
-      doors: true,
-      towerFootprint: false,
-      stramien: false,
-      examplePlan: true,
-      theoreticalWalls: false,
-      grid: false,
+    console.log("prepareToPrint");
+
+    this.statesService.states$.next({
+      ...this.statesService.states$.value,
+      [State.measure]: true,
+      [State.doors]: true,
+      [State.towerFootprint]: false,
+      [State.stramien]: false,
+      [State.examplePlan]: true,
+      [State.theoreticalWalls]: false,
+      [State.grid]: false,
     });
     this.appService.setDarkMode(false, false);
-    obj.updateSVG(true);
+    obj.update(true);
     obj.setTransform("translate(0,0) scale(1)");
   }
 
-  saveToCavnas(svg: SVGElement, callback) {
+  saveToCanvas(svg: SVGElement, callback) {
     const w = svg.getBoundingClientRect().width;
     const h = svg.getBoundingClientRect().height;
     html2canvas(svg.parentElement, {

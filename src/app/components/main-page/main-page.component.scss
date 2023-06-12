@@ -25,25 +25,25 @@
 
   &.show-left {
     .left-flex {
-      flex: 1 1 100vw;
+      flex: 0 1 50%;
     }
     .right-flex {
-      flex: 1 1 0vw;
+      flex: 0 1 0vw;
     }
   }
   &.show-right {
     .left-flex {
-      flex: 1 1 0vw;
+      flex: 0 1 0vw;
     }
     .right-flex {
-      flex: 1 1 100vw;
+      flex: 0 1 50%;
     }
   }
   .center {
-    flex: 1 1 100vw;
+    flex: 0 1 50%;
     border-left: 0vw solid transparent;
     border-right: 0vw solid transparent;
-    max-width: 450px;
+    max-width: 354px;
     // overflow-x: hidden;
     z-index: 2;
     margin: 0 46px;

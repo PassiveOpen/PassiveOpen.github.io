@@ -1,48 +1,14 @@
-<h1>Planning <img src="/assets/svg/logo.svg" /></h1>
+<div style="margin: 36px">
+  <h1 style="margin-bottom: 40px;">Planning personal</h1>
 
+  Building period is from {{minFirstDate | date:'dd-LL-YYYY'}} till {{maxLastDate | date:'dd-LL-YYYY' }}
+  <br> That is {{totalWeeks}} weeks or {{totalDays}} days.
 
-<p>
-  todo
-  <br>
-  {{minFirstDate | date:'dd-LL-YYYY'}}
-  <br>
-  {{maxLastDate | date:'dd-LL-YYYY' }}
-  <br>
-  {{totalWeeks}} weeks ||
-  {{totalDays}} days
-</p>
+  <h3>
+    This page is still under construction.
+  </h3>
+</div>
 
-<h3>
-  This page is still under construction.
-</h3>
-
-<div style="width: 100%;overflow-x:scroll;" cdkScrollable #scrollContainer>
-
-  <ng-container *ngFor=" let data of tables">
-    <section [id]="data.section">
-
-      <h2 (click)="data.sectionFold  = !data.sectionFold">
-        <mat-icon>{{!data.sectionFold?'expand_less':'expand_more'}}
-        </mat-icon>
-        {{data.alias}}
-        <span style="font-size: 1rem;">(
-          {{data.firstDate | date:'dd-LL-YYYY'}} -
-          {{data.lastDate | date:'dd-LL-YYYY'}})</span>
-      </h2>
-      <div [class.folded]="data.sectionFold" style="width: fit-content;">
-
-
-        <!-- 
-        <span *ngIf="data.section === Section.costsFinishes">
-          Nice to discover a lot of moldings:
-          <a href="https://en.wikipedia.org/wiki/Molding_(decorative)">Wikipedia Moldings</a>
-        </span> -->
-
-
-        <app-table-planning [columns]="columns" [data]="data" [scrollContainer]="scrollContainer"></app-table-planning>
-
-
-      </div>
-    </section>
-  </ng-container>
+<div cdkScrollable #scrollContainer>
+  <app-table-planning [columns]="columns" [dataSource]="steps" [scrollContainer]="scrollContainer"></app-table-planning>
 </div>

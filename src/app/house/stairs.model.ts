@@ -11,7 +11,7 @@ import {
   offset,
   round,
 } from "src/app/shared/global-functions";
-import { Measure } from "src/app/model/specific/measure.model";
+import { Measure } from "src/app/house-parts/measure.model";
 import { Floor } from "../components/enum.data";
 import { BaseSVG } from "../model/base.model";
 import { AppPolyline } from "../model/polyline.model";
@@ -122,7 +122,7 @@ export class Stair {
 
     this.totalHeight = Math.max(yLeftSide, yRightSide);
     this.lesserHeight = Math.min(yLeftSide, yRightSide);
-    this.calculateCorrectionArray();
+    // this.calculateCorrectionArray();
     const out: Stringer = {
       coords: [
         offset(this.stairOrigin, [this.totalWidth * 0, yLeftSide]),
@@ -235,149 +235,146 @@ export class Stair {
     }
   }
   createMeasures() {
-    this.parts.push(
-      new Measure({
-        selector: "run-size",
-        floor: Floor.all,
-        direction: -90,
-        decimals: 3,
-        onUpdate: function (stair: Stair) {
-          this.offsetPixels = 0;
-          this.offsetMeters = stair.rise * 1;
-          this.distance = 0;
-          this.a = [stair.run * 7, -stair.rise * 7];
-          this.b = [stair.run * 8, -stair.rise * 8];
-        },
-      })
-    );
-    this.parts.push(
-      new Measure({
-        selector: "rise-size",
-        floor: Floor.all,
-        direction: 180,
-        offsetPixels: 0.5,
-        decimals: 3,
-        onUpdate: function (stair: Stair) {
-          this.offsetPixels = 0;
-          this.offsetMeters = stair.run * 1;
-          this.distance = 0;
-          this.a = [stair.run * 7, -stair.rise * 7];
-          this.b = [stair.run * 8, -stair.rise * 8];
-        },
-      })
-    );
-    this.parts.push(
-      new Measure({
-        selector: "total-rise-size",
-        floor: Floor.all,
-        direction: 0,
-        offsetPixels: 0,
-        onUpdate: function (stair: Stair) {
-          const pushOff = stair.totalRun + stair.run * 2;
-          this.offsetPixels = 0;
-          this.offsetMeters = 0;
-          this.distance = 0;
-          this.a = [pushOff, 0];
-          this.b = [pushOff, -stair.totalRise];
-        },
-      })
-    );
-    this.parts.push(
-      new Measure({
-        selector: "total-run-size",
-        floor: Floor.all,
-        direction: 90,
-        onUpdate: function (stair: Stair) {
-          this.offsetPixels = 16;
-          this.offsetMeters = 0;
-          this.distance = 0;
-          this.a = [0, 0];
-          this.b = [stair.totalRun, 0];
-        },
-      })
-    );
-
-    // /plan
-
-    this.parts.push(
-      new Measure({
-        selector: "plateau-width",
-        floor: Floor.all,
-        direction: -90,
-        onUpdate: function (stair: Stair) {
-          const pushOff = stair.stairOrigin[1] - 0.5;
-          this.offsetPixels = 0;
-          this.offsetMeters = 0;
-          this.distance = 0;
-          this.a = [stair.stairOrigin[0] + 0, pushOff];
-          this.b = [stair.stairOrigin[0] + stair.walkWidth, pushOff];
-        },
-      })
-    );
-    this.parts.push(
-      new Measure({
-        selector: "mid-width",
-        floor: Floor.all,
-        direction: -90,
-        onUpdate: function (stair: Stair) {
-          const pushOff = stair.stairOrigin[1] - 0.5;
-          this.offsetPixels = 0;
-          this.offsetMeters = 0;
-          this.distance = 0;
-          this.a = [stair.stairOrigin[0] + stair.walkWidth, pushOff];
-          this.b = [
-            stair.stairOrigin[0] + stair.totalWidth - stair.walkWidth,
-            pushOff,
-          ];
-        },
-      })
-    );
-    this.parts.push(
-      new Measure({
-        selector: "total-width",
-        floor: Floor.all,
-        direction: -90,
-        onUpdate: function (stair: Stair) {
-          const pushOff = stair.stairOrigin[1] - 0.5;
-          this.offsetPixels = 16;
-          this.offsetMeters = 0;
-          this.distance = 0;
-          this.a = [stair.stairOrigin[0], pushOff];
-          this.b = [stair.stairOrigin[0] + stair.totalWidth, pushOff];
-        },
-      })
-    );
-
-    this.parts.push(
-      new Measure({
-        selector: "total-height",
-        floor: Floor.all,
-        direction: 0,
-        onUpdate: function (stair: Stair) {
-          const pushOff = stair.stairOrigin[0] + stair.totalWidth + 0.5;
-          this.offsetPixels = 16;
-          this.offsetMeters = 0;
-          this.distance = 0;
-          this.b = [pushOff, stair.stairOrigin[1]];
-          this.a = [pushOff, stair.stairOrigin[1] + stair.totalHeight];
-        },
-      })
-    );
-    this.parts.push(
-      new Measure({
-        selector: "lesser-height",
-        floor: Floor.all,
-        direction: 0,
-        onUpdate: function (stair: Stair) {
-          const pushOff = stair.stairOrigin[0] + stair.totalWidth + 0.5;
-          this.offsetPixels = 0;
-          this.offsetMeters = 0;
-          this.distance = 0;
-          this.b = [pushOff, stair.stairOrigin[1]];
-          this.a = [pushOff, stair.stairOrigin[1] + stair.lesserHeight];
-        },
-      })
-    );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "run-size",
+    //     floor: Floor.all,
+    //     direction: -90,
+    //     decimals: 3,
+    //     onUpdate: function (stair: Stair) {
+    //       this.offsetPixels = 0;
+    //       this.offsetMeters = stair.rise * 1;
+    //       this.distance = 0;
+    //       this.a = [stair.run * 7, -stair.rise * 7];
+    //       this.b = [stair.run * 8, -stair.rise * 8];
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "rise-size",
+    //     floor: Floor.all,
+    //     direction: 180,
+    //     offsetPixels: 0.5,
+    //     decimals: 3,
+    //     onUpdate: function (stair: Stair) {
+    //       this.offsetPixels = 0;
+    //       this.offsetMeters = stair.run * 1;
+    //       this.distance = 0;
+    //       this.a = [stair.run * 7, -stair.rise * 7];
+    //       this.b = [stair.run * 8, -stair.rise * 8];
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "total-rise-size",
+    //     floor: Floor.all,
+    //     direction: 0,
+    //     offsetPixels: 0,
+    //     onUpdate: function (stair: Stair) {
+    //       const pushOff = stair.totalRun + stair.run * 2;
+    //       this.offsetPixels = 0;
+    //       this.offsetMeters = 0;
+    //       this.distance = 0;
+    //       this.a = [pushOff, 0];
+    //       this.b = [pushOff, -stair.totalRise];
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "total-run-size",
+    //     floor: Floor.all,
+    //     direction: 90,
+    //     onUpdate: function (stair: Stair) {
+    //       this.offsetPixels = 16;
+    //       this.offsetMeters = 0;
+    //       this.distance = 0;
+    //       this.a = [0, 0];
+    //       this.b = [stair.totalRun, 0];
+    //     },
+    //   })
+    // );
+    // // /plan
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "plateau-width",
+    //     floor: Floor.all,
+    //     direction: -90,
+    //     onUpdate: function (stair: Stair) {
+    //       const pushOff = stair.stairOrigin[1] - 0.5;
+    //       this.offsetPixels = 0;
+    //       this.offsetMeters = 0;
+    //       this.distance = 0;
+    //       this.a = [stair.stairOrigin[0] + 0, pushOff];
+    //       this.b = [stair.stairOrigin[0] + stair.walkWidth, pushOff];
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "mid-width",
+    //     floor: Floor.all,
+    //     direction: -90,
+    //     onUpdate: function (stair: Stair) {
+    //       const pushOff = stair.stairOrigin[1] - 0.5;
+    //       this.offsetPixels = 0;
+    //       this.offsetMeters = 0;
+    //       this.distance = 0;
+    //       this.a = [stair.stairOrigin[0] + stair.walkWidth, pushOff];
+    //       this.b = [
+    //         stair.stairOrigin[0] + stair.totalWidth - stair.walkWidth,
+    //         pushOff,
+    //       ];
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "total-width",
+    //     floor: Floor.all,
+    //     direction: -90,
+    //     onUpdate: function (stair: Stair) {
+    //       const pushOff = stair.stairOrigin[1] - 0.5;
+    //       this.offsetPixels = 16;
+    //       this.offsetMeters = 0;
+    //       this.distance = 0;
+    //       this.a = [stair.stairOrigin[0], pushOff];
+    //       this.b = [stair.stairOrigin[0] + stair.totalWidth, pushOff];
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "total-height",
+    //     floor: Floor.all,
+    //     direction: 0,
+    //     onUpdate: function (stair: Stair) {
+    //       const pushOff = stair.stairOrigin[0] + stair.totalWidth + 0.5;
+    //       this.offsetPixels = 16;
+    //       this.offsetMeters = 0;
+    //       this.distance = 0;
+    //       this.b = [pushOff, stair.stairOrigin[1]];
+    //       this.a = [pushOff, stair.stairOrigin[1] + stair.totalHeight];
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "lesser-height",
+    //     floor: Floor.all,
+    //     direction: 0,
+    //     onUpdate: function (stair: Stair) {
+    //       const pushOff = stair.stairOrigin[0] + stair.totalWidth + 0.5;
+    //       this.offsetPixels = 0;
+    //       this.offsetMeters = 0;
+    //       this.distance = 0;
+    //       this.b = [pushOff, stair.stairOrigin[1]];
+    //       this.a = [pushOff, stair.stairOrigin[1] + stair.lesserHeight];
+    //     },
+    //   })
+    // );
   }
 
   createPlan() {

@@ -19,6 +19,7 @@ export enum LayerKey {
   parcelBorders = "parcelBorders",
   test = "test",
   dem = "dem",
+  dem2 = "dem2",
   heightLines = "heightLines",
   water = "water",
   waterArea = "waterArea",

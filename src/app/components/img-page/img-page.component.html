@@ -1,3 +1,6 @@
-<div class="container" [ngStyle]="{'height':height}" fxLayoutAlign="center center">
-  <img [src]="src" />
+<div class="container" fxLayout="column" fxLayoutAlign="center center">
+  <img [src]="src" [style]="style" />
+  <div class="mat-caption">
+    <ng-content></ng-content>
+  </div>
 </div>

@@ -174,6 +174,9 @@ export class OLMeasureService {
     this.addVectorLayers();
     // this.activate(true);
   }
+  onDestroy(): void {
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+  }
 
   nextType() {
     if (this.drawType === MeasuringDrawType.Area) {

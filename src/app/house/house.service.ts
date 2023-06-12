@@ -3,29 +3,40 @@ import { BehaviorSubject, combineLatest, merge, Subject } from "rxjs";
 import { House, HouseUser, xy } from "./house.model";
 import * as d3 from "d3";
 import { lindeLund } from "./lindelund/lindeLund";
-import { Wall, WallSide, WallType } from "../model/specific/wall.model";
+import { Wall, WallSide, WallType } from "../house-parts/wall.model";
 import { Floor, SensorType, State, Tag } from "../components/enum.data";
 import { AppService } from "../app.service";
 import { BaseSVG } from "../model/base.model";
-import { Room } from "../model/specific/room.model";
-import { Door } from "../model/specific/door.model";
+import { Room } from "../house-parts/room.model";
+import { Door } from "../house-parts/door.model";
 import { Sensor } from "../model/specific/sensors/sensor.model";
-import { Window } from "../model/specific/window.model";
+import { Window } from "../house-parts/window.model";
 import {
+  angleXY,
   centerBetweenPoints,
+  offset,
   rotateXY,
   round,
   sum,
 } from "../shared/global-functions";
 import { generateUUID } from "three/src/math/MathUtils";
 import { Cost, GroupRow } from "./cost.model";
-import { Measure } from "../model/specific/measure.model";
+import { Measure } from "../house-parts/measure.model";
 import { AppSVG } from "../model/svg.model";
 import { fromLonLat } from "ol/proj";
-import { LineString, MultiLineString, Point, Polygon } from "ol/geom";
+import {
+  LineString,
+  MultiLineString,
+  MultiPoint,
+  Point,
+  Polygon,
+} from "ol/geom";
 import { TurfService } from "../pages/page-map/openlayers/turf.service";
 import { CookieService } from "ngx-cookie-service";
 import { Coordinate } from "ol/coordinate";
+import VectorSource from "ol/source/Vector";
+import VectorLayer from "ol/layer/Vector";
+import Feature from "ol/Feature";
 
 @Injectable({
   providedIn: "root",
@@ -35,13 +46,8 @@ export class HouseService {
   house$ = new BehaviorSubject(this.getStore(lindeLund));
   timeout;
 
-  roomKeys = this.house$.value.partsFlatten
-    .filter((x) => x instanceof Room)
-    .map((x) => x.selector);
-
-  wallKeys = this.house$.value.partsFlatten
-    .filter((x) => x instanceof Wall)
-    .map((x) => x.selector);
+  roomKeys = this.house$.value.houseParts.rooms.map((x) => x.selector);
+  wallKeys = this.house$.value.houseParts.walls.map((x) => x.selector);
 
   // doorKeys = [];
   doorKeys = this.house$.value.partsFlatten
@@ -87,12 +93,15 @@ export class HouseService {
         storedHome[key].lat = cookieStr[key].lat;
         storedHome[key].lng = cookieStr[key].lng;
         storedHome[key].rotation = cookieStr[key].rotation;
+      } else if (key === "garage") {
+        storedHome[key].width = cookieStr[key].width;
+        storedHome[key].length = cookieStr[key].length;
+        storedHome[key].orientation = cookieStr[key].orientation;
       } else {
         storedHome[key] = cookieStr[key];
       }
     });
     // debug = obj.studAmount
-    storedHome.studAmount = 18;
 
     const house = new House(storedHome);
     return house;
@@ -111,12 +120,12 @@ export class HouseService {
    * Updates after a value change.
    */
   update(
-    parent: "cross" | "stair" | "house" | "construction" = "house",
+    parent: "cross" | "stair" | "house" | "construction" | "roof" = "house",
     key,
     value,
     tag: Tag = undefined
   ) {
-    console.log("updates");
+    // console.log("updates");
 
     const house: House = this.house$.value;
 
@@ -131,6 +140,9 @@ export class HouseService {
     }
     if (parent === "construction") {
       house.construction[key] = value;
+    }
+    if (parent === "roof") {
+      house.cross.roof[key] = value;
     }
     house.calculateHouse();
     house.calculateStats();
@@ -309,23 +321,55 @@ export class HouseService {
     }
   }
 
-  fromLocalToLonLat(xy: xy): xy {
+  fromLonLatToLocal(xy: number[]): number[] {
     const house = this.house$.value;
-    xy = [xy[0] - house.centerHouse[0], xy[1] - house.centerHouse[1]];
+    const { lat, lng } = house.orientation;
+    const [houseX, houseY] = fromLonLat([lng, lat]);
 
+    const xy2 = rotateXY(xy, [houseX, houseY], -house.orientation.rotation);
+    return xy2;
+  }
+
+  fromLocalToLonLat(xy: xy, orientation, center) {
+    const house = this.house$.value;
+    const { lat, lng } = orientation;
     var r_earth = 6378.137;
     var pi = Math.PI;
-    const { lat, lng } = house.orientation;
+
+    xy = [xy[0] - center[0], xy[1] - center[1]];
     const new_latitude = lat + ((xy[1] / r_earth) * (180 / pi)) / 1000;
     const new_longitude =
       lng +
       ((xy[0] / r_earth) * (180 / pi)) / Math.cos((lat * pi) / 180) / 1000;
-    return fromLonLat([new_longitude, new_latitude]) as xy;
+    return [fromLonLat([new_longitude, new_latitude]), xy] as [xy, xy];
   }
 
-  getHousePolygon(): [Polygon, MultiLineString] {
+  getGaragePolygon() {
     const house = this.house$.value;
-    const rotation = house.orientation.rotation;
+    const garage = house.garage;
+    const orientation = garage.orientation;
+    let points = [
+      [0, 0],
+      [0, garage.width],
+      [garage.length, garage.width],
+      [garage.length, 0],
+      [0, 0],
+    ];
+    const localAndGlobal = points
+      .map((xy) => rotateXY(xy, [0, 0], 180 - orientation.rotation))
+      .map((xy) => this.fromLocalToLonLat(xy, orientation, [0, 0]));
+    const coords = localAndGlobal.map((x) => x[0]);
+    coords.push(coords[0]);
+    const polygon = this.turfService.coordsDissolveToPolygon(coords);
+    return {
+      polygon,
+      localAndGlobal,
+    };
+  }
+
+  getFootPrintPolygon() {
+    const house = this.house$.value;
+    const orientation = house.orientation;
     const walls = house.partsFlatten.filter(
       (x) => x instanceof Wall && x.type === WallType.outer
     ) as Wall[];
@@ -333,10 +377,14 @@ export class HouseService {
     let points = walls
       .filter((x) => x.floor === Floor.all)
       .flatMap((x) => x.sides[WallSide.out]);
-    const coords = points
-      .map((xy) => rotateXY(xy, house.centerHouse, 180 - rotation))
-      .map((xy) => this.fromLocalToLonLat(xy));
+
+    const localAndGlobal = points
+      .map((xy) => rotateXY(xy, house.centerHouse, 180 - orientation.rotation))
+      .map((xy) => this.fromLocalToLonLat(xy, orientation, house.centerHouse));
+
+    const coords = localAndGlobal.map((x) => x[0]);
     coords.push(coords[0]);
+
     const polygon = this.turfService.coordsDissolveToPolygon(coords);
 
     const weLine = new LineString([
@@ -349,6 +397,10 @@ export class HouseService {
     ]);
 
     const roofLines = new MultiLineString([weLine, nsLine]);
-    return [polygon, roofLines];
+    return {
+      polygon,
+      roofLines,
+      localAndGlobal,
+    };
   }
 }

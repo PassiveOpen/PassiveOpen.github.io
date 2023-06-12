@@ -1,0 +1,190 @@
+<h1>Solar</h1>
+<section [id]="Section.solarStart">
+  <h2>Solar & Passive house</h2>
+  <h3>Passive House classic</h3>
+  Many passive house builders would say that you should start thinking first to insulate that thinking about green
+  energy production.
+  Efficiency first, then production.
+  <br><br>
+  A building built to Passive House Plus standard must not consume more than 15 kWh/m².yr of primary energy ( can be
+  non-green energy).
+  <br><br>
+  With <code>{{totalFloorSpace}}m<sup>2</sup></code> of total floor area and with a max of 15 kWh/m².yr
+  the total heating energy would be <code>{{15*totalFloorSpace | number : '1.0-0' }}kWh/m².yr</code>
+
+
+  <br><br>
+  <h3>Passive House Plus</h3>
+  A building built to Passive House Plus standard must not consume more than 45 kWh/m².yr of renewable primary energy.
+  In addition, at least 60 kWh/m².yr of energy in relation to the area covered by the building must be generated.
+
+
+  <br><br>
+  With ground floor area of <code>{{groundFloorSpace}}m<sup>2</sup></code> for renewable energy generation of
+  60 kWh/m².yr <code>{{60*groundFloorSpace | number : '1.0-0' }}kWh.yr</code> is needed.
+
+  <h3>Passive House Premium</h3>
+  <p> For normal house with a 120 kWh/m².yr generation would be a bit far fetched. This standard is more fore commercial
+    buildings, like a school.
+  </p>
+</section>
+
+<section [id]="Section.solarStart">
+  <h2>Solar</h2>
+  <ol>
+    <li>Panels</li>
+
+    - 10-20kWh
+
+    glas-glass panels
+
+    -
+    CIG(S)-panelen (Copper, Indium, Gallium, Selenide): the next generation
+    <li>inverter</li>
+    Can be 10% than max theoretical solar output
+    <li>monitoring</li>
+    <li>frame</li>
+  </ol>
+  <br><br>
+  Sun's altitude is in between {{minSun| number: '1.1-1'}}&deg; - {{maxSun| number: '1.1-1'}}&deg;
+  <br> {{(maxSun-minSun)/2 + minSun | number: '1.1-1'}}&deg; on average.
+
+  <br><br>
+  So the roof angles are {{90-maxSun| number: '1.1-1'}}&deg; - {{90-minSun| number: '1.1-1'}}&deg;
+  <br> {{90-((maxSun-minSun)/2 + minSun) | number: '1.1-1'}}&deg; on average.
+  During the winter, the solar radiation is lower. Think of it like this, in the winter only a part (like 10%) of the
+  solar energy hits the panels. So with a weighted-average, shifts more to the max-summer angle.
+
+  <br><br>
+  There are two main concepts about placing solar panels.
+  <h3>1. Financially optimized.</h3>
+  Here you aim for the highest return on investment. This means that you want to use as much of the solar energy. So you
+  choose for panels aiming at the south, and a roof angle of 35&deg;. So you generate the most during noon at summer
+  times. This only works if your net-operator allows you to sell.
+
+  <h3>2. Your own usage optimized.</h3>
+  Here you would use the east-west orientation, so you flatten the generated curve. This means that you can use more of
+  the solar energy. A steeper angle would work better in wintertime, but you would generate less in summer.
+
+  <app-img-page height="360px" imgStyle="
+  clip-path: inset(51px 66px 53px 29px);
+  transform: scale(1.4);" src="https://www.solar.sheffield.ac.uk/wp-content/uploads/2014/07/EastWest_arrays.jpg">
+    According to Sheffield University, the east-west orientation is broader. Note that this effect is larger if you
+    have a higher latitude. (further away from the equator)
+  </app-img-page>
+
+  <h3>Hybrid</h3>
+  Like with many things, a combination of both is possible. Another way would be storing the energy.
+</section>
+
+<section>
+
+  <label>
+    <span>lowWattage {{highWattage}}W
+    </span>
+    <mat-slider min="100" max="600" step="10" [ngModel]="lowWattage" (valueChange)="lowWattage = $event">
+    </mat-slider>
+    <mat-slider min="100" max="600" step="10" [ngModel]="highWattage" (valueChange)="highWattage = $event">
+    </mat-slider>
+
+    <!-- <mat-slider min="200" max="500" [displayWith]="formatLabel">
+      <input value="300" matSliderStartThumb>
+      <input value="400" matSliderEndThumb>
+    </mat-slider> -->
+  </label>
+
+
+  <label>
+    <span>Amount of panels {{amountPanels}}</span>
+    <mat-slider min="1" max="50" step="1" [ngModel]="amountPanels" (valueChange)="amountPanels = $event">
+    </mat-slider>
+  </label>
+
+  <label>
+    <span>Efficiency {{efficiency*100}}%</span>
+    <mat-slider min="0.75" max="1" step="0.05" [ngModel]="efficiency" (valueChange)="efficiency = $event">
+    </mat-slider>
+  </label>
+  The mansard roof is:<br>
+
+  <table *ngIf="roofTopLengths" class="panel-table">
+    <tr>
+      <th></th>
+      <th>size</th>
+      <th>horizontal</th>
+      <th></th>
+      <th>vertical</th>
+      <th></th>
+    </tr>
+    <tr *ngFor="let or of ['west','east','north']">
+      <td>{{or}}</td>
+      <td>
+        {{roofTopLengths[or] | number : '1.1-1'}}x{{roofTopWidth | number : '1.1-1'}}
+      </td>
+      <td>
+        {{roofTopLengths[or]/1.65 | floor }}x{{roofTopWidth/1 | floor }}
+        ({{roofTopLengths[or]/1.85 | floor }}x{{roofTopWidth/1.1 | floor }})
+      </td>
+      <td>
+        = {{(roofTopLengths[or]/1.65 | floor) *(roofTopWidth/1 | floor) }}
+        ({{(roofTopLengths[or]/1.85 | floor) *(roofTopWidth/1.1 | floor) }})
+      </td>
+      <td>
+        {{roofTopLengths[or]/1| floor }} ({{roofTopLengths[or]/1.1 | floor }}) x
+        {{roofTopWidth/1 | floor }} ({{roofTopWidth/1.1 | floor }})
+      </td>
+      <td>
+        = {{(roofTopLengths[or]/1 | floor) *(roofTopWidth/1.65 | floor) }}
+        ({{(roofTopLengths[or]/1 | floor) *(roofTopWidth/1.85 | floor) }})
+      </td>
+    </tr>
+  </table>
+
+
+
+  <label class="technical">
+    <span>Technical </span>
+    {{amountPanels}} panels of {{highWattage}}watt at {{efficiency*100}}% gives {{totalWattage}}kWh
+    <br>
+
+  </label>
+</section>
+<section [id]="Section.solarStart">
+  <h2>EV cars</h2>
+
+  Cars are better charged on net instead of homebattry. Flexible contract.
+
+  charger should be OCPP
+  Level 2, is best
+
+  single-fase = 10hour for tesla. okay but not great
+
+  Seperate chargin cable (cable is better ifyou have threefase)
+
+</section>
+<section>
+  <h2>Read more</h2>
+
+
+  <div class="app-card link-card">
+    <div>
+      <div>
+        <a href="https://midsummer.se/en/" target="_blank">Midsummer</a>
+        <br>
+        A swedish company that makes thin-film soladr panels.
+      </div>
+    </div>
+  </div>
+
+  <div class="app-card link-card">
+    <div>
+      <div>
+        <a href="https://www.zonne-energiegids.nl/soorten-zonnepanelen/glas-glas/" target="_blank">Dutch: glas-glas</a>
+        <br>
+        More about glass-glass panels.
+      </div>
+    </div>
+  </div>
+
+
+</section>

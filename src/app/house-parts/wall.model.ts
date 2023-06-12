@@ -1,18 +1,14 @@
-import { House, xy } from "../../house/house.model";
-import * as d3 from "d3";
-import { Door } from "./door.model";
-import { Room } from "./room.model";
-import { BaseSVG } from "../base.model";
-import { Floor } from "../../components/enum.data";
-import { SafeHtml } from "@angular/platform-browser";
 import {
   angleBetween,
   angleXY,
   distanceBetweenPoints,
-  offset,
   round,
 } from "src/app/shared/global-functions";
-import { Footprint } from "./footprint";
+import { Floor } from "../components/enum.data";
+import { House, HousePart, xy } from "../house/house.model";
+import { HousePartModel } from "./model/housePart.model";
+import { Room } from "./room.model";
+import { WallSVG } from "./svg/wall.svg";
 
 let ids = {};
 
@@ -37,22 +33,12 @@ export enum CornerType {
 type Sides = {
   [key in WallSide]?: [number, number][];
 };
-type svgSides = {
-  [key in WallSide]?: d3.Selection<
-    SVGPolylineElement,
-    unknown,
-    HTMLElement,
-    any
-  >;
-};
 
-export class Wall extends BaseSVG {
+export class Wall<T = House> extends HousePartModel {
+  housePart = HousePart.walls;
+
   type: WallType;
   sides: Sides;
-  svgRight: d3.Selection<SVGPolylineElement, unknown, HTMLElement, any>;
-  svgLeft: d3.Selection<SVGPolylineElement, unknown, HTMLElement, any>;
-  svgFill: d3.Selection<SVGPolygonElement, unknown, HTMLElement, any>;
-  svgOrigin: d3.Selection<SVGCircleElement, unknown, HTMLElement, any>;
   thickness: number;
   parent: Room;
   origin: [number, number] = [0, 0];
@@ -62,127 +48,50 @@ export class Wall extends BaseSVG {
   ceiling: number = -1;
   gable = false;
   tower = false;
+  floor: Floor;
+  visible = true;
+  angle: number;
 
   constructor(data: Partial<Wall>) {
     super();
     Object.assign(this, data);
   }
 
-  createSelector() {
-    this.selector = this.parent.selector.replace("Footprint-1", "outer");
-    const angle = angleBetween(
+  getSVGInstance() {
+    this.svg = new WallSVG(this);
+  }
+
+  onUpdate(house: House) {} // in user data
+  afterUpdate() {
+    this.angle = angleBetween(
       this.sides[WallSide.in][0],
       this.sides[WallSide.in][1]
     );
 
-    if (angle === 90 * 0) {
+    if (this.angle === 90 * 0) {
       this.orientation = `North`;
-    } else if (angle === 45) {
+    } else if (this.angle === 45) {
       this.orientation = `NortEast`;
-    } else if (angle === -45 || angle === 360 - 45) {
+    } else if (this.angle === -45 || this.angle === 360 - 45) {
       this.orientation = `NorthWest`;
-    } else if (angle === 90 * 1) {
+    } else if (this.angle === 90 * 1) {
       this.orientation = `East`;
-    } else if (angle === 90 * 2) {
+    } else if (this.angle === 90 * 2) {
       this.orientation = `South`;
-    } else if (angle === 90 * 3 || angle === -90) {
+    } else if (this.angle === 90 * 3 || this.angle === -90) {
       this.orientation = `West`;
     } else {
-      this.orientation = `${angle}`.split(".")[0];
+      this.orientation = `${this.angle}`.split(".")[0];
     }
-    this.selector += `-${this.orientation}Wall`;
 
-    if (!(this.selector in ids)) {
-      ids[this.selector] = 0;
-    }
+    if (!(this.selector in ids)) ids[this.selector] = 0;
     ids[this.selector]++;
-    if (ids[this.selector] > 1) {
-      this.selector += `-${ids[this.selector]}`;
-    }
+
+    this.selector = `${this.parent.name}-wall-${this.orientation}-${
+      ids[this.selector]
+    }`;
   }
 
-  async draw(floor: Floor) {
-    if (this.svg === undefined) {
-      this.svg = d3.select(`#${this.selector}`);
-      // if (this.type === WallType.theoretic) this.theoretic = true;
-
-      this.svgOrigin = this.svg.select<SVGCircleElement>(".wall-origin");
-      this.svgLeft = this.svg.select<SVGPolylineElement>(".wall-left");
-      this.svgRight = this.svg.select<SVGPolylineElement>(".wall-right");
-      this.svgFill = this.svg.select<SVGPolygonElement>(".wall-fill");
-
-      if (this.type === WallType.outer) {
-        this.thickness = this.parent.parent.wallOuterThickness;
-      }
-      if (this.type === WallType.inner) {
-        this.thickness = this.parent.parent.wallInnerThickness;
-      }
-
-      if (this.svg.node()) {
-        this.svg.node().classList.add(`type-${this.type}`);
-      }
-    }
-    if (!this.show(floor)) {
-      this.svgFill.attr("points", "");
-      this.svgLeft.attr("points", "");
-      this.svgRight.attr("points", "");
-      this.svgOrigin.attr("r", "0");
-
-      return;
-    }
-
-    // Extr's
-    this.svgOrigin.attr("cx", this.origin[0]).attr("cy", this.origin[1]);
-
-    if (this.sides.in && this.sides.out) {
-      this.svgFill.attr(
-        "points",
-        [...this.sides.in, ...[...this.sides.out].reverse()].join(" ")
-      );
-    }
-
-    for (let wallSide of Object.keys(WallSide)) {
-      const side = wallSide as WallSide;
-      if (!(side in this.sides)) {
-        return;
-      }
-      let lineSVG: d3.Selection<SVGPolygonElement, unknown, HTMLElement, any>;
-      if (side === WallSide.in) {
-        lineSVG = this.svgLeft;
-      } else {
-        lineSVG = this.svgRight;
-      }
-
-      lineSVG.attr("points", this.sides[side].join(" "));
-      if (lineSVG.node()) {
-        lineSVG.node().classList.add(`side-${side}`);
-      }
-    }
-    this.innerWallLength = this.getLength(WallSide.in);
-    this.outerWallLength = this.getLength(WallSide.out);
-  }
-
-  redraw(floor: Floor) {
-    if (this.svgOrigin) {
-      this.svgOrigin.attr("r", this.meterPerPixel * this.lineThickness * 3);
-    }
-    if (this.svgLeft) {
-      this.svgLeft.attr(
-        "stroke-width",
-        this.meterPerPixel *
-          this.lineThickness *
-          (this.type === WallType.theoretic ? 4 : 1) // DEV
-      );
-    }
-    if (this.svgRight) {
-      this.svgRight.attr(
-        "stroke-width",
-        this.meterPerPixel *
-          this.lineThickness *
-          (this.type === WallType.theoretic ? 4 : 1) // DEV
-      );
-    }
-  }
   getLength(side: WallSide, decimals = 2) {
     const arr = this.sides[side];
     if (!arr || !arr[0] || !arr[1]) return 0;
@@ -210,16 +119,6 @@ export class Wall extends BaseSVG {
     return angleXY(angle, distance + offset, arr[0]);
   }
 
-  tooltip = (): SafeHtml => {
-    return `Wall <b>${this.orientation}</b> (${
-      this.parent instanceof Footprint
-        ? "outer wall"
-        : "of " + this.parent + " room"
-    } ) 
-    <br>Inside ${this.getLength(WallSide.in, 2)} m2
-    <br>Outside ${(this.outerWallLength = this.getLength(WallSide.out, 2))} m2`;
-  };
-
   drawTheoretic(orientation: "w" | "n" | "e" | "s", house, thickness) {
     this.thickness = thickness;
     if (orientation === "n") {
@@ -243,19 +142,6 @@ export class Wall extends BaseSVG {
     firstCorner: CornerType,
     secondCorner: CornerType
   ) {
-    if (this.visible === false) {
-      this.sides = {
-        [WallSide.in]: [
-          [0, 0],
-          [0, 0],
-        ],
-        [WallSide.out]: [
-          [0, 0],
-          [0, 0],
-        ],
-      };
-      return;
-    }
     if (this.type === WallType.inner) {
       this.thickness = house.wallInnerThickness;
       this.ceiling = house.cross.ceilingHeight;

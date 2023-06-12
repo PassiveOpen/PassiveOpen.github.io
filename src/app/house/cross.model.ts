@@ -6,15 +6,18 @@ import { BaseSVG } from "../model/base.model";
 import {
   angleBetween,
   angleXY,
+  distanceBetweenPoints,
   lineIntersect,
   offset,
+  rotateXY,
   round,
   sum,
 } from "../shared/global-functions";
-import { Measure } from "../model/specific/measure.model";
+import { Measure } from "../house-parts/measure.model";
 import { Floor, Tag } from "../components/enum.data";
 import { degToRad, radToDeg } from "three/src/math/MathUtils";
 import { AppDistance } from "../model/distance.model";
+import { Roof } from "./roof.model";
 
 export enum RoofPoint {
   topFloor = "topFloor",
@@ -27,9 +30,14 @@ export enum RoofPoint {
   topOutside = "topOutside",
   lowestInside = "lowestInside",
   lowestOutside = "lowestOutside",
-
   groundFloorInside = "groundFloorInside",
   groundFloorOutside = "groundFloorOutside",
+
+  sprocketOutside = "sprocketOutside",
+  footInside = "footInside",
+  footOutside = "footOutside",
+
+  topFacade = "topFacade",
 }
 export enum Elevation {
   ground = "ground",
@@ -53,8 +61,15 @@ export enum RoofStyle {
   roofCircleAnd70 = "roofCircleAnd70",
 }
 
+export enum RoofLength {
+  upper = "upper",
+  lower = "lower",
+  sprocket = "sprocket",
+}
+
 export class Cross {
   house: House;
+  roof = new Roof();
   // Inputs
   innerWidth = -1;
   wallOuterThickness = -1;
@@ -109,25 +124,6 @@ export class Cross {
     this.drawBuilding();
     this.drawRoof70();
     this.drawHelpers();
-    // this.parts.push(
-    //   new AppPolygon({
-    //     selector: "clip-roof",
-    //     name: "#clip-roof",
-    //     onUpdate: function (this: AppPolygon, cross: Cross) {
-    //       this.coords = [
-    //         [0, -cross.roof70Walls],
-    //         [0, -cross.innerWidth],
-    //         [cross.innerWidth, -cross.innerWidth],
-    //         [cross.innerWidth, -cross.roof70Walls],
-    //         [cross.innerWidth - cross.wallOuterThickness, -cross.roof70Walls],
-    //         [cross.innerWidth - cross.wallOuterThickness, 0],
-    //         [cross.wallOuterThickness, 0],
-    //         [cross.wallOuterThickness, -cross.roof70Walls],
-    //         ,
-    //       ];
-    //     },
-    //   })
-    // );
     this.parts.push(new AppDistance());
   }
 
@@ -176,6 +172,7 @@ export class Cross {
     ];
 
     this.roofPoints = {
+      ...this.roofPoints,
       [RoofPoint.topFloor]: [this.wallOuterThickness, this.roofCenter[1]],
       [RoofPoint.groundFloorOutside]: [0, 0],
       [RoofPoint.groundFloorInside]: [this.wallOuterThickness, 0],
@@ -212,6 +209,7 @@ export class Cross {
     }
     this.roofPoints[RoofPoint.wallInside] = this.calcPointUnderInnerWall();
     this.roofPoints[RoofPoint.wallOutside] = this.calcPointUnderOuterWall();
+    this.roofPoints[RoofPoint.topFacade] = this.calcPointTopFacade();
 
     Object.entries(this.roofPoints).forEach(([k, v], i) => {
       this.elevations[k] = round(v[1]);
@@ -244,7 +242,9 @@ export class Cross {
       ),
       3
     );
+    this.roof.calculate(this);
   }
+
   calculateGable(): number {
     const floor = this.roofPoints[RoofPoint.topFloor];
     const wall = this.roofPoints[RoofPoint.wallInside];
@@ -255,6 +255,20 @@ export class Cross {
     const rightSquared = (top[0] - bend[0]) * bend[1];
     const rightTriangle = ((top[0] - bend[0]) * (top[1] - bend[1])) / 2;
     return sum([leftSquared + leftTriangle + rightSquared + rightTriangle]) * 2;
+  }
+
+  calcPointTopFacade(): xy {
+    let [x, y] = lineIntersect(
+      [
+        [0, 0],
+        [0, 100],
+      ],
+      [
+        this.roofPoints[RoofPoint.lowestOutside],
+        this.roofPoints[RoofPoint.bendOutside],
+      ]
+    );
+    return [x, y];
   }
 
   calcPointUnderInnerWall(): xy {
@@ -390,6 +404,7 @@ export class Cross {
             0,
             -cross.elevations[Elevation.topFloor] - cross.roof70Walls,
           ]);
+          this.coords[1][1] -= 1;
         },
       })
     );
@@ -401,6 +416,7 @@ export class Cross {
             cross.innerWidth - cross.wallOuterThickness,
             -cross.elevations[Elevation.topFloor] - cross.roof70Walls,
           ]);
+          this.coords[0][1] -= 1;
         },
       })
     );
@@ -412,6 +428,7 @@ export class Cross {
             cross.innerWidth - cross.wallOuterThickness,
             -cross.elevations[Elevation.topFloor] - cross.roofCircleWalls,
           ]);
+          this.coords[0][1] -= 1;
         },
       })
     );
@@ -423,117 +440,151 @@ export class Cross {
             0,
             -cross.elevations[Elevation.topFloor] - cross.roofCircleWalls,
           ]);
+          this.coords[1][1] -= 1;
         },
       })
     );
   }
 
   drawHelpers() {
-    this.parts.push(
-      new Measure({
-        selector: "minimum",
-        floor: Floor.all,
-        direction: 0,
-        textRotate: 0,
-        decimals: 3,
-        onUpdate: function (this: Measure, cross: Cross) {
-          const level = cross.elevations[Elevation.topFloor];
-          this.offsetPixels = -20;
-          const i = cross.getIntersectionWithRoof(cross.minimumHeight);
-          this.offsetMeters = -1;
-          this.a = [+cross.wallOuterThickness, -level];
-          this.b = [i[0], -i[1]];
-        },
-      })
-    );
-    this.parts.push(
-      new Measure({
-        selector: "minimum-h",
-        floor: Floor.all,
-        direction: -90,
-        textRotate: 0,
-        decimals: 3,
-        onUpdate: function (this: Measure, cross: Cross) {
-          const level = cross.elevations[Elevation.topFloor];
-          this.offsetPixels = 0;
-          const i = cross.getIntersectionWithRoof(cross.minimumHeight);
-          this.offsetMeters = 1.5;
-          this.a = [+cross.wallOuterThickness, -level];
-          this.b = [i[0], -i[1]];
-        },
-      })
-    );
-    this.parts.push(
-      new Measure({
-        selector: "minimum-room",
-        floor: Floor.all,
-        direction: 0,
-        textRotate: 45,
-        decimals: 3,
-        onUpdate: function (this: Measure, cross: Cross) {
-          const level = cross.elevations[Elevation.topFloor];
-          this.offsetPixels = 20;
-          const i = cross.getIntersectionWithRoof(cross.minimumHeightRoom);
-          this.offsetMeters = 1;
-          const x = cross.innerWidth - i[0];
-          this.a = [cross.innerWidth, -level];
-          this.b = [x, -i[1]];
-        },
-      })
-    );
-    this.parts.push(
-      new Measure({
-        selector: "minimum-room-h",
-        floor: Floor.all,
-        direction: -90,
-        textRotate: 0,
-        decimals: 3,
-        onUpdate: function (this: Measure, cross: Cross) {
-          this.offsetPixels = 0;
-          const level = cross.elevations[Elevation.topFloor];
-          const i = cross.getIntersectionWithRoof(cross.minimumHeightRoom);
-          this.offsetMeters = 1.5;
-          const x = cross.innerWidth - i[0];
-          this.a = [x, -i[1]];
-          this.b = [x + i[0] - cross.wallOuterThickness, -level];
-        },
-      })
-    );
-
-    this.parts.push(
-      new Measure({
-        selector: "lower-roof",
-        floor: Floor.all,
-        textRotate: 0,
-        decimals: 3,
-        onUpdate: function (this: Measure, cross: Cross) {
-          const high = cross.roofPoints[RoofPoint.bendInside];
-          const low = cross.roofPoints[RoofPoint.wallInside];
-          this.offsetPixels = 0;
-          this.offsetMeters = -1.5;
-          this.a = [low[0], -low[1]];
-          this.b = [high[0], -high[1]];
-          this.direction = angleBetween(this.a, this.b) - 90;
-        },
-      })
-    );
-    this.parts.push(
-      new Measure({
-        selector: "higher-roof",
-        floor: Floor.all,
-        textRotate: 0,
-        decimals: 3,
-        onUpdate: function (this: Measure, cross: Cross) {
-          const high = cross.roofPoints[RoofPoint.topInside];
-          const low = cross.roofPoints[RoofPoint.bendInside];
-          this.offsetPixels = 0;
-          this.offsetMeters = 1.5;
-          this.a = [low[0], -low[1]];
-          this.b = [high[0], -high[1]];
-          this.direction = angleBetween(this.a, this.b) - 90;
-        },
-      })
-    );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "minimum",
+    //     floor: Floor.all,
+    //     direction: 0,
+    //     textRotate: 0,
+    //     decimals: 3,
+    //     onUpdate: function (this: Measure, cross: Cross) {
+    //       const level = cross.elevations[Elevation.topFloor];
+    //       this.offsetPixels = -20;
+    //       const i = cross.getIntersectionWithRoof(cross.minimumHeight);
+    //       this.offsetMeters = -1;
+    //       this.a = [+cross.wallOuterThickness, -level];
+    //       this.b = [i[0], -i[1]];
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "minimum-h",
+    //     floor: Floor.all,
+    //     direction: -90,
+    //     textRotate: 0,
+    //     decimals: 3,
+    //     onUpdate: function (this: Measure, cross: Cross) {
+    //       const level = cross.elevations[Elevation.topFloor];
+    //       this.offsetPixels = 0;
+    //       const i = cross.getIntersectionWithRoof(cross.minimumHeight);
+    //       this.offsetMeters = 1.5;
+    //       this.a = [+cross.wallOuterThickness, -level];
+    //       this.b = [i[0], -i[1]];
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "minimum-room",
+    //     floor: Floor.all,
+    //     direction: 0,
+    //     textRotate: 45,
+    //     decimals: 3,
+    //     onUpdate: function (this: Measure, cross: Cross) {
+    //       const level = cross.elevations[Elevation.topFloor];
+    //       this.offsetPixels = 20;
+    //       const i = cross.getIntersectionWithRoof(cross.minimumHeightRoom);
+    //       this.offsetMeters = 1;
+    //       const x = cross.innerWidth - i[0];
+    //       this.a = [cross.innerWidth, -level];
+    //       this.b = [x, -i[1]];
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "minimum-room-h",
+    //     floor: Floor.all,
+    //     direction: -90,
+    //     textRotate: 0,
+    //     decimals: 3,
+    //     onUpdate: function (this: Measure, cross: Cross) {
+    //       this.offsetPixels = 0;
+    //       const level = cross.elevations[Elevation.topFloor];
+    //       const i = cross.getIntersectionWithRoof(cross.minimumHeightRoom);
+    //       this.offsetMeters = 1.5;
+    //       const x = cross.innerWidth - i[0];
+    //       this.a = [x, -i[1]];
+    //       this.b = [x + i[0] - cross.wallOuterThickness, -level];
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "lower-roof",
+    //     floor: Floor.all,
+    //     textRotate: 0,
+    //     decimals: 3,
+    //     onUpdate: function (this: Measure, cross: Cross) {
+    //       const high = cross.roofPoints[RoofPoint.bendInside];
+    //       const low = cross.roofPoints[RoofPoint.wallInside];
+    //       this.offsetPixels = 0;
+    //       this.offsetMeters = -1.5;
+    //       this.a = [low[0], -low[1]];
+    //       this.b = [high[0], -high[1]];
+    //       this.direction = angleBetween(this.a, this.b) - 90;
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "higher-roof",
+    //     floor: Floor.all,
+    //     textRotate: 0,
+    //     decimals: 3,
+    //     onUpdate: function (this: Measure, cross: Cross) {
+    //       const low = cross.roofPoints[RoofPoint.bendInside];
+    //       const high = cross.roofPoints[RoofPoint.topInside];
+    //       this.offsetPixels = 0;
+    //       this.offsetMeters = 1.5;
+    //       this.a = [low[0], -low[1]];
+    //       this.b = [high[0], -high[1]];
+    //       this.direction = angleBetween(this.a, this.b) - 90;
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "facade",
+    //     floor: Floor.all,
+    //     textRotate: 0,
+    //     decimals: 3,
+    //     onUpdate: function (this: Measure, cross: Cross) {
+    //       const low = [0, cross.elevations[Elevation.ground]];
+    //       const high = cross.roofPoints[RoofPoint.topFacade];
+    //       this.offsetPixels = 40;
+    //       this.offsetMeters = -2;
+    //       this.a = [0, -low[1]];
+    //       this.b = [0, -high[1]];
+    //       this.direction = 0;
+    //     },
+    //   })
+    // );
+    // this.parts.push(
+    //   new Measure({
+    //     selector: "height",
+    //     floor: Floor.all,
+    //     textRotate: 0,
+    //     decimals: 3,
+    //     onUpdate: function (this: Measure, cross: Cross) {
+    //       const low = [0, cross.elevations[Elevation.ground]];
+    //       const high = cross.roofPoints[RoofPoint.topOutside];
+    //       this.offsetPixels = -0;
+    //       this.offsetMeters = -5;
+    //       this.a = [0, -low[1]];
+    //       this.b = [high[0], -high[1]];
+    //       this.direction = 0; //
+    //     },
+    //   })
+    // );
   }
   getIntersectionWithRoof(incomingLine: number): xy {
     const correctedLine = this.elevations[Elevation.topFloor] + incomingLine;
@@ -678,6 +729,38 @@ export class Cross {
         selector: "roof-70",
         onUpdate: function (this: AppPolygon, cross: Cross) {
           this.coords = cross.pointOf70Roof().map(([x, y]) => [x, -y]);
+        },
+      })
+    );
+
+    this.parts.push(
+      new AppPolygon({
+        selector: "building-roof-70-kicker-1",
+        onUpdate: function (this: AppPolygon, cross: Cross) {
+          this.coords = [
+            cross.roofPoints[RoofPoint.lowestOutside],
+            cross.roofPoints[RoofPoint.sprocketOutside],
+            cross.roofPoints[RoofPoint.footOutside],
+          ];
+
+          this.coords = this.coords.map((xy) => [xy[0], -xy[1]]);
+        },
+      })
+    );
+    this.parts.push(
+      new AppPolygon({
+        selector: "building-roof-70-kicker-2",
+        onUpdate: function (this: AppPolygon, cross: Cross) {
+          this.coords = [
+            cross.roofPoints[RoofPoint.lowestOutside],
+            cross.roofPoints[RoofPoint.sprocketOutside],
+            cross.roofPoints[RoofPoint.footOutside],
+          ];
+
+          console.log(this.coords); //
+          const offset = cross.innerWidth; // - cross.wallOuterThickness;
+
+          this.coords = this.coords.map((xy) => [offset - xy[0], -xy[1]]);
         },
       })
     );

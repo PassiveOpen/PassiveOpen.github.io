@@ -4,6 +4,7 @@ import { AppService } from "src/app/app.service";
 import { Section, SensorType, State, Tag } from "src/app/components/enum.data";
 import { HouseService } from "src/app/house/house.service";
 import { Sensor } from "src/app/model/specific/sensors/sensor.model";
+import { StatesService } from "src/app/services/states.service";
 import { round } from "src/app/shared/global-functions";
 
 @Component({
@@ -18,11 +19,12 @@ export class PageWiredComponent implements AfterViewInit {
 
   constructor(
     private houseService: HouseService,
-    private appService: AppService
+    private appService: AppService,
+    public statesService: StatesService
   ) {}
 
   ngAfterViewInit(): void {
-    this.appService.hardSetStates({
+    this.statesService.hardSetStates({
       [State.theoreticalWalls]: false,
     });
   }

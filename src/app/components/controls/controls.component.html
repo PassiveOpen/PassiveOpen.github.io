@@ -13,35 +13,35 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
           <div class="toc">
 
 
-            <checkbox-state [floatLeft]=floatLeft (stateChange)="appService.setState(States.doors)"
+            <checkbox-state [floatLeft]=floatLeft (stateChange)="statesService.setState(States.doors)"
               [state]="getState(States.doors)">
               <span label> Doors </span>
               <span icon>
                 <mat-icon style="font-family:'Material Icons Outlined';"> door_front</mat-icon>
               </span>
             </checkbox-state>
-            <checkbox-state [floatLeft]=floatLeft (stateChange)="appService.setState(States.theoreticalWalls)"
+            <checkbox-state [floatLeft]=floatLeft (stateChange)="statesService.setState(States.theoreticalWalls)"
               [state]="getState(States.theoreticalWalls)">
               <span label> Theoretic walls </span>
               <span icon>
                 <mat-icon style="font-family:'Material Icons Outlined';"> density_large</mat-icon>
               </span>
             </checkbox-state>
-            <checkbox-state [floatLeft]=floatLeft (stateChange)="appService.setState(States.examplePlan)"
+            <checkbox-state [floatLeft]=floatLeft (stateChange)="statesService.setState(States.examplePlan)"
               [state]="getState(States.examplePlan)">
               <span label> Example Plan </span>
               <span icon>
                 <mat-icon style="font-family:'Material Icons Outlined';">table_bar</mat-icon>
               </span>
             </checkbox-state>
-            <checkbox-state [floatLeft]=floatLeft (stateChange)="appService.setState(States.grid)"
+            <checkbox-state [floatLeft]=floatLeft (stateChange)="statesService.setState(States.grid)"
               [state]="getState(States.grid)">
               <span label> Grid </span>
               <span icon>
                 <mat-icon style="font-family:'Material Icons Outlined';">grid_on</mat-icon>
               </span>
             </checkbox-state>
-            <checkbox-state [floatLeft]=floatLeft (stateChange)="appService.setState(States.stramien)"
+            <checkbox-state [floatLeft]=floatLeft (stateChange)="statesService.setState(States.stramien)"
               [state]="getState(States.stramien)">
               <span label> Stramien </span>
               <span icon>
@@ -50,7 +50,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
             </checkbox-state>
 
 
-            <checkbox-state [floatLeft]=floatLeft (stateChange)="appService.setState(States.towerFootprint)"
+            <checkbox-state [floatLeft]=floatLeft (stateChange)="statesService.setState(States.towerFootprint)"
               [state]="getState(States.towerFootprint)">
               <span label>
                 Tower footprint </span>
@@ -58,7 +58,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
                 <mat-icon style="font-family:'Material Icons Outlined';">hexagon</mat-icon>
               </span>
             </checkbox-state>
-            <checkbox-state [floatLeft]=floatLeft (stateChange)="appService.setState(States.measure)"
+            <checkbox-state [floatLeft]=floatLeft (stateChange)="statesService.setState(States.measure)"
               [state]="getState(States.measure)">
               <span label> Measurements </span>
               <span icon>
@@ -75,7 +75,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
 
             <checkbox-state *ngFor="let sensor of sensors" [floatLeft]=floatLeft
-              (stateChange)="appService.setState(sensor.state)" [state]="getState(sensor.state)">
+              (stateChange)="statesService.setState(sensor.state)" [state]="getState(sensor.state)">
               <span label> {{sensor.title}} </span>
               <span icon fxLayoutAlign="center center">
                 <app-svg height="18px" width="18px" class="sensor-{{sensor.state}}"
@@ -108,13 +108,13 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
           keyboard_double_arrow_down
         </mat-icon>
       </button> -->
-      <button-state (click)="appService.setState(States.measure)" [floatLeft]=floatLeft>
+      <button-state (click)="statesService.setState(States.measure)" [floatLeft]=floatLeft>
         <span label>{{getState(States.measure)?'Remove measurements':'Add measurements'}}</span>
         <span icon>
           <mat-icon>square_foot</mat-icon>
         </span>
       </button-state>
-      <button-state (click)="appService.setState(States.silhouette)" [floatLeft]=floatLeft>
+      <button-state (click)="statesService.setState(States.silhouette)" [floatLeft]=floatLeft>
         <span label>{{getState(States.silhouette)?'Remove Silhouette':'Silhouette'}}</span>
         <span icon>
           <mat-icon *ngIf="!getState(States.silhouette);else elseGrey">home</mat-icon>
@@ -132,7 +132,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
     <ng-container *ngIf="[Graphic.stairCross, Graphic.stairPlan].includes(scroll.graphic)">
 
 
-      <button-state (click)="appService.setState(States.walkLine)" [floatLeft]=floatLeft
+      <button-state (click)="statesService.setState(States.walkLine)" [floatLeft]=floatLeft
         *ngIf="[ Graphic.stairPlan].includes(scroll.graphic)">
         <span label>{{getState(States.walkLine)?'Remove walkline':'Add walkline'}}</span>
         <span icon>
@@ -152,7 +152,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
         <div class="toc-text">
           <ng-container *ngFor="let part of constructionParts">
-            <checkbox-toc [floatLeft]=floatLeft (stateChange)="appService.setState(part)" [state]="getState(part)">
+            <checkbox-toc [floatLeft]=floatLeft (stateChange)="statesService.setState(part)" [state]="getState(part)">
               <span label> {{part.replace("construction-","")}} </span>
             </checkbox-toc>
           </ng-container>
@@ -166,7 +166,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
       </button>
 
 
-      <button-state (click)="appService.setState(Helpers3D.mirror)" [floatLeft]=floatLeft>
+      <button-state (click)="statesService.setState(Helpers3D.mirror)" [floatLeft]=floatLeft>
         <span label>{{getState(Helpers3D.mirror)?'Remove mirror':'mirror'}}</span>
         <span icon>
           <mat-icon>foundation</mat-icon>
@@ -185,7 +185,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
         <div class="toc-text">
 
           <ng-container *ngFor="let house3DPart of house3DParts">
-            <checkbox-toc [floatLeft]=floatLeft (stateChange)="appService.setState(house3DPart)"
+            <checkbox-toc [floatLeft]=floatLeft (stateChange)="statesService.setState(house3DPart)"
               [state]="getState(house3DPart)">
               <span label> {{house3DPart.replace("house3d-","")}} </span>
               <span icon>
@@ -202,7 +202,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
       <ng-container *ngTemplateOutlet="layers"></ng-container>
 
       <button-state mat-mini-fab [class.active]="getState(Helpers3D.clipBoxEnabled)" (click)="
-        appService.setState(Helpers3D.clipBoxEnabled)" color="accent">
+        statesService.setState(Helpers3D.clipBoxEnabled)" color="accent">
         <span label>
           Clipped
         </span>
@@ -211,7 +211,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
         </span>
       </button-state>
       <button-state mat-mini-fab [class.active]="getState(Helpers3D.clipBoxShow)" (click)="
-        appService.setState(Helpers3D.clipBoxShow)" color="accent">
+        statesService.setState(Helpers3D.clipBoxShow)" color="accent">
         <span label>
           Show clipbox outlines
         </span>
@@ -296,7 +296,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
 
 
-      <!-- (click)="appService.setState(States.walkLine)" [floatLeft]=floatLeft
+      <!-- (click)="statesService.setState(States.walkLine)" [floatLeft]=floatLeft
       *ngIf="[ Graphic.stairPlan].includes(scroll.graphic)" -->
 
 
@@ -347,7 +347,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
 <ng-template #measure>
 
-  <button-state (click)="appService.setState(States.measure)" [floatLeft]=floatLeft>
+  <button-state (click)="statesService.setState(States.measure)" [floatLeft]=floatLeft>
     <span label>{{getState(States.measure)?'Remove measurements':'Add measurements'}}</span>
     <span icon>
       <mat-icon>square_foot</mat-icon>

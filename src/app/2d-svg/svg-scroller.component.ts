@@ -16,6 +16,7 @@ import { TooltipService } from "../components/tooltip/tooltip.service";
 import { D3Service } from "./d3.service";
 import { Graphic, Section, Tag } from "../components/enum.data";
 import { xy } from "../house/house.model";
+import { SVGTransformService } from "./svg-transform.service";
 @Component({
   selector: "app-svg-scroller",
   template: "",
@@ -40,7 +41,8 @@ export class SVGScroller implements AfterViewInit {
     public appService: AppService,
     public tooltipService: TooltipService,
     public host: ElementRef,
-    public d3Service: D3Service
+    public d3Service: D3Service,
+    public svgTransformService: SVGTransformService
   ) {}
 
   ngAfterViewInit(): void {
@@ -52,7 +54,7 @@ export class SVGScroller implements AfterViewInit {
 
   setTransform(transform: any = "translate(0,0) scale(1)", duration = 10000) {
     if (this.loaded) {
-      this.appService.setTransformCookie(transform, this.graphic);
+      this.svgTransformService.setTransformCookie(transform, this.graphic);
     }
     this.g.transition().duration(duration).attr("transform", transform);
   }

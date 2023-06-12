@@ -4,15 +4,16 @@ import { Cross } from "../house/cross.model";
 import { SafeHtml } from "@angular/platform-browser";
 import { Floor } from "../components/enum.data";
 import { Stair } from "../house/stairs.model";
-import { Wall } from "./specific/wall.model";
+import { Wall } from "../house-parts/wall.model";
 import { Sensor } from "./specific/sensors/sensor.model";
+import { WallSVG } from "../house-parts/svg/wall.svg";
 
 let ids = {};
 
 export class BaseSVG<T = {}> {
   floor: Floor; // no default, block inheritance
   name;
-  parts: BaseSVG<T>[];
+  parts: any[];
   svg: d3.Selection<SVGGElement, unknown, HTMLElement, undefined>;
   classes: string[] = [];
   parent;
@@ -55,7 +56,9 @@ export class BaseSVG<T = {}> {
   async update(svgUpdate: SvgUpdate) {
     this.svgUpdate = svgUpdate;
     // Calculated as defined in the user file
-    this.onUpdate(this.svgUpdate.theme);
+    try {
+      this.onUpdate(this.svgUpdate.theme);
+    } catch (e) {}
 
     const activeFloor = this.svgUpdate.floor;
 

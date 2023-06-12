@@ -1,27 +1,70 @@
-tr {
+mat-header-cell {
+}
+
+::ng-deep .row-planning-details {
+  &.row-planning-details-collapsed {
+    overflow: hidden;
+    min-height: 0px !important;
+    border-width: 0px !important;
+    td {
+      // border-width: 0px !important;
+      // padding-top: 0px !important;
+      // padding-bottom: 0px !important;
+      // min-height: 0 !important;
+      display: contents;
+    }
+  }
+  td {
+    min-height: 46px;
+    padding-top: 8px !important;
+    div {
+      border-left: 1px var(--color-40) solid;
+    }
+    flex: 1 1 100%;
+    margin-left: 40px;
+    background-color: var(--color-0) !important;
+  }
+}
+
+.mat-column-expandedDetail {
+}
+
+.mat-column-what,
+mat-header-row {
+  border: 1px var(--color-40);
+}
+mat-header-row {
+  min-height: 48px;
+  border-bottom-style: solid;
+  background-color: var(--color-5) !important;
+}
+mat-row {
   transition: 0.2s;
   background-color: var(--color-0) !important;
 
-  th {
-    background-color: var(--color-5) !important;
-  }
-
   &.row-total {
     background-color: var(--color-5) !important;
+    margin-bottom: 62px;
   }
   &.row-group {
-    background-color: var(--color-10) !important;
+    background-color: var(--color-5) !important;
     cursor: pointer;
+    &.group-row-main {
+      background-color: var(--color-10) !important;
+    }
   }
-  td.highlighted,
+  mat-header-cell.highlighted,
   &:hover {
     background-color: var(--color-20) !important;
   }
 
-  &.row-folded:not(.row-group) {
+  &.row-folded {
     // visibility: collapse;
+    overflow: hidden;
     height: 0;
-    td {
+    min-height: 0px;
+    border-width: 0;
+    mat-header-cell {
       border-bottom-width: 0px;
       padding: 0px;
       line-height: 0px;
@@ -29,35 +72,61 @@ tr {
     }
   }
 }
-:host,
-table {
-  width: fit-content;
-  display: block;
-}
 
-.mat-column-what {
-  min-width: 200px;
+.mat-column-firstDate,
+.mat-column-lastDate {
+  min-width: 150px;
+  width: 150px;
+  max-width: 150px;
+}
+.mat-column-folded {
+  min-width: 40px;
+  width: 40px;
+  max-width: 40px;
 }
 .mat-column-name {
   min-width: 200px;
+  width: 200px;
+}
+.mat-column-what {
+  min-width: 200px;
+  width: 200px;
+  border-right-style: solid;
+}
+.mat-column-days {
+  justify-content: center;
+  min-width: 60px;
+  width: 60px;
 }
 
-th[class*="mat-column-week-"],
-td[class*="mat-column-week-"] {
-  min-width: 20px;
-  width: 20px;
-}
-th[class*="mat-column-week-"] {
-  span {
-    transform: rotate(198deg);
-    text-orientation: sideways;
-    writing-mode: vertical-lr;
-    // display: block;
+mat-cell[class*="mat-column-week-"],
+mat-header-cell[class*="mat-column-week-"] {
+  overflow: visible;
+  div {
+    width: 40px;
   }
-}
-td[class*="mat-column-week-"] {
+  min-width: 40px;
+  width: 40px;
+  text-align: center;
   border-left: 1px solid var(--color-5);
 }
+
+mat-header-cell[class*="mat-column-week-"] {
+  div {
+    transform: translate(13px, 0px) rotate(220deg);
+    text-orientation: sideways;
+    writing-mode: vertical-lr;
+    width: initial;
+    // display: block;
+  }
+  border-left: 1px solid var(--color-15);
+}
+
+table {
+  display: flex;
+  flex-direction: column;
+}
+
 ::ng-deep .week-block {
   position: relative;
   .week-block-fill {
@@ -65,16 +134,31 @@ td[class*="mat-column-week-"] {
     background: var(--accent-50);
     right: 0;
     height: 100%;
-    &.week-block-last {
-      left: 0;
-      right: initial;
+    transition: 0.3s;
+    width: 16%;
+    &.sunday-block-fill {
+      opacity: 0.3;
     }
   }
+
   span {
     position: relative;
 
     display: block;
     width: 100%;
     text-align: center;
+  }
+}
+
+.row-total:not(.row-collapsed),
+.row-group:not(.row-collapsed) {
+  ::ng-deep .week-block {
+    .sunday-block-fill,
+    .week-block-fill {
+      height: 2px;
+      top: 50%;
+      background: var(--color-80);
+      opacity: 0.2;
+    }
   }
 }

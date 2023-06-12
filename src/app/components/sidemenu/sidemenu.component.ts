@@ -9,6 +9,7 @@ import {
 import { MatButton } from "@angular/material/button";
 import { AppService } from "src/app/app.service";
 import packageJson from "../../../../package.json";
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: "app-sidemenu",
@@ -20,6 +21,7 @@ export class SideMenuComponent implements AfterViewInit {
   title = this.appService.title;
   @ViewChild("menu", { read: ElementRef }) menu: ElementRef;
 
+  private = !environment.production;
   constructor(private appService: AppService) {}
 
   ngAfterViewInit(): void {

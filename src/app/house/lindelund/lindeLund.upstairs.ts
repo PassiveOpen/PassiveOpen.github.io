@@ -1,8 +1,8 @@
 import { Polygon } from "ol/geom";
 import { Floor, SensorType } from "src/app/components/enum.data";
 import { AppPolygon } from "src/app/model/polygon.model";
-import { Door } from "src/app/model/specific/door.model";
-import { Room } from "src/app/model/specific/room.model";
+import { Door } from "src/app/house-parts/door.model";
+import { Room } from "src/app/house-parts/room.model";
 import { Sensor } from "src/app/model/specific/sensors/sensor.model";
 import { SensorLight } from "src/app/model/specific/sensors/sensorLight.model";
 import { Vent } from "src/app/model/specific/sensors/vent.model";
@@ -12,8 +12,8 @@ import {
   Wall,
   WallSide,
   WallType,
-} from "src/app/model/specific/wall.model";
-import { Window, WindowForm } from "src/app/model/specific/window.model";
+} from "src/app/house-parts/wall.model";
+import { Window, WindowForm } from "src/app/house-parts/window.model";
 import {
   distanceBetweenPoints,
   mixPoints,

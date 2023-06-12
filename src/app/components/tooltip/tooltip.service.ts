@@ -18,6 +18,7 @@ import { BaseSVG } from "src/app/model/base.model";
 import { Sensor } from "src/app/model/specific/sensors/sensor.model";
 import { HouseService } from "../../house/house.service";
 import { TooltipComponent } from "./tooltip.component";
+import { HousePartSVG } from "src/app/house-parts/model/housePart.model";
 
 @Injectable({
   providedIn: "root",
@@ -33,7 +34,7 @@ export class TooltipService {
 
   constructor(private overlay: Overlay, private houseService: HouseService) {}
 
-  attachPopup([x, y], obj: BaseSVG) {
+  attachPopup([x, y], obj: HousePartSVG<any>) {
     // console.clear();
     this.detachOverlay();
     this.origin = obj instanceof Sensor ? obj.svgIcon.node() : obj.svg.node();
@@ -63,7 +64,7 @@ export class TooltipService {
     // }
   }
 
-  attachOverlay(obj: BaseSVG): void {
+  attachOverlay(obj: HousePartSVG): void {
     if (this.overlayRef && !this.overlayRef.hasAttached()) {
       const portal = new ComponentPortal(TooltipComponent);
       this.componentRef = this.overlayRef.attach(portal);

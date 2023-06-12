@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, ElementRef, OnDestroy } from "@angular/core";
 import * as d3 from "d3";
 import { AppService } from "src/app/app.service";
-import { BasicSVG } from "src/app/2d-svg/base-svg.component";
+import { BasicSVGComponent } from "src/app/2d-svg/base-svg.component";
 import { Graphic, Section } from "src/app/components/enum.data";
 import { TooltipService } from "src/app/components/tooltip/tooltip.service";
 import { HouseService } from "src/app/house/house.service";
@@ -21,7 +21,7 @@ import { D3Service, SvgLoader } from "../d3.service";
   styleUrls: ["./svg-cross.component.scss"],
 })
 export class SvgCrossComponent
-  extends BasicSVG
+  extends BasicSVGComponent
   implements AfterViewInit, OnDestroy
 {
   marginInMeters = [3, 3, 3, 3];
@@ -29,33 +29,13 @@ export class SvgCrossComponent
   graphic = Graphic.cross;
   RoofStyle = RoofStyle;
 
-  constructor(
-    public houseService: HouseService,
-    public appService: AppService,
-    public tooltipService: TooltipService,
-    public host: ElementRef,
-    public d3Service: D3Service,
-    public d3DistanceService: D3DistanceService,
-    public contextMenuService: ContextMenuService
-  ) {
-    super(
-      houseService,
-      appService,
-      tooltipService,
-      host,
-      d3Service,
-      d3DistanceService,
-      contextMenuService
-    );
-  }
-
-  ngAfterViewInit(): void {
+  updateHousePartSVGs() {}
+  setHousePartVisibility() {}
+  getHousePartsSelectors() {}
+  afterInit() {
     this.loadFigure();
-    this.setUp();
-    // setTimeout(() => {
-    //   this.d3Service.startDistance();
-    // }, 1000);
   }
+  afterUpdate() {}
 
   loadFigure() {
     this.figure = this.d3Service.loadSVG(
@@ -88,7 +68,7 @@ export class SvgCrossComponent
     );
   }
 
-  svgUpdateMarginAndSize() {
+  setMarginAndSize() {
     const low = this.cross.elevations[Elevation.crawlerFloor];
     this.svgHouseSize = [
       [0, -this.cross.elevations[RoofPoint.topOutside]],
@@ -102,7 +82,7 @@ export class SvgCrossComponent
     this.marginInMeters = [margin, margin, margin, margin];
 
     this.drawBendPoint();
-    // this.debugDrawPoints(); //// Only for debug
+    this.debugDrawPoints(); //// Only for debug
     this.figure.update();
   }
 
@@ -112,7 +92,7 @@ export class SvgCrossComponent
         .attr("cx", point[0])
         .attr("cy", -point[1])
         .attr("r", 0.051)
-        .style("fill", "var(--primary-color)")
+        .style("fill", "var(--accent-color)")
         .attr("stroke-width", 0);
     });
 

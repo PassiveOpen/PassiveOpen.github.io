@@ -33,14 +33,15 @@ import {
   House3DParts,
   Section,
 } from "src/app/components/enum.data";
-import { Room } from "src/app/model/specific/room.model";
+import { Room } from "src/app/house-parts/room.model";
 import gsap from "gsap";
-import { Wall, WallType } from "src/app/model/specific/wall.model";
-import { Footprint } from "src/app/model/specific/footprint";
-import { Window } from "src/app/model/specific/window.model";
-import { Door } from "src/app/model/specific/door.model";
+import { Wall, WallType } from "src/app/house-parts/wall.model";
+import { Footprint } from "src/app/house-parts/footprint.model";
+import { Window } from "src/app/house-parts/window.model";
+import { Door } from "src/app/house-parts/door.model";
 import { Thicknesses } from "src/app/house/construction.model";
 import { Material, ThreeMaterialService } from "../three-material.service";
+import { StatesService } from "src/app/services/states.service";
 
 const enum ClipPart {
   topLeft = "topLeft",
@@ -115,6 +116,7 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
     public host: ElementRef,
     public appService: AppService,
     public cookieService: CookieService,
+    public statesService: StatesService,
     public threeMaterialService: ThreeMaterialService
   ) {
     super(
@@ -122,6 +124,7 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
       houseService,
       host,
       appService,
+      statesService,
       cookieService,
       threeMaterialService
     );
@@ -132,7 +135,7 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
   }
 
   setInitStates() {
-    const states = this.appService.states$.value;
+    const states = this.statesService.states$.value;
     console.log(
       Object.keys(House3DParts).map((x) => states[x]),
       !Object.keys(House3DParts).some((x) => states[x] === true)
@@ -140,8 +143,8 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
 
     if (!Object.keys(House3DParts).some((x) => states[x] === true)) {
       console.log("Reset states");
-      this.appService.states$.next({
-        ...this.appService.states$.value,
+      this.statesService.states$.next({
+        ...this.statesService.states$.value,
         [House3DParts.roof]: true,
         [House3DParts.outerWall]: true,
         [House3DParts.innerWall]: true,
@@ -938,7 +941,7 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
   createWalls() {
     const walls = this.house.partsFlatten.filter(
       (x) => x instanceof Wall
-    ) as Wall[];
+    ) as any[];
 
     const groundFloorLevel = this.cross.elevations[Elevation.groundFloor];
     const topFloorLevel = this.cross.elevations[Elevation.topFloor];

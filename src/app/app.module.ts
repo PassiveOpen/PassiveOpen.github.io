@@ -53,10 +53,16 @@ import { CheckboxStateComponent } from "./components/checkbox-state/checkbox-sta
 import { CheckboxTocComponent } from "./components/checkbox-toc/checkbox-toc.component";
 import { AppImgPageComponent } from "./components/img-page/img-page.component";
 import { MapOverlayComponent } from "./pages/page-map/components/map-overlay/map-overlay.component";
-import { PageDepthEnergyWarmthComponent } from "./pages/page-depth-energy-warmth/page-depth-energy-warmth.component";
+import { PageDepthEnergyWarmthComponent } from "./pages-depth/page-depth-energy-warmth/page-depth-energy-warmth.component";
 import { SVGScroller } from "./2d-svg/svg-scroller.component";
 import { SvgScrollerHeatComponent } from "./2d-svg/svg-scoller-heat/svg-scoller-heat.component";
 import { ButtonOptionComponent } from "./components/button-option/button-option.component";
+import { PageDepthRainWaterComponent } from "./pages-depth/page-depth-rain-water/page-depth-rain-water.component";
+import { AppYoutubeComponent } from "./components/img-youtube/img-youtube.component";
+import { PageDepthPlanningComponent } from "./pages-depth/page-depth-planning/page-depth-planning.component";
+import { PageDepthSolarComponent } from "./pages-depth/page-depth-solar/page-depth-solar.component";
+import { FloorPipe } from "./shared/round.pipe";
+import { PageDepthGarageComponent } from "./pages-depth/page-depth-garage/page-depth-garage.component";
 @NgModule({
   declarations: [
     AppComponent,
@@ -82,6 +88,7 @@ import { ButtonOptionComponent } from "./components/button-option/button-option.
     PagePlanningComponent,
     PageMapComponent,
     PageFacadeComponent,
+    PageDepthPlanningComponent,
     PageCostsComponent,
     BaseThreeComponent,
     TooltipComponent,
@@ -90,8 +97,14 @@ import { ButtonOptionComponent } from "./components/button-option/button-option.
     ControlsComponent,
     AppMainPageComponent,
     SafeHtmlPipe,
+    FloorPipe,
     AppTableComponent,
+    AppYoutubeComponent,
     AppTablePlanningComponent,
+
+    PageDepthSolarComponent,
+    PageDepthGarageComponent,
+
     AppContextMenuComponent,
     MapLayerComponent,
     CheckboxStateComponent,
@@ -101,6 +114,7 @@ import { ButtonOptionComponent } from "./components/button-option/button-option.
     MapOverlayComponent,
     SVGScroller,
     PageDepthEnergyWarmthComponent,
+    PageDepthRainWaterComponent,
     SvgScrollerHeatComponent,
   ],
   imports: [

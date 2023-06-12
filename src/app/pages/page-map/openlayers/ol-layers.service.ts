@@ -31,6 +31,9 @@ export class OLLayerService {
     this.update$.next(undefined);
   }
 
+  onDestroy(): void {
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+  }
   getStore(layers: Layer[]) {
     const cookie = this.cookieService.get(this.cookieKey);
     if (cookie === "") return;
@@ -65,11 +68,11 @@ export class OLLayerService {
     layer.setProperties({ [property]: value });
   }
 
-  initLayers(houseFeature) {
+  initLayers(houseFeature, garageFeature) {
     let layers: Layer[] = [
       new VectorLayer({
         source: new VectorSource({
-          features: [houseFeature],
+          features: [houseFeature, garageFeature],
         }),
         properties: new LayerProperties({
           key: LayerKey.House,
@@ -83,8 +86,9 @@ export class OLLayerService {
       layers.push(...this.dataOLLayerService.extraLayers);
     }
 
-    layers = this.getStore(layers);
+    // layers = this.getStore(layers); @TODO: fix this
     this.layers$.next(layers);
+
     return layers;
   }
 }
