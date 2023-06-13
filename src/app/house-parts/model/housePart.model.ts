@@ -5,24 +5,25 @@ import { SafeHtml } from "@angular/platform-browser";
 import { Floor } from "../../components/enum.data";
 import { Stair } from "../../house/stairs.model";
 import { Wall } from "../wall.model";
-import { Sensor } from "../../model/specific/sensors/sensor.model";
+import { Sensor } from "../sensor.model";
 import { WallSVG } from "../svg/wall.svg";
 
 let ids = {};
 
 // export class
-export abstract class HousePartModel<T = House> {
+export abstract class HousePartModel<T extends HousePartSVG = any> {
   floor: Floor;
   name: string;
   parts: any[];
   selector: string;
   outOfDesign: Boolean;
+  parent: any;
 
-  svg?: HousePartSVG;
+  svg?: T;
 
   abstract housePart: HousePart;
 
-  abstract onUpdate(house: T): void;
+  abstract onUpdate(house: House): void;
   abstract afterUpdate(): void;
   abstract getSVGInstance(): void;
 
@@ -31,24 +32,24 @@ export abstract class HousePartModel<T = House> {
   }
 }
 
-export abstract class HousePartSVG<T extends HousePartModel = any> {
+export abstract class HousePartSVG<T extends HousePartModel<any> = any> {
   floor: Floor; // no default, block inheritance
+  transform: string;
+  selector: string;
   name;
   parts: any[];
   svg: d3.Selection<SVGGElement, unknown, HTMLElement, undefined>;
-  classes: string[] = [];
   model: T;
   center;
-  transform: string = "";
   meterPerPixel: number;
-  selector: string = "";
+  classes: string[];
   index = 0;
   visible = false;
-  outOfDesign = false;
   theoretic = false;
   loaded = false;
   svgUpdate: SvgUpdate;
 
+  _IsRendered;
   _lineThickness = 1;
   get lineThickness(): number {
     return this._lineThickness;
@@ -82,7 +83,8 @@ export abstract class HousePartSVG<T extends HousePartModel = any> {
 
   show(floor: Floor): boolean {
     const floorActive = this.floor === floor || this.floor === Floor.all;
-    return floorActive && this.visible && !this.outOfDesign; //&& !this.theoretic
+    this._IsRendered = floorActive && this.visible && !this.model.outOfDesign;
+    return this._IsRendered;
   }
 
   update(svgUpdate: SvgUpdate) {
@@ -92,22 +94,17 @@ export abstract class HousePartSVG<T extends HousePartModel = any> {
     const activeFloor = this.svgUpdate.floor;
     this.meterPerPixel = this.svgUpdate.meterPerPixel;
 
-    // if (this.model.housePart === HousePart.walls) {
-    //   //@ts-ignore
-    //   const wall = this.model as Wall;
-    // }
-    if (this.svgUpdate.redrawAll === true) {
-      if (!this.show(activeFloor)) {
-        this.drawWhenNotVisible();
-        return;
-      }
-
-      this.initDraw(); // This draws all for the first time
+    if (!this.show(activeFloor)) {
+      this.drawWhenNotVisible();
+      return;
     }
 
-    if (this.show(activeFloor)) {
-      this.updateScale(); // this updates all the sizes after a zoom.
+    if (this.svg === undefined || this.svgUpdate.redrawAll === true) {
+      this.initDraw();
+      this.setClass(this.svg);
     }
+
+    this.updateScale();
   }
 
   select() {
@@ -121,6 +118,7 @@ export abstract class HousePartSVG<T extends HousePartModel = any> {
     if (!svg.node() || !this.classes) {
       return;
     }
+
     this.classes.forEach((c) => {
       svg.node().classList.add(c);
     });

@@ -25,9 +25,15 @@ export class SvgStairPlanComponent extends BasicSVGComponent {
   figure;
   steps = new BehaviorSubject(25);
 
+  addHousePartModelsAndSVG() {
+    // Object.keys(this.HousePart).forEach((key) => {
+    //   this.house$.value.stairs.houseParts[key].forEach(this.getHousePartsCallback);
+    // });
+  }
+
   updateHousePartSVGs() {}
   afterUpdate() {}
-  getHousePartsSelectors() {}
+  beforeInit() {}
   afterInit() {}
   setHousePartVisibility() {}
 

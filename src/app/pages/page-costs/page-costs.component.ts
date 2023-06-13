@@ -1,15 +1,15 @@
 import { AfterViewInit, Component } from "@angular/core";
 import { Section, SensorType, Tag } from "src/app/components/enum.data";
 import { HouseService } from "src/app/house/house.service";
-import { Sensor } from "src/app/model/specific/sensors/sensor.model";
+import { Sensor } from "src/app/house-parts/sensor.model";
 import { BehaviorSubject } from "rxjs";
 import { Door } from "src/app/house-parts/door.model";
 import { Window, WindowForm } from "src/app/house-parts/window.model";
 import { Cost, CostTable, GroupRow } from "src/app/house/cost.model";
 import { Wall } from "src/app/house-parts/wall.model";
 import { round, sum } from "src/app/shared/global-functions";
-import { SensorLight } from "src/app/model/specific/sensors/sensorLight.model";
-import { Water } from "src/app/model/specific/sensors/water.model";
+import { SensorLight } from "src/app/house-parts/svg-sensor/sensorLight.model";
+import { Water } from "src/app/house-parts/svg-sensor/water.model";
 
 @Component({
   selector: "app-page-costs",

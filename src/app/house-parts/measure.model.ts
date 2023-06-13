@@ -101,8 +101,8 @@ export const createMeasures = (house: House) => {
   ];
 };
 
-export class Measure<T = House> extends HousePartModel {
-  housePart: HousePart;
+export class Measure extends HousePartModel {
+  housePart: HousePart = HousePart.measures;
   a: xy = [0, 0];
   b: xy = [4, 4];
   offsetPixels = 0;
@@ -110,7 +110,6 @@ export class Measure<T = House> extends HousePartModel {
   direction = 90;
 
   decimals = 1;
-  classes = ["measure"];
   textRotate: number;
 
   constructor(data: Partial<Measure>) {
@@ -120,7 +119,9 @@ export class Measure<T = House> extends HousePartModel {
 
   onUpdate(t: any) {} // in user data
   afterUpdate(): void {
-    this.selector = `measure-${this.name}`;
+    this.selector = `measure${this.selector ? "-" + this.selector : ""}${
+      this.name ? "-" + this.name : ""
+    }`;
   }
   getSVGInstance() {
     this.svg = new MeasureSVG(this);

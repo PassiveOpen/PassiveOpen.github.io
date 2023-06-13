@@ -3,7 +3,7 @@ import { GridType, House, HousePart, Stramien } from "../house/house.model";
 import { HousePartModel, HousePartSVG } from "./model/housePart.model";
 import { GridLineSVG } from "./svg/gridLine.svg";
 
-export class GridLine<T = House> extends HousePartModel {
+export class GridLine extends HousePartModel {
   housePart = HousePart.gridLines;
   coords: any;
   type: GridType;
@@ -25,9 +25,7 @@ export class GridLine<T = House> extends HousePartModel {
 
 export const getGridLines = (house: House): GridLine[] => {
   const gridLines = [];
-
   const margin = 2;
-
   const floor = (side: string): Floor => {
     if (side === "in") return Floor.all;
     if (side === "out") return Floor.all;
@@ -35,32 +33,34 @@ export const getGridLines = (house: House): GridLine[] => {
     if (side === "top") return Floor.top;
   };
   for (let type of Object.keys(GridType) as GridType[]) {
+    // in/out/ground/top
     for (let orientation of ["we", "ns"] as any) {
       for (let name of Object.keys(Stramien) as Stramien[]) {
-        const id = `house-grid-line-${type}-${orientation}-${name}`;
+        if (house.stramien[type][orientation][name] === undefined) continue;
 
         const gridLine = new GridLine({
           orientation,
           type,
-          name: Stramien.a,
-          coords:
-            orientation === "ns"
-              ? [
-                  [-margin, house.stramien[type][orientation][name]],
-                  [
-                    house.houseWidth + margin,
-                    house.stramien[type][orientation][name],
-                  ],
-                ]
-              : [
-                  [house.stramien[type][orientation][name], -margin],
-                  [
-                    house.stramien[type][orientation][name],
-                    house.houseLength + margin,
-                  ],
-                ],
+          selector: `grid-line__${type}-${orientation}-${name}`,
           floor: floor(type),
-          selector: id,
+          onUpdate(this: GridLine, house: House) {
+            this.coords =
+              orientation === "ns"
+                ? [
+                    [-margin, house.stramien[type][orientation][name]],
+                    [
+                      house.houseWidth + margin,
+                      house.stramien[type][orientation][name],
+                    ],
+                  ]
+                : [
+                    [house.stramien[type][orientation][name], -margin],
+                    [
+                      house.stramien[type][orientation][name],
+                      house.houseLength + margin,
+                    ],
+                  ];
+          },
         });
 
         gridLines.push(gridLine);

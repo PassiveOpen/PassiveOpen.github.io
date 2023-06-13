@@ -5,7 +5,7 @@ import { Wall } from "./wall.model";
 
 let ids = 0;
 
-export class Door<T = House> extends HousePartModel {
+export class Door extends HousePartModel {
   parent: Wall;
   width = 0.9;
   height = 2.3;

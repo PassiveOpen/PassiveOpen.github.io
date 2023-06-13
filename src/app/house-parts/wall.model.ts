@@ -34,7 +34,7 @@ type Sides = {
   [key in WallSide]?: [number, number][];
 };
 
-export class Wall<T = House> extends HousePartModel {
+export class Wall extends HousePartModel {
   housePart = HousePart.walls;
 
   type: WallType;

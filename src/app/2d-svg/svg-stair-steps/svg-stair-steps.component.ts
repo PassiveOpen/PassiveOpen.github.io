@@ -33,7 +33,8 @@ export class SvgStairsComponent
 
   updateHousePartSVGs() {}
   afterUpdate() {}
-  getHousePartsSelectors() {}
+  addHousePartModelsAndSVG() {}
+  beforeInit() {}
   afterInit() {}
   setHousePartVisibility() {}
 

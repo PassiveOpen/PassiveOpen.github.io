@@ -5,7 +5,7 @@ import { SafeHtml } from "@angular/platform-browser";
 import { Floor } from "../components/enum.data";
 import { Stair } from "../house/stairs.model";
 import { Wall } from "../house-parts/wall.model";
-import { Sensor } from "./specific/sensors/sensor.model";
+import { Sensor } from "../house-parts/sensor.model";
 import { WallSVG } from "../house-parts/svg/wall.svg";
 
 let ids = {};

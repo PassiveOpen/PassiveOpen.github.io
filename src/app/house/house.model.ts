@@ -1,21 +1,16 @@
-import { BaseSVG } from "src/app/model/base.model";
-import { AppPolyline } from "src/app/model/polyline.model";
 import { angleXY, offset, round, sum } from "src/app/shared/global-functions";
 import { Floor, Graphic } from "../components/enum.data";
-import { AppDistance } from "../model/distance.model";
-import { Measure, createMeasures } from "../house-parts/measure.model";
-import { AppPolygon } from "../model/polygon.model";
+import { getGridLines } from "../house-parts/gridLine.model";
+import { createMeasures } from "../house-parts/measure.model";
 import { HousePartModel } from "../house-parts/model/housePart.model";
-import { GridLine, getGridLines } from "../house-parts/gridLine.model";
 import { Room } from "../house-parts/room.model";
+import { createStuds } from "../house-parts/stud.model";
 import { Wall, WallSide, WallType } from "../house-parts/wall.model";
+import { AppDistance } from "../model/distance.model";
 import { Construction } from "./construction.model";
 import { Cross } from "./cross.model";
 import { Garage } from "./garage.model";
 import { Stair } from "./stairs.model";
-import { Studs } from "./studs.model";
-import { StudsSvg } from "./studs.svg";
-import { Other } from "../house-parts/other.model";
 
 export type xy = [number, number];
 export type xyz = [number, number, number];
@@ -101,18 +96,21 @@ export interface SvgUpdate {
 }
 
 export enum HousePart {
+  footprint = "footprint",
   rooms = "rooms",
   walls = "walls",
   gridLines = "gridLines",
-  footprint = "footprint",
   doors = "doors",
   windows = "windows",
   studs = "studs",
   measures = "measures",
-  otherPolygons = "otherPolygons",
-  otherPolylines = "otherPolylines",
+  other = "other",
+  example = "example",
+  sensors = "sensors",
+
+  roof70 = "roof70",
+  roofCircle = "roofCircle",
 }
-export type HousePartType = Wall | Room | GridLine;
 
 export class House extends HouseUser {
   outerBase = undefined;
@@ -141,13 +139,9 @@ export class House extends HouseUser {
     ground: StramienGroup;
     top: StramienGroup;
   };
-  partsFlatten: any[];
 
   cross = new Cross();
   stair = new Stair();
-
-  studs = new Studs();
-  studsSvg = new StudsSvg(this.studs);
 
   houseParts: {
     [key in HousePart]?: HousePartModel[];
@@ -187,93 +181,44 @@ export class House extends HouseUser {
     this.cross.crawlerHeight = house.crawlerHeight;
     this.cross.crawlerSpace = house.crawlerSpace;
 
-    // Main calculations
+    this.flattenHouseJSON();
     this.calculateHouse();
-
     this.houseParts.gridLines = getGridLines(this);
+    this.houseParts.studs = createStuds(this);
     this.houseParts.measures = createMeasures(this);
-    this.activateHousePartOnUpdate(); // Generated Like above
 
-    this.activateHousePartAfterUpdate(); // All
-
-    // Main logic
-    this.linkParts();
-
-    // this.studs.houseUpdate(this);
-    // this.studsSvg.initSVGElements();
-    // this.parts.push(...this.studsSvg.parts);
-    // this.linkParts();
+    this.updateHouseParts();
 
     this.calculateStats();
-
     this.parts.push(new AppDistance());
   }
 
-  activateHousePartOnUpdate() {
+  updateHouseParts() {
     Object.keys(HousePart).forEach((key) => {
-      this.houseParts[key]?.forEach((housePart: HousePartModel) => {
-        housePart.onUpdate(this);
+      this.houseParts[key]?.forEach((model: HousePartModel) => {
+        model.onUpdate(this);
+        model.afterUpdate();
       });
     });
   }
 
-  activateHousePartAfterUpdate() {
+  /** On startup flatten all */
+  flattenHouseJSON() {
     Object.keys(HousePart).forEach((key) => {
       if (this.houseParts[key] === undefined) this.houseParts[key] = []; // Generated
-      this.houseParts[key]?.forEach((housePart: HousePartModel) => {
-        housePart.afterUpdate();
-      });
     });
-  }
-
-  /* Main draw function, which loops through parts */
-  redrawHouse(obj: SvgUpdate) {
-    const loop = (theme, parent) => {
-      parent.parts.forEach(async (part: BaseSVG) => {
-        if (part === undefined) return;
-        // if (part.selector === "L0-West") console.log(part, obj, theme);
-        try {
-          await part.update({ ...obj, theme });
-          if (part.parts !== undefined) loop(theme, part);
-        } catch (e) {}
-      });
-    };
-
-    if (obj.graphic === Graphic.house2D) {
-      loop(this, this);
-      loop(this.stair, this.stair);
-    }
-    if (obj.graphic === Graphic.cross) {
-      loop(this.cross, this.cross);
-    }
-
-    if ([Graphic.stairCross, Graphic.stairPlan].includes(obj.graphic)) {
-      loop(this.stair, this.stair);
-    }
-  }
-  /** On startup link all, and calculate a start */
-  linkParts() {
     // Parent, Calculate first, Create selector
-
-    const load = (part: BaseSVG, parent) => {
-      if (part === undefined) return;
-      part.parent = parent;
-      part.onUpdate(this);
-      try {
-        part.createSelector();
-      } catch (e) {}
-
-      if (part instanceof HousePartModel) {
-        part.afterUpdate();
-        if (part.housePart === undefined)
-          throw new Error(`Unknown house part: ${part.constructor.name}`);
-        this.houseParts[part.housePart].push(part);
+    const load = (model: HousePartModel, parent) => {
+      if (model === undefined) return;
+      if (model.housePart === undefined) {
+        console.error(`Unknown house part: ${model.constructor.name}`, model);
+        // throw new Error(`Unknown house part: ${model.constructor.name}`);
+        return;
       }
-
-      if (part.parts) part.parts.forEach((x) => load(x, part));
-      this.partsFlatten.push(part);
+      model.parent = parent;
+      this.houseParts[model.housePart].push(model);
+      if (model.parts) model.parts.forEach((x) => load(x, model));
     };
-    this.partsFlatten = [];
     this.parts.forEach((x) => load(x, this)); // rooms have house as parent
   }
 
@@ -416,25 +361,22 @@ export class House extends HouseUser {
   getWallLength() {
     this.stats.wall.innerLength = Math.ceil(
       sum(
-        Object.values(this.partsFlatten)
-          .filter((x) => x instanceof Wall)
-          .map((x: Wall) => {
-            if (x.type === WallType.outer) {
-              return x.getLength(WallSide.in);
-            }
+        this.houseParts.walls.map((x: Wall) => {
+          if (x.type === WallType.outer) {
+            return x.getLength(WallSide.in);
+          }
 
-            if (x.type === WallType.inner) {
-              return x.getLength(WallSide.out) + x.getLength(WallSide.in);
-            }
-            return 0;
-          })
+          if (x.type === WallType.inner) {
+            return x.getLength(WallSide.out) + x.getLength(WallSide.in);
+          }
+          return 0;
+        })
       )
     );
 
     this.stats.wall.outerLength = Math.ceil(
       sum(
-        Object.values(this.partsFlatten)
-          .filter((x) => x instanceof Wall)
+        this.houseParts.walls
           .filter((x: Wall) => x.type === WallType.outer)
           .map((x: Wall) => x.getLength(WallSide.out)),
         1
@@ -444,21 +386,18 @@ export class House extends HouseUser {
   getWallArea() {
     this.stats.wall.innerArea = Math.ceil(
       sum(
-        Object.values(this.partsFlatten)
-          .filter((x) => x instanceof Wall)
-          .map((x: Wall) => {
-            let l = 0;
-            if (x.type === WallType.inner) l += x.getArea(WallSide.out);
-            l += x.getArea(WallSide.in);
-            return l;
-          })
+        this.houseParts.walls.map((x: Wall) => {
+          let l = 0;
+          if (x.type === WallType.inner) l += x.getArea(WallSide.out);
+          l += x.getArea(WallSide.in);
+          return l;
+        })
       )
     );
 
     this.stats.wall.outerArea = Math.ceil(
       sum(
-        Object.values(this.partsFlatten)
-          .filter((x) => x instanceof Wall)
+        this.houseParts.walls
           .filter((x: Wall) => x.type === WallType.outer)
           .map((x: Wall) => x.getArea(WallSide.out)),
         1
@@ -471,8 +410,7 @@ export class House extends HouseUser {
       total[f] = { area: 0, volume: 0 };
     });
 
-    this.partsFlatten
-      .filter((x) => x instanceof Room)
+    this.houseParts.rooms
       .filter((x: Room) => x.name !== "innerFootprint")
       .filter((x: Room) => !x.hole)
       .forEach((room: Room) => {

@@ -23,7 +23,6 @@ export class GridLineSVG extends HousePartSVG<GridLine> {
 
   initDraw() {
     this.svg.attr("points", this.model.coords.join(" "));
-    this.setClass(this.svg);
   }
 
   updateScale() {

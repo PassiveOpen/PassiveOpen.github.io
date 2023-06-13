@@ -39,7 +39,10 @@ import { D3DistanceService } from "./d3Distance.service";
 import { ZoomTransform } from "d3";
 import { ContextMenuService } from "../components/context-menu/context-menu.service";
 import { D3Service, SvgLoader } from "./d3.service";
-import { HousePartSVG } from "../house-parts/model/housePart.model";
+import {
+  HousePartModel,
+  HousePartSVG,
+} from "../house-parts/model/housePart.model";
 import { StatesService } from "../services/states.service";
 import { PrintService } from "./print.service";
 import { D3Transform, SVGTransformService } from "./svg-transform.service";
@@ -84,7 +87,7 @@ export abstract class BasicSVGComponent implements OnDestroy, AfterViewInit {
       return exit();
     }
 
-    const obj = this.parts.find((x) => x.selector === id);
+    const obj = this.svgs.find((x) => x.selector === id);
 
     if (!obj) {
       console.log(
@@ -118,7 +121,6 @@ export abstract class BasicSVGComponent implements OnDestroy, AfterViewInit {
   house: House;
   cross: Cross;
   stair: Stair;
-  parts: HousePartSVG<any>[] = [];
 
   theme: any;
 
@@ -149,6 +151,8 @@ export abstract class BasicSVGComponent implements OnDestroy, AfterViewInit {
     [ket in HousePart]?: string[];
   } = {};
   HousePart = HousePart;
+  housePartModels: HousePartModel[] = [];
+  svgs: HousePartSVG<any>[] = [];
   svgLoaders: SvgLoader[] = [];
 
   constructor(
@@ -167,8 +171,8 @@ export abstract class BasicSVGComponent implements OnDestroy, AfterViewInit {
 
   abstract setMarginAndSize(): void;
   abstract afterUpdate?(): void;
-  abstract updateHousePartSVGs?(): void;
-  abstract getHousePartsSelectors?(): void;
+  abstract addHousePartModelsAndSVG?(): void;
+  abstract beforeInit?(): void;
   abstract afterInit?(): void;
   abstract setHousePartVisibility?(): void;
 
@@ -182,10 +186,10 @@ export abstract class BasicSVGComponent implements OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.getHousePartsSelectors();
-    this.changeDetectorRef.detectChanges(); // adds elements to svg
-
     console.log("ngAfterViewInit", this.graphic);
+    this.beforeInit();
+    this.addHousePartModelsAndSVG();
+    this.changeDetectorRef.detectChanges(); // adds elements to svg
 
     this.svg = d3.select<SVGElement, undefined>(this.svgEl.nativeElement);
     this.g = this.svg.select("g");
@@ -224,7 +228,7 @@ export abstract class BasicSVGComponent implements OnDestroy, AfterViewInit {
               this.house = house;
               this.cross = house.cross;
               this.stair = house.stair;
-              console.log("Got a house update", this.graphic);
+              // console.log("Got a house update", this.graphic);
             })
           )
           .subscribe((x) => {
@@ -252,24 +256,47 @@ export abstract class BasicSVGComponent implements OnDestroy, AfterViewInit {
           ),
           this.resize$.pipe(
             filter((x) => !this.showingImage),
-            throttleTime(10)
+            throttleTime(10),
             // tap((x) => console.log("scrollresize"))
+            tap((x) => {
+              this.update();
+            })
           )
         )
           .pipe(filter((x) => this.house !== undefined))
-          .subscribe((x) => {
-            this.update();
-          }),
+          .subscribe((x) => {}),
       ]
     );
+    this.afterInit();
 
     this.loaded = true;
   }
+
+  getHousePartsCallback = (model: HousePartModel) => {
+    this.housePartModels.push(model);
+    const key = model.housePart;
+    if (key === undefined) {
+      console.log("{housePart} is undefined", model);
+      return;
+    }
+    model.getSVGInstance();
+    const svgPart = model.svg;
+    if (svgPart === undefined) return;
+    if (this.selectors[key] === undefined) this.selectors[key] = [];
+    this.svgs.push(svgPart);
+    this.selectors[key].push(svgPart.selector);
+  };
 
   update(forceUpdate = false) {
     this.tooltipService.updateOverlay();
     this.setMarginAndSize();
     this.afterUpdate();
+
+    this.housePartModels.forEach((x) => {
+      x.onUpdate(this.house$.value);
+    });
+
+    this.svgLoaders.forEach((x) => x.update());
     this.calculate();
     this.setHousePartVisibility();
 
@@ -285,8 +312,14 @@ export abstract class BasicSVGComponent implements OnDestroy, AfterViewInit {
       print: this.printPreview,
     };
 
-    this.updateHousePartSVGs();
-    // this.house.redrawHouse(this.svgUpdate);
+    // console.log("update", this.svgUpdate.redrawAll);
+
+    this.svgs.forEach((part) => {
+      part.update({
+        ...this.svgUpdate,
+        theme: this.house$.value,
+      });
+    });
   }
 
   private listenToResize() {
@@ -376,6 +409,7 @@ export abstract class BasicSVGComponent implements OnDestroy, AfterViewInit {
         this.graphic
       );
     }
+    if (typeof transform === "object" && transform.k === undefined) return;
 
     this.g
       .transition()

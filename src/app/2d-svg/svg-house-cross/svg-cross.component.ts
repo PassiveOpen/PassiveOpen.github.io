@@ -1,70 +1,64 @@
-import { Component, AfterViewInit, ElementRef, OnDestroy } from "@angular/core";
+import { AfterViewInit, Component, OnDestroy } from "@angular/core";
 import * as d3 from "d3";
-import { AppService } from "src/app/app.service";
 import { BasicSVGComponent } from "src/app/2d-svg/base-svg.component";
-import { Graphic, Section } from "src/app/components/enum.data";
-import { TooltipService } from "src/app/components/tooltip/tooltip.service";
-import { HouseService } from "src/app/house/house.service";
-import { D3DistanceService } from "../d3Distance.service";
-import {
-  Elevation,
-  RoofPoint,
-  RoofStyle,
-  RoofType,
-} from "src/app/house/cross.model";
-import { ContextMenuService } from "src/app/components/context-menu/context-menu.service";
-import { D3Service, SvgLoader } from "../d3.service";
+import { Graphic, Section, State } from "src/app/components/enum.data";
+import { Elevation, RoofPoint, RoofStyle } from "src/app/house/cross.model";
+import { SvgLoader } from "../d3.service";
+import { crossBuildingParts } from "./cross.data";
+import { HousePart } from "src/app/house/house.model";
 
 @Component({
   selector: "app-svg-cross",
   templateUrl: "./svg-cross.component.html",
   styleUrls: ["./svg-cross.component.scss"],
 })
-export class SvgCrossComponent
-  extends BasicSVGComponent
-  implements AfterViewInit, OnDestroy
-{
+export class SvgCrossComponent extends BasicSVGComponent {
   marginInMeters = [3, 3, 3, 3];
   figure: SvgLoader;
   graphic = Graphic.cross;
   RoofStyle = RoofStyle;
 
-  updateHousePartSVGs() {}
-  setHousePartVisibility() {}
-  getHousePartsSelectors() {}
-  afterInit() {
-    this.loadFigure();
+  addHousePartModelsAndSVG() {
+    crossBuildingParts.forEach(this.getHousePartsCallback);
   }
-  afterUpdate() {}
 
-  loadFigure() {
-    this.figure = this.d3Service.loadSVG(
-      "assets/models/dude.svg",
-      ".g-figure",
-      (selector) => {
-        const h = 1.9;
-        const scale = h / 568;
-        let elev, offset, flip;
-        const w = 117 * scale;
+  beforeInit() {}
+  afterUpdate() {
+    this.debugDrawPoints(); //// Only for debug
+  }
 
-        if ([Section.roofBasics].includes(this.section)) {
-          elev = this.house$.value.cross.elevations[Elevation.groundFloor];
-          offset = this.house$.value.cross.topFloorThickness * 3;
-          flip = true;
-        } else {
-          elev = this.house$.value.cross.elevations[Elevation.topFloor];
-          offset = this.house$.value.cross.innerWidth / 2 - w / 2 + 0.5;
-          flip = false;
+  afterInit() {
+    console.log("loadFigure");
+
+    this.svgLoaders.push(
+      this.d3Service.loadSVG(
+        "assets/models/dude.svg",
+        ".g-figure",
+        (selector) => {
+          const h = 1.9;
+          const scale = h / 568;
+          let elev, offset, flip;
+          const w = 117 * scale;
+
+          if ([Section.roofBasics].includes(this.section)) {
+            elev = this.house$.value.cross.elevations[Elevation.groundFloor];
+            offset = this.house$.value.cross.topFloorThickness * 3;
+            flip = true;
+          } else {
+            elev = this.house$.value.cross.elevations[Elevation.topFloor];
+            offset = this.house$.value.cross.innerWidth / 2 - w / 2 + 0.5;
+            flip = false;
+          }
+          d3.select(selector)
+            .selectChild("svg")
+            .attr("height", 568 * scale + "px") //width="117.184px" height="568.086px"
+            .attr("y", -elev - h + "px")
+            .attr("x", offset + "px")
+            .attr("width", w + "px")
+            .selectChild("g")
+            .attr("transform", flip ? `translate(117,0) scale(-1 1)` : "");
         }
-        d3.select(selector)
-          .selectChild("svg")
-          .attr("height", 568 * scale + "px") //width="117.184px" height="568.086px"
-          .attr("y", -elev - h + "px")
-          .attr("x", offset + "px")
-          .attr("width", w + "px")
-          .selectChild("g")
-          .attr("transform", flip ? `translate(117,0) scale(-1 1)` : "");
-      }
+      )
     );
   }
 
@@ -80,10 +74,6 @@ export class SvgCrossComponent
     // const [[x, y], [maxX, maxY]] = this.drawingSize;
     const margin = 3;
     this.marginInMeters = [margin, margin, margin, margin];
-
-    this.drawBendPoint();
-    this.debugDrawPoints(); //// Only for debug
-    this.figure.update();
   }
 
   debugDrawPoints() {
@@ -108,29 +98,6 @@ export class SvgCrossComponent
     //   });
   }
 
-  drawBendPoint() {
-    const pointDiameter = 0.1;
-    const level = this.cross.elevations[Elevation.topFloor];
-    d3.select<SVGPolylineElement, unknown>("#bend-point__h-line")
-      .attr(
-        "points",
-        [
-          [0, -level - this.cross.roof70Walls],
-          [this.cross.bendPoint[0], -level - this.cross.roof70Walls],
-          [
-            this.cross.bendPoint[0],
-            -level + this.cross.bendPoint[1] + pointDiameter,
-          ],
-        ].join(" ")
-      )
-      .attr("stroke-width", this.meterPerPixel * 2);
-    d3.select<SVGCircleElement, unknown>("#bend-point__h-point")
-      .attr("cx", this.cross.bendPoint[0])
-      .attr("cy", -level + this.cross.bendPoint[1])
-      .attr("r", pointDiameter)
-      .attr("stroke-width", this.meterPerPixel * 2);
-  }
-
   roofCheck(roofStyle: RoofStyle) {
     const cross = this.house$.value.cross;
     const current = cross.roofStyle;
@@ -141,5 +108,24 @@ export class SvgCrossComponent
     } else {
       return [RoofStyle.roofCircleAnd70, roofStyle].includes(current) ? 1 : 0;
     }
+  }
+
+  setHousePartVisibility() {
+    const states = this.statesService.states$.value;
+    const house = this.houseService.house$.value;
+
+    crossBuildingParts.forEach((housePart) => {
+      let vis = true;
+
+      if (housePart.housePart === HousePart.measures)
+        vis = states[State.measure];
+
+      if (housePart.selector.includes("__h-")) vis = true;
+
+      // if (housePart.selector === "building-crawler")
+      //   vis = house.cross.crawlerSpace;
+
+      housePart.setVisibility(vis);
+    });
   }
 }

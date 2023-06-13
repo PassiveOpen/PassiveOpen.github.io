@@ -148,11 +148,11 @@ $sun-color: rgb(253, 200, 101);
       stroke: var(--first-color);
       stroke-linecap: square;
 
-      *[id*="-out-"] {
+      *[id*="_out-"] {
         stroke: var(--second-color);
       }
-      *[id*="-top-"],
-      *[id*="-ground-"] {
+      *[id*="_top-"],
+      *[id*="_ground-"] {
         stroke: var(--accent-color);
       }
     }
@@ -352,10 +352,10 @@ $sun-color: rgb(253, 200, 101);
 
   //<============== Tags ===============>//
   .tag-base-dimension {
-    #L0-outer-WestWall-3,
-    #L0-outer-NorthWall,
-    #L0-outer-SouthWall-2,
-    #L0-outer-EastWall-2 {
+    #outside-wall-West-11,
+    #outside-wall-North-2,
+    #outside-wall-East-5,
+    #outside-wall-South-8 {
       .side-out {
         transition: 0.4s;
         stroke-width: 1 !important;

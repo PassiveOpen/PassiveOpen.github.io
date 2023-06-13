@@ -1,4 +1,4 @@
-import { House, HouseUser, xy } from "../house.model";
+import { House, HousePart, HouseUser, xy } from "../house.model";
 import { Room } from "../../house-parts/room.model";
 import {
   CornerType,
@@ -10,15 +10,16 @@ import { Door } from "src/app/house-parts/door.model";
 import { CableType, Floor, SensorType } from "../../components/enum.data";
 import { mixPoints, offset } from "../../shared/global-functions";
 import { Window, WindowForm } from "../../house-parts/window.model";
-import { Sensor } from "../../model/specific/sensors/sensor.model";
+import { Sensor } from "../../house-parts/sensor.model";
 import { lindeLundUpstairs } from "./lindeLund.upstairs";
 import { Footprint } from "src/app/house-parts/footprint.model";
-import { SensorLight } from "src/app/model/specific/sensors/sensorLight.model";
-import { Vent } from "src/app/model/specific/sensors/vent.model";
-import { Water } from "src/app/model/specific/sensors/water.model";
-import { AppSVG } from "src/app/model/svg.model";
+import { SensorLight } from "src/app/house-parts/svg-sensor/sensorLight.model";
 import { RoofPoint } from "../cross.model";
 import { lindelundOther } from "./lindeLund.other";
+import { Water } from "src/app/house-parts/svg-sensor/water.model";
+import { Vent } from "src/app/house-parts/svg-sensor/vent.model";
+import { Other } from "src/app/house-parts/other.model";
+import { EmbeddedSVG } from "src/app/house-parts/svg-other/embedded-svg.svg";
 
 const groundToiletWidth = 0.8;
 const standardWindowWidth = 1.2;
@@ -60,6 +61,7 @@ export const lindeLund: HouseUser = {
     ...lindelundOther,
     //// Outerwalls ////
     new Footprint({
+      name: "outside",
       // tower
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
@@ -102,7 +104,7 @@ export const lindeLund: HouseUser = {
               floor: Floor.all,
               gable: gables.includes(i),
               tower: towerCorners.includes(i),
-              onUpdate: function (this: Wall, house) {
+              onUpdate: function (this: Wall, house: House) {
                 const getCorner = (i) => {
                   if (i === towerCorners[0] || i === towerCorners[4] + 1)
                     return CornerType.inside;
@@ -123,7 +125,7 @@ export const lindeLund: HouseUser = {
                 ...(i === 16 // West-Wing-North-Wall
                   ? [1].map(
                       (x) =>
-                        new Window<Wall>({
+                        new Window({
                           rotate: 90,
                           width: standardWindowWidth,
                           elevation: 0.9,
@@ -634,7 +636,7 @@ export const lindeLund: HouseUser = {
     // West / Left
     new Room({
       name: "West",
-      function: "Vardagsrum",
+      usage: "Vardagsrum",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         const s = house.stramien;
@@ -1046,7 +1048,7 @@ export const lindeLund: HouseUser = {
     // East / Right
     new Room({
       name: "East",
-      function: "Matplats",
+      usage: "Matplats",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         const s = house.stramien;
@@ -1349,7 +1351,7 @@ export const lindeLund: HouseUser = {
     // South / center / Down
     new Room({
       name: "Central",
-      function: "kök",
+      usage: "kök",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         this.northWestCorner = [house.stramien.in.we.b, house.stramien.in.ns.b];
@@ -1436,13 +1438,20 @@ export const lindeLund: HouseUser = {
             this.drawTheoretic("s", house, house.wallOuterThickness);
           },
           parts: [
-            new AppSVG({
-              filename: "Table.svg",
-              onUpdate: function (this: AppSVG) {
-                this.rotation = 0;
+            new Other<EmbeddedSVG>({
+              floor: Floor.all,
+              housePart: HousePart.example,
+              type: "svg",
+              dataSVG: {
+                filename: "Table.svg",
+              },
+              selector: "Table",
+              onUpdate: function (this: Other<EmbeddedSVG>) {
                 const wall: Wall = this.parent;
                 const point = wall.getPosition(WallSide.in, 0, 1.3 + 1.3 + 0.8);
-                this.anchor = offset(point, [0, -0.8 - (0.8 + 0.8)]);
+                this.dataSVG.rotation = 0;
+                this.dataSVG.anchor = offset(point, [0, -0.8 - (0.8 + 0.8)]);
+                this.setAttr();
               },
             }),
           ],
@@ -1495,9 +1504,15 @@ export const lindeLund: HouseUser = {
             }),
             ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(
               (i) =>
-                new AppSVG({
-                  filename: "kitchen.svg",
-                  onUpdate: function (this: AppSVG) {
+                new Other<EmbeddedSVG>({
+                  floor: Floor.all,
+                  housePart: HousePart.example,
+                  type: "svg",
+                  selector: `kitchen-${i}`,
+                  dataSVG: {
+                    filename: "kitchen.svg",
+                  },
+                  onUpdate: function (this: Other<EmbeddedSVG>) {
                     let y = 0.6 * i;
                     if (i > 4) y = 0.6 * (i - 5);
                     if (i > 8) y = 0.6 * (i - 8);
@@ -1508,38 +1523,53 @@ export const lindeLund: HouseUser = {
                     if (i > 8) x = 1.8;
                     if (i > 12) x = 0.6 * (i - 13);
 
-                    this.rotation = 0;
-                    if (i > 4) this.rotation = 180;
-                    if (i > 8) this.rotation = 0;
-                    if (i > 12) this.rotation = -90;
+                    this.dataSVG.rotation = 0;
+                    if (i > 4) this.dataSVG.rotation = 180;
+                    if (i > 8) this.dataSVG.rotation = 0;
+                    if (i > 12) this.dataSVG.rotation = -90;
 
                     if (i === 4) {
-                      this.scale = [1, 0.4 / 0.6];
-                      y -= 0.6 - this.scale[1] * 0.6;
+                      this.dataSVG.scale = [1, 0.4 / 0.6];
+                      y -= 0.6 - this.dataSVG.scale[1] * 0.6;
                     }
                     const wall: Wall = this.parent;
                     const point = wall.getPosition(WallSide.in, 1, y);
-                    this.anchor = offset(point, [x, 0]);
+                    this.dataSVG.anchor = offset(point, [x, 0]);
+                    this.setAttr();
                   },
                 })
             ),
 
-            new AppSVG({
-              filename: "sink.svg",
-              onUpdate: function (this: AppSVG) {
-                this.rotation = -90;
+            new Other<EmbeddedSVG>({
+              floor: Floor.all,
+              housePart: HousePart.example,
+              type: "svg",
+              selector: "sink",
+              dataSVG: {
+                filename: "sink.svg",
+              },
+              onUpdate: function (this: Other<EmbeddedSVG>) {
                 const wall: Wall = this.parent;
                 const point = wall.getPosition(WallSide.in, 1, -1.5);
-                this.anchor = offset(point, [0.6, 0]);
+                this.dataSVG.anchor = offset(point, [0.6, 0]);
+                this.dataSVG.rotation = -90;
+                this.setAttr();
               },
             }),
-            new AppSVG({
-              filename: "induction.svg",
-              onUpdate: function (this: AppSVG) {
-                this.rotation = 180;
+            new Other<EmbeddedSVG>({
+              floor: Floor.all,
+              housePart: HousePart.example,
+              type: "svg",
+              selector: "induction",
+              dataSVG: {
+                filename: "induction.svg",
+              },
+              onUpdate: function (this: Other<EmbeddedSVG>) {
                 const wall: Wall = this.parent;
                 const point = wall.getPosition(WallSide.in, 1, 0.6);
-                this.anchor = offset(point, [1.2 + 0.6, 0]);
+                this.dataSVG.rotation = 180;
+                this.dataSVG.anchor = offset(point, [1.2 + 0.6, 0]);
+                this.setAttr();
               },
             }),
           ],
@@ -1850,7 +1880,7 @@ export const lindeLund: HouseUser = {
     // Hall
     new Room({
       name: "Hall",
-      function: "Entré",
+      usage: "Entré",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         this.northWestCorner = house.stair.stairOrigin;
@@ -1994,7 +2024,7 @@ export const lindeLund: HouseUser = {
     // Office
     new Room({
       name: "Office",
-      function: "Office",
+      usage: "Office",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         this.northWestCorner = [house.stramien.in.we.b, house.stramien.in.ns.a];
@@ -2340,7 +2370,7 @@ export const lindeLund: HouseUser = {
     new Room({
       name: "Toilet",
       floor: Floor.ground,
-      function: "WC",
+      usage: "WC",
       onUpdate: function (this: Room, house: House) {
         const height =
           house.stramien.in.ns.b -
@@ -2491,7 +2521,7 @@ export const lindeLund: HouseUser = {
     // Server / Tech / Boiler Room
     new Room({
       name: "Server",
-      function: "KLK",
+      usage: "KLK",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         const height =
@@ -2753,7 +2783,7 @@ export const lindeLund: HouseUser = {
     // Laundry
     new Room({
       name: "Laundry",
-      function: "Klädvård",
+      usage: "Klädvård",
       floor: Floor.ground,
       onUpdate: function (this: Room, house: House) {
         const serverHeight =

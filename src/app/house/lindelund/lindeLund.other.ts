@@ -2,18 +2,20 @@ import { Floor } from "src/app/components/enum.data";
 import { Other } from "src/app/house-parts/other.model";
 import { House, HousePart, xy } from "../house.model";
 import { offset } from "src/app/shared/global-functions";
+import { PolygonSVG } from "src/app/house-parts/svg-other/polygon.svg";
+import { PolylineSVG } from "src/app/house-parts/svg-other/polyline.svg";
 
 export const lindelundOther = [
-  new Other({
-    housePart: HousePart.otherPolylines,
+  new Other<PolygonSVG>({
+    type: "polygon",
+    housePart: HousePart.other,
     selector: "balcony-edge",
     floor: Floor.ground,
     dataSVG: {
-      type: "polyline",
       lineThickness: 1,
       dash: [1, 8],
     },
-    onUpdate: function (this: Other, house: House) {
+    onUpdate: function (this: Other<PolygonSVG>, house: House) {
       const s = house.stramien.in;
       const o = house.balconyWidth + house.balconyEdge;
       const point1: xy = [s.we.b, s.ns.b + o];
@@ -22,16 +24,16 @@ export const lindelundOther = [
     },
   }),
 
-  new Other({
-    housePart: HousePart.otherPolylines,
+  new Other<PolygonSVG>({
+    type: "polygon",
+    housePart: HousePart.other,
     selector: "hall-edge",
     floor: Floor.ground,
     dataSVG: {
-      type: "polyline",
       lineThickness: 1,
       dash: [1, 8],
     },
-    onUpdate: function (this: Other, house: House) {
+    onUpdate: function (this: Other<PolygonSVG>, house: House) {
       const s = house.stramien.in;
       const w = house.stair.totalWidth - house.stair.walkWidth;
       const o = house.wallInnerThickness * 3 + 1 * 2;
@@ -41,16 +43,16 @@ export const lindelundOther = [
     },
   }),
 
-  new Other({
-    housePart: HousePart.otherPolylines,
+  new Other<PolylineSVG>({
+    type: "polyline",
+    housePart: HousePart.other,
     //todo repair
     selector: "view-lines",
     floor: Floor.ground,
     dataSVG: {
-      type: "polyline",
       lineThickness: 3,
     },
-    onUpdate: function (this: Other, house: House) {
+    onUpdate: function (this: Other<PolylineSVG>, house: House) {
       const s = house.stramien.in;
       const o = house.studDistance * 3;
       const we = s.we.b + 1;
@@ -65,14 +67,13 @@ export const lindelundOther = [
     },
   }),
 
-  new Other({
-    housePart: HousePart.otherPolygons,
+  new Other<PolygonSVG>({
+    type: "polygon",
+    housePart: HousePart.other,
     selector: "tower-walls",
     floor: Floor.all,
-    dataSVG: {
-      type: "polygon",
-    },
-    onUpdate: function (this: Other, house: House) {
+    dataSVG: {},
+    onUpdate: function (this: Other<PolygonSVG>, house: House) {
       this.coords = [
         ...house.tower.innerCoords,
         house.tower.innerCoords[0],
@@ -82,17 +83,16 @@ export const lindelundOther = [
     },
   }),
 
-  ,
-  new Other({
-    housePart: HousePart.otherPolylines,
+  new Other<PolylineSVG>({
+    type: "polyline",
+    housePart: HousePart.other,
     selector: "roof-line-1",
     floor: Floor.top,
     dataSVG: {
-      type: "polyline",
       lineThickness: 1,
       dash: [10, 10],
     },
-    onUpdate: function (this: Other, house: House) {
+    onUpdate: function (this: Other<PolylineSVG>, house: House) {
       const s = house.stramien.in;
       const point1: xy = [s.we.a, s.ns.b];
       const point2: xy = [s.we.b, s.ns.b];
@@ -107,16 +107,16 @@ export const lindelundOther = [
       ];
     },
   }),
-  new Other({
-    housePart: HousePart.otherPolylines,
+  new Other<PolylineSVG>({
+    type: "polyline",
+    housePart: HousePart.other,
     selector: "roof-line-2",
     floor: Floor.top,
     dataSVG: {
-      type: "polyline",
       lineThickness: 1,
       dash: [10, 10],
     },
-    onUpdate: function (this: Other, house: House) {
+    onUpdate: function (this: Other<PolylineSVG>, house: House) {
       const s = house.stramien.in;
       const point1: xy = [s.we.c, s.ns.a];
       const point2: xy = house.tower.show
@@ -136,16 +136,16 @@ export const lindelundOther = [
       ];
     },
   }),
-  new Other({
-    housePart: HousePart.otherPolylines,
+  new Other<PolylineSVG>({
+    type: "polyline",
+    housePart: HousePart.other,
     selector: "roof-line-3",
     floor: Floor.top,
     dataSVG: {
-      type: "polyline",
       lineThickness: 1,
       dash: [10, 10],
     },
-    onUpdate: function (this: Other, house: House) {
+    onUpdate: function (this: Other<PolylineSVG>, house: House) {
       const s = house.stramien.in;
       const point1: xy = house.tower.show
         ? [
@@ -165,15 +165,16 @@ export const lindelundOther = [
       ];
     },
   }),
-  new Other({
+  new Other<PolylineSVG>({
+    type: "polyline",
+    housePart: HousePart.other,
     selector: "roof-line-4",
     floor: Floor.top,
     dataSVG: {
-      type: "polyline",
       lineThickness: 1,
       dash: [10, 10],
     },
-    onUpdate: function (this: Other, house: House) {
+    onUpdate: function (this: Other<PolylineSVG>, house: House) {
       const s = house.stramien.in;
       const point1: xy = [s.we.d, s.ns.c];
       const point2: xy = [s.we.c, s.ns.c];
@@ -183,15 +184,16 @@ export const lindelundOther = [
       ];
     },
   }),
-  new Other({
+  new Other<PolylineSVG>({
+    type: "polyline",
+    housePart: HousePart.other,
     selector: "roof-line-5",
     floor: Floor.top,
     dataSVG: {
-      type: "polyline",
       lineThickness: 1,
       dash: [10, 10],
     },
-    onUpdate: function (this: Other, house: House) {
+    onUpdate: function (this: Other<PolylineSVG>, house: House) {
       const s = house.stramien.in;
       const point1: xy = [s.we.b, s.ns.c];
       const point2: xy = [s.we.a, s.ns.c];

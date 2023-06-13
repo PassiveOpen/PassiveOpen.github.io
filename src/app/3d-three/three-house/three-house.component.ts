@@ -768,9 +768,7 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
         const elevation = this.cross.elevations[obj.z];
         const z = upper ? elevation : elevation - obj.t * (1 - ratio);
 
-        const footprint = this.house.partsFlatten.find(
-          (x) => x instanceof Footprint
-        ) as Footprint;
+        const footprint = this.house.houseParts.footprint[0] as Footprint;
 
         let mesh: THREE.Mesh<any> = this.threeService.flatShape(
           footprint.coords,
@@ -779,7 +777,7 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
           t
         );
 
-        const holes = this.house.partsFlatten.filter(
+        const holes = this.house.houseParts.rooms.filter(
           (x) =>
             x instanceof Room &&
             x.hole === true &&
@@ -939,9 +937,7 @@ export class ThreeHouseComponent extends BaseThreeComponent<House3DParts> {
   }
 
   createWalls() {
-    const walls = this.house.partsFlatten.filter(
-      (x) => x instanceof Wall
-    ) as any[];
+    const walls = this.house.houseParts.walls as Wall[];
 
     const groundFloorLevel = this.cross.elevations[Elevation.groundFloor];
     const topFloorLevel = this.cross.elevations[Elevation.topFloor];

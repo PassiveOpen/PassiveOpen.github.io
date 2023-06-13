@@ -6,7 +6,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import * as d3 from "d3";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, first, take } from "rxjs";
 import { BasicSVGComponent } from "src/app/2d-svg/base-svg.component";
 import {
   Graphic,
@@ -19,7 +19,7 @@ import { Measure } from "src/app/house-parts/measure.model";
 import { HousePartModel } from "src/app/house-parts/model/housePart.model";
 import { Wall, WallType } from "src/app/house-parts/wall.model";
 import { HousePart, xy } from "src/app/house/house.model";
-import { Sensor } from "src/app/model/specific/sensors/sensor.model";
+import { Sensor } from "src/app/house-parts/sensor.model";
 import { AppSVG } from "src/app/model/svg.model";
 import { angleXY, ptToScale, round } from "src/app/shared/global-functions";
 import { SvgLoader } from "../d3.service";
@@ -32,7 +32,7 @@ import { Other } from "src/app/house-parts/other.model";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SvgComponent extends BasicSVGComponent {
-  @ViewChild("render") renderEl: ElementRef<HTMLImageElement>;
+  graphic = Graphic.house2D;
 
   @HostListener("window:keydown", ["$event"])
   async handleKeyboardEvent(event: KeyboardEvent) {
@@ -50,15 +50,58 @@ export class SvgComponent extends BasicSVGComponent {
   gridSizeX$ = new BehaviorSubject(100);
   gridSizeY$ = new BehaviorSubject(100);
 
-  sensorKeys = this.houseService.sensorKeys;
-  exampleKeys = this.houseService.exampleKeys;
-
   SensorTypes = Object.values(SensorType);
-
-  graphic = Graphic.house2D;
   transformOrigin = [0, 0];
-
   renderImg;
+
+  addHousePartModelsAndSVG() {
+    Object.keys(HousePart).forEach((key) => {
+      this.house$.value.houseParts[key].forEach(this.getHousePartsCallback);
+    });
+  }
+
+  beforeInit() {
+    // this.setStairs();
+
+    // this.renderImg = this.svg
+    //   .select(".render-img")
+    //   .attr("xlink:href", "/assets/img/top_render.jpg");
+
+    this.scaleRenderImage();
+  }
+  afterInit(): void {
+    this.svgLoaders.push(
+      this.d3Service.loadSVG("assets/models/sun.svg", ".g-sun", (selector) => {
+        const house = this.house$.value;
+        const size = 40 * this.meterPerPixel;
+        d3.select(selector)
+          .selectChild("svg")
+          .attr("height", size + "px")
+          .attr("width", size + "px")
+          .attr("x", house.houseWidth / 2 + "px")
+          .attr("y", house.houseLength + house.studDistance * 1 + "px");
+      })
+    );
+    for (let sensor of Object.values(SensorType)) {
+      const sensorName = sensor.replace("sensor-", "");
+      this.svgLoaders.push(
+        this.d3Service.loadSVG(
+          `assets/svg/${sensorName}.svg`,
+          `#icon-${sensorName}`,
+          (selector) => {
+            const house = this.house$.value;
+            const size = 20 * this.meterPerPixel;
+            d3.select(selector)
+              .selectChild("svg")
+              .attr("x", -size / 2 + "px")
+              .attr("y", -size / 2 + "px")
+              .attr("height", size + "px")
+              .attr("width", size + "px");
+          }
+        )
+      );
+    }
+  }
 
   afterUpdate() {
     const scroll = this.appService.scroll$.value;
@@ -73,7 +116,39 @@ export class SvgComponent extends BasicSVGComponent {
 
     this.scaleRenderImage();
     this.scaleStairs();
-    this.svgLoaders.forEach((x) => x.update());
+  }
+
+  setMarginAndSize() {
+    this.gridSizeX$.next(this.house.gridSizeX);
+    this.gridSizeY$.next(this.house.gridSizeY);
+    const margin = this.house.studDistance * 3;
+    this.marginInMeters = [margin, margin, margin, margin];
+    this.svgHouseSize = [
+      [0, 0],
+      [this.house.houseWidth, this.house.houseLength],
+    ];
+  }
+
+  setStairs() {
+    const svg = document.querySelector(".svg-plan-stair-plan")
+      .firstChild as SVGGElement;
+
+    const g = this.svg.select(".plan-stair-plan");
+
+    // this.svg.on("mousedown.drag", null);
+    (g.select(".plan-stair-plan").node() as any).replaceWith(svg);
+    svg.classList.add("plan-stair-plan");
+  }
+
+  scaleStairs() {
+    this.svg
+      .select(".plan-stair-plan")
+      .attr(
+        "transform-origin",
+        `${this.stair.stairOrigin[0] + this.stair.totalWidth / 2} ${
+          this.house.stair.stairOrigin[1] + this.stair.totalHeight / 2
+        }`
+      );
   }
 
   addLayout(firstDate = "2023-01-01") {
@@ -292,107 +367,8 @@ export class SvgComponent extends BasicSVGComponent {
     textBlock();
     northArrow();
   }
-
-  updateHousePartSVGs() {
-    this.parts.forEach((part) => {
-      part.update({
-        ...this.svgUpdate,
-        theme: this.house$.value,
-      });
-    });
-  }
-
-  getHousePartsSelectors() {
-    Object.keys(HousePart).forEach((key) => {
-      if (!this.selectors[key]) this.selectors[key] = [];
-      this.house$.value.houseParts[key].forEach((housePart: HousePartModel) => {
-        housePart.getSVGInstance();
-        const svgPart = housePart.svg;
-        if (svgPart === undefined) return;
-        this.parts.push(svgPart);
-        this.selectors[key].push(svgPart.selector);
-      });
-      if (key === HousePart.otherPolygons) console.log(this.selectors[key]);
-    });
-
-    console.log(this.house$.value.houseParts.otherPolygons);
-  }
-
-  afterInit() {
-    this.svgLoaders.push(
-      this.d3Service.loadSVG("assets/models/sun.svg", ".g-sun", (selector) => {
-        const house = this.house$.value;
-        const size = 40 * this.meterPerPixel;
-        d3.select(selector)
-          .selectChild("svg")
-          .attr("height", size + "px")
-          .attr("width", size + "px")
-          .attr("x", house.houseWidth / 2 + "px")
-          .attr("y", house.houseLength + house.studDistance * 1 + "px");
-      })
-    );
-    for (let sensor of Object.values(SensorType)) {
-      const sensorName = sensor.replace("sensor-", "");
-      this.svgLoaders.push(
-        this.d3Service.loadSVG(
-          `assets/svg/${sensorName}.svg`,
-          `#icon-${sensorName}`,
-          (selector) => {
-            const house = this.house$.value;
-            const size = 20 * this.meterPerPixel;
-            d3.select(selector)
-              .selectChild("svg")
-              .attr("x", -size / 2 + "px")
-              .attr("y", -size / 2 + "px")
-              .attr("height", size + "px")
-              .attr("width", size + "px");
-          }
-        )
-      );
-    }
-    this.setStairs();
-
-    this.renderImg = this.svg
-      .select(".render-img")
-      .attr("xlink:href", "/assets/img/top_render.jpg");
-
-    this.scaleRenderImage();
-  }
-
-  setMarginAndSize() {
-    this.gridSizeX$.next(this.house.gridSizeX);
-    this.gridSizeY$.next(this.house.gridSizeY);
-    const margin = this.house.studDistance * 3;
-    this.marginInMeters = [margin, margin, margin, margin];
-    this.svgHouseSize = [
-      [0, 0],
-      [this.house.houseWidth, this.house.houseLength],
-    ];
-  }
-
-  setStairs() {
-    const svg = document.querySelector(".svg-plan-stair-plan")
-      .firstChild as SVGElement;
-
-    const g = this.svg.select(".plan-stair-plan");
-
-    // this.svg.on("mousedown.drag", null);
-    (g.select(".plan-stair-plan").node() as any).replaceWith(svg);
-    svg.classList.add("plan-stair-plan");
-  }
-
-  scaleStairs() {
-    this.svg
-      .select(".plan-stair-plan")
-      .attr(
-        "transform-origin",
-        `${this.stair.stairOrigin[0] + this.stair.totalWidth / 2} ${
-          this.house.stair.stairOrigin[1] + this.stair.totalHeight / 2
-        }`
-      );
-  }
-
   scaleRenderImage() {
+    if (this.house === undefined) return;
     const s = this.house.stramien.out;
 
     const renderOrigin: xy = [582, 240]; // 0,0
@@ -484,14 +460,8 @@ export class SvgComponent extends BasicSVGComponent {
       },
       { housePart: HousePart.rooms, show: () => true },
       {
-        housePart: HousePart.otherPolylines,
-        show: (other: Other) => {
-          return true;
-        },
-      },
-      {
-        housePart: HousePart.otherPolygons,
-        show: (other: Other) => {
+        housePart: HousePart.other,
+        show: (other: Other<any>) => {
           if (other.selector === "tower-walls") {
             return states[State.towerFootprint];
           }
@@ -499,45 +469,14 @@ export class SvgComponent extends BasicSVGComponent {
         },
       },
       { housePart: HousePart.windows, show: () => true },
+      { housePart: HousePart.studs, show: () => false },
       { housePart: HousePart.measures, show: () => states[State.measure] },
+      { housePart: HousePart.example, show: () => states[State.examplePlan] },
     ].forEach((obj: { housePart: HousePart; show: (x?) => boolean }) => {
       house.houseParts[obj.housePart].forEach((model) => {
         model.setVisibility(obj.show(model));
       });
     });
-
-    // // minimumHeight
-    // //// ========== towerFootprint ==========
-    // house.tower.footprintVisible = states[State.towerFootprint];
-    // //// ========== Theoretical walls ==========
-
-    // console.log(
-    //   house.flatten.walls.filter((x: Wall) => x.type === WallType.theoretic)
-    // );
-
-    // //// ========== Measures ==========
-    // [...house.parts, ...house.cross.parts, ...house.stair.parts]
-    //   .filter((x) => x instanceof Measure)
-    //   .forEach((x) => (x.visible = states[State.measure]));
-
-    // //// ========== Grid ==========
-    // house.parts
-    //   .filter((x) => x.selector?.includes("grid-index"))
-    //   .forEach((x) => {
-    //     x.visible = states[State.grid];
-    //   });
-
-    // //// ========== Sensors ==========
-    // house.partsFlatten
-    //   .filter((x) => x instanceof Sensor)
-    //   .forEach((x: Sensor<any>) => {
-    //     x.visible = states[x.sensorType];
-    //   });
-    // //// ========== SVG exampels ==========
-    // house.partsFlatten
-    //   .filter((x) => x instanceof AppSVG)
-    //   .forEach((x: AppSVG) => {
-    //     x.visible = states[State.examplePlan];
-    //   });
+    // console.log(house.houseParts[HousePart.example]);
   }
 }

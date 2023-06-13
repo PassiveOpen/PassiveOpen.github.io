@@ -16,7 +16,7 @@ export enum WindowForm {
 
 let ids = 0;
 
-export class Window<T = House> extends HousePartModel {
+export class Window extends HousePartModel {
   housePart = HousePart.windows;
   floor = Floor.ground;
   windowForm = WindowForm.standard;
@@ -36,7 +36,7 @@ export class Window<T = House> extends HousePartModel {
     return this.innerDepthFrame + this.frameDepth;
   }
 
-  constructor(data: Partial<Window<T>>) {
+  constructor(data: Partial<Window>) {
     super();
     Object.assign(this, data);
   }

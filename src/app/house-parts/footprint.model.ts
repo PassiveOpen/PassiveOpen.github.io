@@ -6,7 +6,7 @@ import { BaseSVG } from "../model/base.model";
 import { offset, round } from "src/app/shared/global-functions";
 import { HousePartModel } from "./model/housePart.model";
 
-export class Footprint<T = House> extends HousePartModel {
+export class Footprint extends HousePartModel {
   housePart = HousePart.footprint;
   coords: [number, number][] = [];
   floor = Floor.ground;

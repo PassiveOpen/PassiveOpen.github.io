@@ -27,15 +27,10 @@
       }
     }
 
-    .g-helper > * {
+    *[id*="__h-"] {
       stroke: var(--primary-color) !important;
       opacity: 0;
       fill: none;
-
-      &[id^="roof-point-"] {
-        opacity: 1 !important;
-        // fill: var(--primary-color) !important;
-      }
     }
   }
 
@@ -61,12 +56,13 @@
 
   //<============== Tags ===============>//
   .tag-half-circle {
-    .g-h-circle-roof {
+    *[id*="roof-circle__h-"] {
       opacity: 1 !important;
     }
   }
+
   .tag-bend-point {
-    .g-h-bend-point {
+    *[id*="bend-point__h-"] {
       opacity: 1 !important;
     }
   }

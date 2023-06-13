@@ -3,10 +3,8 @@ import { Floor, SensorType } from "src/app/components/enum.data";
 import { AppPolygon } from "src/app/model/polygon.model";
 import { Door } from "src/app/house-parts/door.model";
 import { Room } from "src/app/house-parts/room.model";
-import { Sensor } from "src/app/model/specific/sensors/sensor.model";
-import { SensorLight } from "src/app/model/specific/sensors/sensorLight.model";
-import { Vent } from "src/app/model/specific/sensors/vent.model";
-import { Water } from "src/app/model/specific/sensors/water.model";
+import { Sensor } from "src/app/house-parts/sensor.model";
+import { SensorLight } from "src/app/house-parts/svg-sensor/sensorLight.model";
 import {
   CornerType,
   Wall,
@@ -21,12 +19,14 @@ import {
   round,
 } from "src/app/shared/global-functions";
 import { House, xy } from "../house.model";
+import { Water } from "src/app/house-parts/svg-sensor/water.model";
+import { Vent } from "src/app/house-parts/svg-sensor/vent.model";
 
 export const lindeLundUpstairs = [
   // toilet upstairs
   new Room({
     name: "Toilet-upstairs",
-    function: "WC",
+    usage: "WC",
     floor: Floor.top,
     onUpdate: function (this: Room, house: House) {
       const height = 1.0;
@@ -255,7 +255,7 @@ export const lindeLundUpstairs = [
   // storage upstairs
   new Room({
     name: "storage-upstairs",
-    function: "KLK2",
+    usage: "KLK2",
     floor: Floor.top,
     onUpdate: function (this: Room, house: House) {
       const height = 1.0;
@@ -356,7 +356,7 @@ export const lindeLundUpstairs = [
   // Main bedroom
   new Room({
     name: "main-bedroom",
-    function: "Sovrum 1",
+    usage: "Sovrum 1",
     floor: Floor.top,
     onUpdate: function (this: Room, house: House) {
       this.northWestCorner = [house.stramien.in.we.b, house.stramien.in.ns.a];
@@ -592,7 +592,7 @@ export const lindeLundUpstairs = [
   // Bathroom
   new Room({
     name: "bathroom",
-    function: "Badrum",
+    usage: "Badrum",
     floor: Floor.top,
     onUpdate: function (this: Room, house: House) {
       const towerSetBack = 0.5;
@@ -968,7 +968,7 @@ export const lindeLundUpstairs = [
 
   // East / Right
   new Room({
-    function: "Sovrum 2",
+    usage: "Sovrum 2",
     name: "Upper-east",
     floor: Floor.top,
     onUpdate: function (this: Room, house: House) {
@@ -1209,7 +1209,7 @@ export const lindeLundUpstairs = [
 
   // mid
   new Room({
-    function: "Sovrum 3",
+    usage: "Sovrum 3",
     name: "upper-mid",
     floor: Floor.top,
     onUpdate: function (this: Room, house: House) {
@@ -1444,7 +1444,7 @@ export const lindeLundUpstairs = [
   }),
   // west
   new Room({
-    function: "Sovrum 3",
+    usage: "Sovrum 3",
     name: "upper-west",
     floor: Floor.top,
     onUpdate: function (this: Room, house: House) {
@@ -1639,7 +1639,7 @@ export const lindeLundUpstairs = [
   // hall
   new Room({
     name: "hall-walkway",
-    function: "Passage",
+    usage: "Passage",
     floor: Floor.top,
     onUpdate: function (this: Room, house: House) {
       const s = house.stramien;

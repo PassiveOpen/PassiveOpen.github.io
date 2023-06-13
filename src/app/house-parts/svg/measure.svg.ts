@@ -13,10 +13,10 @@ export class MeasureSVG extends HousePartSVG<Measure> {
 
   fontSize = 12;
   _lineThickness = 0.6;
+  classes: string[] = ["measure"];
 
   setD3(): void {
     this.svg = d3.select(`#${this.model.selector}`);
-    this.setClass(this.svg);
     this.svgLine = this.svg.append("polyline");
     this.svgArrow1 = this.svg.append("text");
     this.svgArrow2 = this.svg.append("text");

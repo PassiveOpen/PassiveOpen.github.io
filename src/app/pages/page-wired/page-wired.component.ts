@@ -2,8 +2,9 @@ import { AfterViewInit, Component, NgZone } from "@angular/core";
 import { filter } from "d3";
 import { AppService } from "src/app/app.service";
 import { Section, SensorType, State, Tag } from "src/app/components/enum.data";
+import { House } from "src/app/house/house.model";
 import { HouseService } from "src/app/house/house.service";
-import { Sensor } from "src/app/model/specific/sensors/sensor.model";
+import { Sensor } from "src/app/house-parts/sensor.model";
 import { StatesService } from "src/app/services/states.service";
 import { round } from "src/app/shared/global-functions";
 
@@ -16,6 +17,7 @@ export class PageWiredComponent implements AfterViewInit {
   Tag = Tag;
   Section = Section;
   SensorType = SensorType;
+  house: House;
 
   constructor(
     private houseService: HouseService,
@@ -30,11 +32,11 @@ export class PageWiredComponent implements AfterViewInit {
   }
 
   getGroups(sensorType: SensorType) {
-    const house = this.houseService.house$.value;
+    this.house = this.houseService.house$.value;
     return [
       ...new Set(
-        Object.values(house.partsFlatten)
-          .filter((x) => x instanceof Sensor)
+        (this.house.houseParts.sensors as Sensor<any>[])
+
           .filter((x: Sensor<any>) => x.sensorType === sensorType)
           .map((x: Sensor<any>) => x.group)
       ),
@@ -46,8 +48,8 @@ export class PageWiredComponent implements AfterViewInit {
 
   getOutlets(sensorType: SensorType) {
     const house = this.houseService.house$.value;
-    return Object.values(house.partsFlatten)
-      .filter((x) => x instanceof Sensor)
+    return (this.house.houseParts.sensors as Sensor<any>[])
+
       .filter((x: Sensor<any>) => x.sensorType === sensorType)
       .map((x: Sensor<any>) => x.amount)
       .reduce((a, b) => a + b, 0);
@@ -56,8 +58,8 @@ export class PageWiredComponent implements AfterViewInit {
   getCable(sensorType: SensorType, decimals = 1) {
     const house = this.houseService.house$.value;
     return round(
-      Object.values(house.partsFlatten)
-        .filter((x) => x instanceof Sensor)
+      (this.house.houseParts.sensors as Sensor<any>[])
+
         .filter((x: Sensor<any>) => x.sensorType === sensorType)
         .map((x: Sensor<any>) => x.cableLength)
         .reduce((a, b) => a + b, 0),

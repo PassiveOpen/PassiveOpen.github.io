@@ -1,7 +1,3 @@
-<!-- <div *ngIf="cross" style="padding-left: 48px;">
-  {{cross.innerWidth}} m<br />
-</div> -->
-
 <svg #svg class="cross" preserveAspectRatio="xMidYMid meet">
   <defs>
     <pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="scale(0.1)">
@@ -14,36 +10,21 @@
   <g class="all" transform="rotate(0)">
     <g class="g-figure"></g>
     <g class="g-building">
-      <polygon id="building-walls"></polygon>
-      <polygon id="building-room"></polygon>
-      <polygon id="building-crawler"></polygon>
-      <polyline id="building-ground-line"></polyline>
-
-      <polygon id="building-fill"></polygon>
-      <polygon id="building-ground-fill"></polygon>
-      <polygon id="building-ground" fill="url(#diagonalHatch)"></polygon>
+      <g [id]="key" *ngFor="let key of selectors[HousePart.other]"> </g>
     </g>
 
     <g class="g-roof-circle" [ngStyle]="{opacity:roofCheck(RoofStyle.roofCircle)}">
-      <polygon id="building-roof-circle-wall1"></polygon>
-      <polygon id="building-roof-circle-wall2"></polygon>
-      <polygon id="roof-circle" clip-path="url(#clip-roof2)"></polygon>
-      <polygon id="roof-circle-shadow"></polygon>
-      <polygon id="roof-circle-fill"></polygon>
+      <g [id]="key" *ngFor="let key of selectors[HousePart.roofCircle]">
+      </g>
     </g>
     <g class="g-roof-70" [ngStyle]="{opacity:roofCheck(RoofStyle.roof70)}">
-      <polygon id="building-roof-70-wall1"></polygon>
-      <polygon id="building-roof-70-wall2"></polygon>
-      <polygon id="roof-70" clip-path="url(#clip-roof2)"></polygon>
-      <polygon id="roof-70-fill"></polygon>
-      <polygon id="roof-70-shadow"></polygon>
-      <polygon id="building-roof-70-kicker-1"></polygon>
-      <polygon id="building-roof-70-kicker-2"></polygon>
+      <g [id]="key" *ngFor="let key of selectors[HousePart.roof70]">
+      </g>
     </g>
 
 
     <!-- Helpers -->
-    <g class="g-helper">
+    <!-- <g class="g-helper">
       <circle *ngFor="let i of [0,1,2,3,4,5,6,7,8,9,10]" id="roof-point-{{i}}"></circle>
       <g class="g-h-circle-roof">
         <polyline id="roof-circle__h-line"></polyline>
@@ -53,22 +34,21 @@
         <polyline id="bend-point__h-line"></polyline>
         <circle id="bend-point__h-point"></circle>
       </g>
+    <circle *ngFor="let i of [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]" id="debug-point-{{i}}"></circle>
 
-    </g>
+    </g> -->
 
     <g class="cross-measure">
 
-      <g id="lower-roof"></g>
-      <g id="higher-roof"></g>
-      <g id="minimum"></g>
-      <g id="minimum-h"></g>
-      <g id="minimum-room"></g>
-      <g id="facade"></g>
-      <g id="height"></g>
-      <g id="minimum-room-h"></g>
+      <g [id]="key" *ngFor="let key of selectors[HousePart.measures]">
+      </g>
     </g>
-    <circle *ngFor="let i of [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]" id="debug-point-{{i}}"></circle>
 
     <g id="g-distance"></g>
   </g>
 </svg>
+
+
+<ng-template>
+
+</ng-template>

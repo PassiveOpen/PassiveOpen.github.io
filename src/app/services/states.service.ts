@@ -17,7 +17,7 @@ import { Wall, WallType } from "../house-parts/wall.model";
 import { RoofStyle } from "../house/cross.model";
 import { House } from "../house/house.model";
 import { HouseService } from "../house/house.service";
-import { Sensor } from "../model/specific/sensors/sensor.model";
+import { Sensor } from "../house-parts/sensor.model";
 import { AppSVG } from "../model/svg.model";
 
 @Injectable({

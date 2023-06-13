@@ -40,8 +40,8 @@
       <g [id]="key" *ngFor="let key of selectors[HousePart.rooms]"></g>
     </g>
 
-    <g class="plan-stair-plan included-stairs-plan">
-      <svg class="plan-stair-plan "></svg>
+    <g class="svg-plan-stair-plan included-stairs-plan">
+      <svg class="plan-stair-plan"></svg>
     </g>
 
     <g class="g-wall">
@@ -68,39 +68,30 @@
     </g>
 
     <g class="extra">
-
-      <polyline [id]="key" *ngFor="let key of selectors[HousePart.otherPolylines]">
-      </polyline>
-      <polygon [id]="key" *ngFor="let key of selectors[HousePart.otherPolygons]">
-      </polygon>
-      <!-- <polyline id="balcony-edge"></polyline>
-      <polyline id="hall-edge"></polyline>
-      <polyline id="view-lines"></polyline>
-      <polygon id="central-void" filter="url(#inset-shadow)"></polygon>
-      <polygon id="tower-walls"></polygon>
-
-      <polyline id="roof-line-1"></polyline>
-      <polyline id="roof-line-2"></polyline>
-      <polyline id="roof-line-3"></polyline>
-      <polyline id="roof-line-4"></polyline>
-      <polyline id="roof-line-5"></polyline> -->
+      <g [id]="key" *ngFor="let key of selectors[HousePart.other]">
+      </g>
     </g>
+    <g class="g-studs">
+      <g [id]="key" *ngFor="let key of selectors[HousePart.studs]">
+      </g>
+    </g>
+
 
     <g class="house-measure">
       <g class="measure" [id]="key" *ngFor="let key of selectors[HousePart.measures]"> </g>
     </g>
 
 
-    <g class="g-sensor">
+    <!-- <g class="g-sensor">
       <polyline *ngFor="let key of sensorKeys" id="{{key}}" class="sensor-cable"></polyline>
       <g id="{{key}}" *ngFor="let key of sensorKeys" class="sensor-g">
         <use id="{{key}}" class="sensor-icon" />
       </g>
 
-    </g>
+    </g>-->
 
     <g class="g-example">
-      <g id="{{key}}" *ngFor="let key of exampleKeys" class="example-g"> </g>
+      <g class="example-g" [id]="key" *ngFor="let key of selectors[HousePart.example]"> </g>
 
     </g>
 

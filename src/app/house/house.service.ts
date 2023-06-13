@@ -9,7 +9,7 @@ import { AppService } from "../app.service";
 import { BaseSVG } from "../model/base.model";
 import { Room } from "../house-parts/room.model";
 import { Door } from "../house-parts/door.model";
-import { Sensor } from "../model/specific/sensors/sensor.model";
+import { Sensor } from "../house-parts/sensor.model";
 import { Window } from "../house-parts/window.model";
 import {
   angleXY,
@@ -45,30 +45,6 @@ export class HouseService {
   cookieKey = "house";
   house$ = new BehaviorSubject(this.getStore(lindeLund));
   timeout;
-
-  roomKeys = this.house$.value.houseParts.rooms.map((x) => x.selector);
-  wallKeys = this.house$.value.houseParts.walls.map((x) => x.selector);
-
-  // doorKeys = [];
-  doorKeys = this.house$.value.partsFlatten
-    .filter((x) => x instanceof Door)
-    .map((x) => x.selector);
-
-  // windowKeys = [];
-  windowKeys = this.house$.value.partsFlatten
-    .filter((x) => x instanceof Window)
-    .map((x) => x.selector);
-
-  // sensorKeys = [];
-  sensorKeys = this.house$.value.partsFlatten
-    .filter((x) => x instanceof Sensor)
-    .map((x) => x.selector)
-    .sort((a, b) => a.localeCompare(b));
-
-  exampleKeys = this.house$.value.partsFlatten
-    .filter((x) => x instanceof AppSVG)
-    .map((x) => x.selector)
-    .sort((a, b) => a.localeCompare(b));
 
   constructor(
     private appService: AppService,
@@ -175,8 +151,7 @@ export class HouseService {
     const house = this.house$.value;
     return [
       ...new Set(
-        Object.values(house.partsFlatten)
-          .filter((x) => x instanceof Sensor)
+        house.houseParts.sensors
           .filter((x: Sensor<any>) => x.sensorType === sensorType)
           .map((x: Sensor<any>) => x.group)
       ),
@@ -187,8 +162,7 @@ export class HouseService {
 
   getOutlets(sensorType: SensorType): number {
     const house = this.house$.value;
-    return Object.values(house.partsFlatten)
-      .filter((x) => x instanceof Sensor)
+    return house.houseParts.sensors
       .filter((x: Sensor<any>) => x.sensorType === sensorType)
       .map((x: Sensor<any>) => x.amount)
       .reduce((a, b) => a + b, 0);
@@ -197,8 +171,7 @@ export class HouseService {
   getCable(sensorType: SensorType, decimals = 1) {
     const house = this.house$.value;
     return round(
-      Object.values(house.partsFlatten)
-        .filter((x) => x instanceof Sensor)
+      house.houseParts.sensors
         .filter((x: Sensor<any>) => x.sensorType === sensorType)
         .map((x: Sensor<any>) => x.cableLength)
         .reduce((a, b) => a + b, 0),
@@ -211,21 +184,18 @@ export class HouseService {
 
     const innerLength = Math.ceil(
       sum(
-        Object.values(house.partsFlatten)
-          .filter((x) => x instanceof Wall)
-          .map((x: Wall) => {
-            let l = 0;
-            if (x.type === WallType.inner) l += x.getLength(WallSide.out);
-            l += x.getLength(WallSide.in);
-            return l;
-          })
+        house.houseParts.walls.map((x: Wall) => {
+          let l = 0;
+          if (x.type === WallType.inner) l += x.getLength(WallSide.out);
+          l += x.getLength(WallSide.in);
+          return l;
+        })
       )
     );
 
     const outerLength = Math.ceil(
       sum(
-        Object.values(house.partsFlatten)
-          .filter((x) => x instanceof Wall)
+        house.houseParts.walls
           .filter((x: Wall) => x.type === WallType.outer)
           .map((x: Wall) => x.getLength(WallSide.out)),
         1
@@ -243,7 +213,7 @@ export class HouseService {
 
     const innerArea = Math.ceil(
       sum(
-        Object.values(house.partsFlatten)
+        house.houseParts.walls
           .filter((x) => x instanceof Wall)
           .map((x: Wall) => {
             let l = 0;
@@ -256,8 +226,7 @@ export class HouseService {
 
     const outerArea = Math.ceil(
       sum(
-        Object.values(house.partsFlatten)
-          .filter((x) => x instanceof Wall)
+        house.houseParts.walls
           .filter((x: Wall) => x.type === WallType.outer)
           .map((x: Wall) => x.getArea(WallSide.out)),
         1
@@ -279,6 +248,7 @@ export class HouseService {
   ) {
     const uuid = generateUUID();
     const parts = Object.values(
+      //@ts-ignore //todo repair
       this.house$.value.partsFlatten
         .filter((x) => x instanceof (type as any))
         .filter((x) => filterCallback(x as any))
@@ -291,6 +261,7 @@ export class HouseService {
             };
           }
           if (type === Sensor && !count) {
+            //@ts-ignore //todo repair
             accumulator[key].count += (value as Sensor<any>).getLength();
           } else {
             accumulator[key].count += 1;
@@ -370,7 +341,7 @@ export class HouseService {
   getFootPrintPolygon() {
     const house = this.house$.value;
     const orientation = house.orientation;
-    const walls = house.partsFlatten.filter(
+    const walls = house.houseParts.walls.filter(
       (x) => x instanceof Wall && x.type === WallType.outer
     ) as Wall[];
 

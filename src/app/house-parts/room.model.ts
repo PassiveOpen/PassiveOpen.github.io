@@ -5,7 +5,7 @@ import { House, HousePart, xy } from "../house/house.model";
 import { HousePartModel } from "./model/housePart.model";
 import { RoomSVG } from "./svg/room.svg";
 
-export class Room<T = House> extends HousePartModel {
+export class Room extends HousePartModel {
   housePart = HousePart.rooms;
 
   coords: xy[] = [];
@@ -13,7 +13,7 @@ export class Room<T = House> extends HousePartModel {
   hole = false;
   centralElectricity: xy = [0, 0];
   theoretic = false;
-  function: string;
+  usage: string;
   northWestCorner: xy;
   width = 0;
   height = 0;
@@ -22,12 +22,11 @@ export class Room<T = House> extends HousePartModel {
   constructor(data: Partial<Room>) {
     super();
     Object.assign(this, data);
+    this.selector = `room-${this.name}`;
   }
 
   onUpdate(house: House) {} // in user data
-  afterUpdate(): void {
-    this.selector = `room-${this.name}`;
-  }
+  afterUpdate(): void {}
 
   getSVGInstance() {
     this.svg = new RoomSVG(this);

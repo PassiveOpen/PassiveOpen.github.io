@@ -15,7 +15,7 @@ import {
 import { SafeHtml } from "@angular/platform-browser";
 import { BehaviorSubject, Subject, takeUntil } from "rxjs";
 import { BaseSVG } from "src/app/model/base.model";
-import { Sensor } from "src/app/model/specific/sensors/sensor.model";
+import { Sensor } from "src/app/house-parts/sensor.model";
 import { HouseService } from "../../house/house.service";
 import { TooltipComponent } from "./tooltip.component";
 import { HousePartSVG } from "src/app/house-parts/model/housePart.model";
@@ -37,7 +37,8 @@ export class TooltipService {
   attachPopup([x, y], obj: HousePartSVG<any>) {
     // console.clear();
     this.detachOverlay();
-    this.origin = obj instanceof Sensor ? obj.svgIcon.node() : obj.svg.node();
+    this.origin =
+      obj instanceof Sensor ? obj.svg.svgIcon.node() : obj.svg.node();
 
     this.overlayRef = this.overlay.create({
       positionStrategy: this.getPositionStrategy([x, y]),

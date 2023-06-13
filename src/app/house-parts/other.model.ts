@@ -1,28 +1,18 @@
-import { polygonArea } from "d3";
-import { offset, round } from "src/app/shared/global-functions";
-import { Floor } from "../components/enum.data";
 import { House, HousePart, xy } from "../house/house.model";
-import { HousePartModel } from "./model/housePart.model";
-import { RoomSVG } from "./svg/room.svg";
-import { PolylineSVG } from "./svg/polyline.model";
-import { PolygonSVG } from "./svg/polygon.model";
+import { HousePartModel, HousePartSVG } from "./model/housePart.model";
+import { CircleSVG } from "./svg-other/circle.svg";
+import { EmbeddedSVG } from "./svg-other/embedded-svg.svg";
+import { PathSVG } from "./svg-other/path.svg";
+import { PolygonSVG } from "./svg-other/polygon.svg";
+import { PolylineSVG } from "./svg-other/polyline.svg";
 
-export interface PolylineSVGData {
-  type: "polyline";
-  lineThickness?: number;
-  dash?: number[];
-}
-export interface PolygonSVGData {
-  type: "polygon";
-}
-
-export class Other<T = House> extends HousePartModel {
-  housePart = HousePart.otherPolygons;
+export class Other<T extends HousePartSVG> extends HousePartModel {
+  housePart = HousePart.other;
   coords: xy[] = [];
+  dataSVG: Partial<T>;
+  type: "polygon" | "path" | "polyline" | "circle" | "svg";
 
-  dataSVG: PolylineSVGData | PolygonSVGData;
-
-  constructor(data: Partial<Other>) {
+  constructor(data: Partial<Other<T>>) {
     super();
     Object.assign(this, data);
   }
@@ -30,15 +20,54 @@ export class Other<T = House> extends HousePartModel {
   setup(): void {}
   onUpdate(house: House) {} // in user data
   afterUpdate(): void {
-    if (this.selector === undefined)
-      throw new Error(`Selector is undefined, ${this.dataSVG?.type}}`);
+    if (this.selector === undefined) {
+      console.log(this);
+
+      throw new Error(`Selector is undefined`);
+    }
   }
 
   getSVGInstance() {
-    if (this.dataSVG.type === "polyline") this.svg = new PolylineSVG(this);
-    if (this.dataSVG.type === "polygon") this.svg = new PolygonSVG(this);
-
+    if (this.type === "polygon") this.svg = new PolygonSVG(this);
+    if (this.type === "polyline") this.svg = new PolylineSVG(this);
+    if (this.type === "path") this.svg = new PathSVG(this);
+    if (this.type === "circle") this.svg = new CircleSVG(this);
+    if (this.type === "svg") this.svg = new EmbeddedSVG(this);
+    if (this.svg === undefined) {
+      console.log(this);
+      throw new Error(`getSVGInstance: SVG is undefined, ${this.selector}`);
+    }
     Object.assign(this.svg, this.dataSVG);
+  }
+
+  setAttr() {
+    const setKey = <U>(key: keyof U) => {
+      const dataSVG = this.dataSVG as any as Partial<U>;
+      if (dataSVG[key] !== undefined) this.svg[key] = dataSVG[key];
+    };
+    if (this.svg === undefined) {
+      // console.log("not loaded yet...");
+    } else if (this.svg instanceof PathSVG && this.type === "path") {
+      setKey<PathSVG>("d");
+      setKey<PathSVG>("transform");
+    } else if (this.svg instanceof PolygonSVG && this.type === "polygon") {
+      setKey<PolygonSVG>("transform");
+    } else if (this.svg instanceof PolylineSVG && this.type === "polyline") {
+      setKey<PolylineSVG>("transform");
+    } else if (this.svg instanceof CircleSVG && this.type === "circle") {
+      setKey<CircleSVG>("cx");
+      setKey<CircleSVG>("cy");
+      setKey<CircleSVG>("r");
+    } else if (this.svg instanceof EmbeddedSVG && this.type === "svg") {
+      setKey<EmbeddedSVG>("rotation");
+      setKey<EmbeddedSVG>("anchor");
+      setKey<EmbeddedSVG>("scale");
+      setKey<EmbeddedSVG>("scaler");
+    } else {
+      console.log(this);
+
+      throw new Error(`setAttr: is undefined, ${this.type}`);
+    }
   }
 
   square(w: number, h: number, origin: xy) {

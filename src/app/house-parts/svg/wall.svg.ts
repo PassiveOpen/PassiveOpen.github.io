@@ -55,7 +55,7 @@ export class WallSVG extends HousePartSVG<Wall> {
     for (let wallSide of Object.keys(WallSide)) {
       const side = wallSide as WallSide;
       if (!(side in this.model.sides)) {
-        return;
+        continue;
       }
       let lineSVG: d3.Selection<SVGPolygonElement, unknown, HTMLElement, any>;
       if (side === WallSide.in) {
