@@ -1,24 +1,14 @@
-import { HttpClient } from "@angular/common/http";
-import { Component, AfterViewInit, ViewChild, ElementRef } from "@angular/core";
-import * as d3 from "d3";
-import { Selection } from "d3";
-import { AppService } from "src/app/app.service";
-import { Cross, RoofType } from "src/app/house/cross.model";
-import { House } from "src/app/house/house.model";
-import { HouseService } from "src/app/house/house.service";
+import { AfterViewInit, Component } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
-import { Measure } from "src/app/house-parts/measure.model";
 import { BasicSVGComponent } from "src/app/2d-svg/base-svg.component";
 import { Floor, Graphic, Section } from "src/app/components/enum.data";
-import { TooltipService } from "src/app/components/tooltip/tooltip.service";
-import { D3DistanceService } from "../d3Distance.service";
-import { ContextMenuService } from "src/app/components/context-menu/context-menu.service";
-import { D3Service } from "../d3.service";
+import { HousePart } from "src/app/house/house.model";
+import { stepsCrossBuildingParts } from "./stair-cross.data";
 
 @Component({
-  selector: "app-svg-stair-steps",
-  templateUrl: "./svg-stair-steps.component.html",
-  styleUrls: ["./svg-stair-steps.component.scss"],
+  selector: "app-svg-stair-cross",
+  templateUrl: "./svg-stair-cross.component.html",
+  styleUrls: ["./svg-stair-cross.component.scss"],
 })
 export class SvgStairsComponent
   extends BasicSVGComponent
@@ -26,28 +16,31 @@ export class SvgStairsComponent
 {
   graphic = Graphic.stairCross;
   floor = Floor.all;
-  // marginInPixel = [0, 0.5, 0, 1];
-  // marginInMeters = [0, 0.5, 0, 1];
-  figure;
   steps = new BehaviorSubject(1);
+
+  keys = [HousePart.stairPlan];
+
+  addHousePartModelsAndSVG() {
+    stepsCrossBuildingParts.forEach(this.getHousePartsCallback);
+    this.keys.forEach((key) => {
+      this.house$.value.houseParts[key].forEach(this.getHousePartsCallback);
+    });
+  }
 
   updateHousePartSVGs() {}
   afterUpdate() {}
-  addHousePartModelsAndSVG() {}
   beforeInit() {}
   afterInit() {}
-  setHousePartVisibility() {}
-
   setMarginAndSize() {
     const maxRun = this.stair.totalRise / Math.tan(30 * (Math.PI / 180));
 
     if ([Section.stairCheck, Section.stairPlan].includes(this.section)) {
-      this.svgHouseSize = [
+      this.svgSizeInMeters = [
         [this.stair.run * 5, -this.stair.rise * 9],
         [this.stair.run * 4, this.stair.rise * 4],
       ];
     } else {
-      this.svgHouseSize = [
+      this.svgSizeInMeters = [
         [-this.stair.run, -this.stair.totalRise],
         [maxRun, this.stair.totalRise + this.stair.floorThickness],
       ];
@@ -63,5 +56,18 @@ export class SvgStairsComponent
       this.svg.style("pointer-events", "");
       this.svg.style("opacity", 1);
     }
+  }
+
+  setHousePartVisibility() {
+    const states = this.statesService.states$.value;
+    const house = this.houseService.house$.value;
+
+    this.housePartModels.forEach((model) => {
+      let vis = true;
+
+      model.setVisibility(vis);
+    });
+
+    // console.log(this.house$.value.houseParts[HousePart.stairPlan]);
   }
 }

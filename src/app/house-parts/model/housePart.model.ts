@@ -1,12 +1,8 @@
-import { House, HousePart, SvgUpdate } from "../../house/house.model";
-import * as d3 from "d3";
-import { Cross } from "../../house/cross.model";
 import { SafeHtml } from "@angular/platform-browser";
-import { Floor } from "../../components/enum.data";
-import { Stair } from "../../house/stairs.model";
+import * as d3 from "d3";
+import { Floor, Graphic } from "../../components/enum.data";
+import { House, HousePart, SvgUpdate, xy } from "../../house/house.model";
 import { Wall } from "../wall.model";
-import { Sensor } from "../sensor.model";
-import { WallSVG } from "../svg/wall.svg";
 
 let ids = {};
 
@@ -18,6 +14,7 @@ export abstract class HousePartModel<T extends HousePartSVG = any> {
   selector: string;
   outOfDesign: Boolean;
   parent: any;
+  coords: xy[];
 
   svg?: T;
 
@@ -25,7 +22,7 @@ export abstract class HousePartModel<T extends HousePartSVG = any> {
 
   abstract onUpdate(house: House): void;
   abstract afterUpdate(): void;
-  abstract getSVGInstance(): void;
+  abstract getSVGInstance(graphic?: Graphic): void;
 
   setVisibility(visibility: boolean) {
     if (this.svg) this.svg.visible = visibility;
@@ -43,7 +40,6 @@ export abstract class HousePartSVG<T extends HousePartModel<any> = any> {
   center;
   meterPerPixel: number;
   classes: string[];
-  index = 0;
   visible = false;
   theoretic = false;
   loaded = false;
@@ -83,7 +79,11 @@ export abstract class HousePartSVG<T extends HousePartModel<any> = any> {
 
   show(floor: Floor): boolean {
     const floorActive = this.floor === floor || this.floor === Floor.all;
-    this._IsRendered = floorActive && this.visible && !this.model.outOfDesign;
+    this._IsRendered =
+      floorActive &&
+      this.visible &&
+      !this.model.outOfDesign &&
+      this.svg !== undefined;
     return this._IsRendered;
   }
 
@@ -99,7 +99,7 @@ export abstract class HousePartSVG<T extends HousePartModel<any> = any> {
       return;
     }
 
-    if (this.svg === undefined || this.svgUpdate.redrawAll === true) {
+    if (this.svgUpdate.redrawAll === true) {
       this.initDraw();
       this.setClass(this.svg);
     }

@@ -18,11 +18,17 @@ export class CircleSVG extends HousePartSVG<Other<CircleSVG>> {
   }
 
   drawWhenNotVisible() {
-    this.svgCircle.attr("d", "");
+    this.svgCircle
+      .attr("cx", undefined)
+      .attr("cy", undefined)
+      .attr("r", undefined);
   }
 
   initDraw() {
-    this.svgCircle.attr("cx", this.cx).attr("cy", this.cy).attr("r", this.r);
+    this.svgCircle
+      .attr("cx", this.cx || 0)
+      .attr("cy", this.cy || 0)
+      .attr("r", this.r || 0);
   }
 
   updateScale() {

@@ -142,4 +142,8 @@ export class ControlsComponent implements OnInit {
       return i == 1 ? window.shadowContrast : window.shadowOpacity;
     }
   }
+
+  getSensorURL(sensorType: SensorType) {
+    return `assets/svg/${sensorType.replace("sensor-", "")}.svg`;
+  }
 }

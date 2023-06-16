@@ -1,39 +1,100 @@
 import { Injectable } from "@angular/core";
-import { fromEvent, Subscription } from "rxjs";
+import { fromEvent, Subscription, throttleTime } from "rxjs";
 import { AppService } from "../app.service";
 import { HouseService } from "../house/house.service";
 import * as d3 from "d3";
 import { distanceBetweenPoints, round } from "../shared/global-functions";
 import { Graphic } from "../components/enum.data";
-import { AppDistance } from "../model/distance.model";
+import { DistanceSVG } from "../house-parts/svg-other/distance.svg";
 import { BaseSVG } from "../model/base.model";
 import { AppPolyline } from "../model/polyline.model";
-import { xy } from "../house/house.model";
+import { HousePart, xy } from "../house/house.model";
 import { AppPolygon } from "../model/polygon.model";
+import { Other } from "../house-parts/other.model";
+import { HousePartModel } from "../house-parts/model/housePart.model";
+import { Room } from "../house-parts/room.model";
+import { Wall, WallSide } from "../house-parts/wall.model";
 
 @Injectable({
   providedIn: "root",
 })
 export class D3DistanceService {
-  distanceSubscriptions: Subscription[] = [];
+  subscriptions: Subscription[] = [];
   isDistance = false;
   distanceMouseFirst: "first" | "second" | "fixed" = "first";
-  distanceSVG: AppDistance;
+  model: Other<DistanceSVG>;
 
   coords: xy[] = [];
+  models: HousePartModel<any>[];
+  target: SVGElement;
 
   constructor(
     public houseService: HouseService,
     public appService: AppService
   ) {}
 
+  init(target, models: HousePartModel<any>[], callback) {
+    this.target = target;
+    this.model = new Other<DistanceSVG>({
+      type: "distance",
+      housePart: HousePart.distance,
+      selector: "g-distance",
+    });
+    callback(this.model);
+    this.models = models;
+  }
+
   stop() {
-    this.distanceSubscriptions.forEach((x) => x.unsubscribe());
-    this.distanceSVG.visible = false;
+    this.subscriptions.forEach((x) => x.unsubscribe());
+    this.model.setVisibility(false);
     this.isDistance = false;
-    this.distanceSubscriptions = [];
+    this.subscriptions = [];
     this.appService.update$.next();
   }
+
+  start() {
+    console.clear();
+    console.log(`start distance`, this.subscriptions.length);
+
+    if (this.subscriptions.length > 0) {
+      this.stop();
+      return;
+    }
+
+    const graphic = this.appService.scroll$.value.graphic;
+
+    console.log(this.model.svg.svg.node());
+    console.log(this.target);
+    // crosshair
+    if (!this.model?.svg) {
+      console.error(`svg not found`, `svg.${graphic}`);
+      return;
+    }
+    this.getParts();
+
+    this.model.svg.drawWhenNotVisible();
+    this.distanceMouseFirst = "first";
+    this.isDistance = true;
+
+    this.model.setVisibility(true);
+
+    this.subscriptions.push(
+      ...[
+        fromEvent(this.target, "mousemove")
+          .pipe(throttleTime(100))
+          .subscribe((e: MouseEvent) => {
+            this.mousemove(e);
+          }),
+        fromEvent(this.target, "click").subscribe((e: MouseEvent) => {
+          this.click(e);
+        }),
+        fromEvent(document, "keydown").subscribe((e: MouseEvent) => {
+          this.stop();
+        }),
+      ]
+    );
+  }
+
   click(e: MouseEvent) {
     if (this.distanceMouseFirst === "first") {
       this.distanceMouseFirst = "second";
@@ -49,15 +110,9 @@ export class D3DistanceService {
     const [mouseX, mouseY] = d3.pointer(e);
     let mouse: xy = [round(mouseX), round(mouseY)];
     let threshold = 0.2;
-    try {
-      const x = e
-        .composedPath()
-        .find((x: HTMLElement) => x.tagName === "svg") as SVGElement;
-      const meterPerPixel = Number(x.getAttribute("meterPerPixel"));
-      threshold = meterPerPixel * 10;
-    } catch (e) {
-      console.log(e);
-    }
+
+    const meterPerPixel = Number(this.target.getAttribute("meterPerPixel"));
+    threshold = meterPerPixel * 10;
 
     const arr = this.coords
       .filter((x) => x)
@@ -74,87 +129,23 @@ export class D3DistanceService {
     if (arr.length > 0) mouse = arr[0];
 
     if (["first"].includes(this.distanceMouseFirst)) {
-      this.distanceSVG.point1 = mouse;
-      this.distanceSVG.point2 = undefined;
+      this.model.svg.point1 = mouse;
+      this.model.svg.point2 = undefined;
     }
     if (["second"].includes(this.distanceMouseFirst)) {
-      this.distanceSVG.point2 = mouse;
+      this.model.svg.point2 = mouse;
     }
     this.appService.update$.next();
   }
 
-  getParts(parts: BaseSVG[]) {
-    this.distanceSVG = parts.find(
-      (x) => x instanceof AppDistance
-    ) as AppDistance;
-
-    if (!this.distanceSVG) {
-      console.error(`distanceSVG not found`, parts);
-      return;
-    }
-
+  private getParts() {
     this.coords = [];
-    parts.forEach((part) => {
-      if (part instanceof AppPolyline) {
-        this.coords.push(...part.coords);
+    this.models.forEach((model: HousePartModel) => {
+      let coords: xy[] = [];
+      if (model instanceof Wall) {
+        coords = model.coords;
       }
-      if (part instanceof AppPolygon) {
-        this.coords.push(...part.coords);
-      }
+      this.coords.push(...coords);
     });
-  }
-
-  start() {
-    if (this.distanceSubscriptions.length > 0) {
-      this.stop();
-      return;
-    }
-
-    const graphic = this.appService.scroll$.value.graphic;
-    const svg = document.querySelector(`svg.${graphic}`);
-    // crosshair
-    if (!svg) {
-      console.error(`svg not found`, `svg.${graphic}`);
-      return;
-    }
-
-    const g = svg.querySelector("g");
-
-    if (graphic === Graphic.cross) {
-      const cross = this.houseService.house$.value.cross;
-      this.getParts(cross.parts);
-    }
-    if (graphic === Graphic.house2D) {
-      const house = this.houseService.house$.value;
-      this.getParts(house.parts);
-    }
-    if (graphic === Graphic.stairCross) {
-      const stair = this.houseService.house$.value.stair.cross;
-      this.getParts(stair.parts);
-    }
-    if (graphic === Graphic.stairPlan) {
-      const stair = this.houseService.house$.value.stair;
-      this.getParts(stair.parts);
-    }
-
-    this.distanceSVG.clear();
-    this.distanceMouseFirst = "first";
-    this.isDistance = true;
-
-    this.distanceSVG.visible = true;
-
-    this.distanceSubscriptions.push(
-      ...[
-        fromEvent(g, "mousemove").subscribe((e: MouseEvent) => {
-          this.mousemove(e);
-        }),
-        fromEvent(g, "click").subscribe((e: MouseEvent) => {
-          this.click(e);
-        }),
-        fromEvent(document, "keydown").subscribe((e: MouseEvent) => {
-          this.stop();
-        }),
-      ]
-    );
   }
 }

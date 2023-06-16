@@ -6,7 +6,6 @@ import { HousePartModel } from "../house-parts/model/housePart.model";
 import { Room } from "../house-parts/room.model";
 import { createStuds } from "../house-parts/stud.model";
 import { Wall, WallSide, WallType } from "../house-parts/wall.model";
-import { AppDistance } from "../model/distance.model";
 import { Construction } from "./construction.model";
 import { Cross } from "./cross.model";
 import { Garage } from "./garage.model";
@@ -110,6 +109,14 @@ export enum HousePart {
 
   roof70 = "roof70",
   roofCircle = "roofCircle",
+
+  stair = "stair",
+  stairPlan = "stairPlan",
+  stairWalkLine = "stairWalkLine",
+  stairDebug = "stairDebug",
+  stairCrossBuilding = "stairCrossBuilding",
+  stairClip = "stairClip",
+  distance = "distance",
 }
 
 export class House extends HouseUser {
@@ -186,11 +193,11 @@ export class House extends HouseUser {
     this.houseParts.gridLines = getGridLines(this);
     this.houseParts.studs = createStuds(this);
     this.houseParts.measures = createMeasures(this);
+    this.stair.create(this);
 
     this.updateHouseParts();
 
     this.calculateStats();
-    this.parts.push(new AppDistance());
   }
 
   updateHouseParts() {
@@ -243,8 +250,18 @@ export class House extends HouseUser {
 
   /**Main calculations */
   calculateHouse() {
-    this.outerBase = round(this.studAmount * this.studDistance); // ~ 7.2m
-    this.innerBase = round(this.outerBase - this.wallOuterThickness * 2); // ~ 6.2m
+    const studWidth = 45 / 1000;
+    const innerWallThickness = 88 / 1000;
+    this.innerBase =
+      this.studAmount * this.studDistance + studWidth - innerWallThickness * 2;
+
+    this.outerBase = round(this.innerBase + this.wallOuterThickness * 2); // ~ 6.2m
+
+    console.log(this.outerBase);
+
+    // #10 6000 - 6333 - 5870
+    // #11 6600 - 6933 - 5870
+
     this.extensionToSouth = this.studAmountSouth * this.studDistance;
     this.extensionToNorth = this.studAmountNorth * this.studDistance;
     this.extensionToEast = this.studAmountEast * this.studDistance;

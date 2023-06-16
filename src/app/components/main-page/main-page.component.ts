@@ -133,7 +133,7 @@ export class AppMainPageComponent implements AfterViewInit {
       this.graphicSide = this.appService.getSide(this.graphic);
       document
         .querySelector(`section#${this.section}`)
-        .classList.add("section-active");
+        ?.classList.add("section-active");
     }
 
     this.checkFooter();

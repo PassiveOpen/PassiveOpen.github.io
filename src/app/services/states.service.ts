@@ -4,21 +4,12 @@ import { BehaviorSubject } from "rxjs";
 import { StateObj } from "../app.service";
 import {
   ConstructionParts,
-  Graphic,
-  GraphicSide,
   Section,
   SensorType,
   State,
   StatesExtended,
 } from "../components/enum.data";
-import { Door } from "../house-parts/door.model";
-import { Measure } from "../house-parts/measure.model";
-import { Wall, WallType } from "../house-parts/wall.model";
-import { RoofStyle } from "../house/cross.model";
 import { House } from "../house/house.model";
-import { HouseService } from "../house/house.service";
-import { Sensor } from "../house-parts/sensor.model";
-import { AppSVG } from "../model/svg.model";
 
 @Injectable({
   providedIn: "root",
@@ -39,7 +30,6 @@ export class StatesService {
   onStartReadCookie() {
     let statesString = this.cookieService.get("states");
     if (statesString === "") statesString = "{}";
-    console.log("reading cookie", JSON.parse(statesString));
     this.states$.next(JSON.parse(statesString));
   }
 

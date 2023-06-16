@@ -1,18 +1,17 @@
-import * as d3 from "d3";
-import { BaseSVG } from "../model/base.model";
-import { CableType, Floor, SensorType } from "../components/enum.data";
-import { Wall, WallSide } from "./wall.model";
-import { Room } from "./room.model";
 import { SafeHtml } from "@angular/platform-browser";
-import { angleBetween, angleXY, round } from "src/app/shared/global-functions";
 import { House, HousePart, xy } from "src/app/house/house.model";
-import { HousePartModel } from "./model/housePart.model";
+import { angleBetween, angleXY, round } from "src/app/shared/global-functions";
+import { CableType, Floor, SensorType } from "../../components/enum.data";
+import { HousePartModel } from "../model/housePart.model";
+import { SensorSVG } from "../svg/sensor.svg";
+import { Wall, WallSide } from "../wall.model";
 
-export class Sensor<T> extends HousePartModel {
+const ids = {};
+
+export class Sensor<T> extends HousePartModel<SensorSVG> {
   housePart: HousePart = HousePart.sensors;
   sensorType: SensorType;
-  parent: T;
-  points: xy[] = [];
+  coords: xy[] = [];
   offset = [0, 0];
   offsetWall = 0.3;
   elevation = 0.3;
@@ -27,31 +26,54 @@ export class Sensor<T> extends HousePartModel {
   fontSize = 14;
   showBadge = false;
   cableType: CableType;
-  classes: string[];
+  sensorPoint: xy;
 
   constructor(data: Partial<Sensor<T>>) {
     super();
     Object.assign(this, data);
   }
 
+  getSelector() {
+    const p = this.parent.selector;
+    if (ids[p] === undefined) ids[p] = 0;
+
+    this.selector = `${p}-sensor-${this.sensorType}-${ids[p]++}`;
+  }
+
   onUpdate(house: House): void {}
-  afterUpdate(): void {}
-  getSVGInstance(): void {}
+
+  afterUpdate(): void {
+    this.getSelector();
+
+    this.showBadge = this.amount >= 2;
+    if (this.sensorType === SensorType.temperature) {
+      this.sensorOnly = true;
+    }
+    if (this.floor === undefined || this.floor in this.parent) {
+      this.floor = (this.parent as any).floor;
+    }
+    this.sensorPoint = this.calcOffsetWall();
+    this.cableLength = this.getLength();
+  }
+
+  getSVGInstance(): void {
+    this.svg = new SensorSVG(this);
+  }
 
   getSensorType = (str: string) => {
-    const a = Object.values(SensorType).find((y) => str.includes(y));
+    const a = Object.values(SensorType).find((y) => str?.includes(y));
     return a;
   };
   cablePoints(sensorPoint: number[], floor: Floor): number[][] {
-    return; //this.show(floor) ? [sensorPoint, ...this.points] : [];
+    return this.svg.show(floor) ? [sensorPoint, ...this.coords] : [];
   }
 
   getLength() {
     const dist = (p1, p2) => Math.hypot(p2[0] - p1[0], p2[1] - p1[1]);
     let length = 0;
 
-    this.points.forEach((p, i, arr) => {
-      if (i + 1 === this.points.length) return;
+    this.coords.forEach((p, i, arr) => {
+      if (i + 1 === this.coords.length) return;
       length += dist(p, arr[i + 1]);
     });
     return round(length + this.verticalCableLength + this.amount * 0.3);
@@ -63,11 +85,11 @@ export class Sensor<T> extends HousePartModel {
 
       const arr = wall.sides[this.wallSide];
       const angle = angleBetween(arr[0], arr[1]);
-      return angleXY(angle + 90, this.offsetWall, this.points[0]);
+      return angleXY(angle + 90, this.offsetWall, this.coords[0]);
     } else {
       return [
-        this.points[0][0] + this.offset[0],
-        this.points[0][1] + this.offset[1],
+        this.coords[0][0] + this.offset[0],
+        this.coords[0][1] + this.offset[1],
       ];
     }
   }

@@ -78,8 +78,7 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
               (stateChange)="statesService.setState(sensor.state)" [state]="getState(sensor.state)">
               <span label> {{sensor.title}} </span>
               <span icon fxLayoutAlign="center center">
-                <app-svg height="18px" width="18px" class="sensor-{{sensor.state}}"
-                  url="assets/svg/{{sensor.state}}.svg">
+                <app-svg height="18px" width="18px" class="{{sensor.state}}" [url]="getSensorURL(sensor.state)">
                 </app-svg>
               </span>
             </checkbox-state>
@@ -131,6 +130,14 @@ section-{{scroll.section }}" *ngIf="(states$ | async) as states" fxLayout="colum
 
     <ng-container *ngIf="[Graphic.stairCross, Graphic.stairPlan].includes(scroll.graphic)">
 
+
+      <button-state (click)="statesService.setState(States.debug)" [floatLeft]=floatLeft
+        *ngIf="[ Graphic.stairPlan].includes(scroll.graphic)">
+        <span label>{{getState(States.debug)?'Remove debug':'Add debug'}}</span>
+        <span icon>
+          <mat-icon>debug</mat-icon>
+        </span>
+      </button-state>
 
       <button-state (click)="statesService.setState(States.walkLine)" [floatLeft]=floatLeft
         *ngIf="[ Graphic.stairPlan].includes(scroll.graphic)">

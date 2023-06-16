@@ -1,16 +1,9 @@
-import { HttpClient } from "@angular/common/http";
-import { Component, AfterViewInit, ViewChild, ElementRef } from "@angular/core";
-import * as d3 from "d3";
-import { Selection } from "d3";
-import { AppService } from "src/app/app.service";
-import { HouseService } from "src/app/house/house.service";
-import { BasicSVGComponent } from "../base-svg.component";
+import { Component } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
-import { Floor, Graphic, Section } from "src/app/components/enum.data";
-import { TooltipService } from "src/app/components/tooltip/tooltip.service";
-import { D3DistanceService } from "../d3Distance.service";
-import { ContextMenuService } from "src/app/components/context-menu/context-menu.service";
-import { D3Service } from "../d3.service";
+import { Floor, Graphic, Section, State } from "src/app/components/enum.data";
+import { HousePart } from "src/app/house/house.model";
+import { BasicSVGComponent } from "../base-svg.component";
+import { stepsCrossBuildingParts } from "./stair-plan.data";
 
 @Component({
   selector: "app-svg-stair-plan",
@@ -25,20 +18,17 @@ export class SvgStairPlanComponent extends BasicSVGComponent {
   figure;
   steps = new BehaviorSubject(25);
 
+  keys = [HousePart.stairPlan, HousePart.stairWalkLine, HousePart.stairDebug];
+
   addHousePartModelsAndSVG() {
-    // Object.keys(this.HousePart).forEach((key) => {
-    //   this.house$.value.stairs.houseParts[key].forEach(this.getHousePartsCallback);
-    // });
+    stepsCrossBuildingParts.forEach(this.getHousePartsCallback);
+    this.keys.forEach((key) => {
+      this.house$.value.houseParts[key].forEach(this.getHousePartsCallback);
+    });
   }
 
-  updateHousePartSVGs() {}
-  afterUpdate() {}
-  beforeInit() {}
-  afterInit() {}
-  setHousePartVisibility() {}
-
   setMarginAndSize() {
-    this.svgHouseSize = [
+    this.svgSizeInMeters = [
       this.stair.stairOrigin,
       [this.stair.totalWidth, this.stair.totalHeight],
     ];
@@ -60,5 +50,33 @@ export class SvgStairPlanComponent extends BasicSVGComponent {
       this.svg.style("pointer-events", "");
       this.svg.style("opacity", 1);
     }
+  }
+  updateHousePartSVGs() {}
+  afterUpdate() {}
+  beforeInit() {}
+  afterInit() {}
+
+  setHousePartVisibility() {
+    const states = this.statesService.states$.value;
+    const house = this.houseService.house$.value;
+
+    this.housePartModels.forEach((housePart) => {
+      const key = housePart.housePart;
+      let vis = true;
+
+      if (key === HousePart.stairWalkLine) vis = states[State.walkLine];
+      if (key === HousePart.stairDebug) vis = states[State.debug];
+      if (key === HousePart.measures) vis = states[State.measure];
+
+      housePart.setVisibility(vis);
+    });
+
+    // console.log(this.keys.flatMap((k) => this.house$.value.houseParts[k]));
+
+    // console.log(
+    //   this.housePartModels.filter(
+    //     (x) => x.housePart === HousePart.stairWalkLine
+    //   )
+    // );
   }
 }

@@ -221,7 +221,8 @@ export enum State {
   stramien = "house-stramien",
   towerFootprint = "house-towerFootprint",
   grid = "house-grid",
-  walkLine = "house-walkLine",
+  walkLine = "stairs-walkLine",
+  debug = "general-debug",
   minimumHeight = "house-minimumHeight",
 }
 

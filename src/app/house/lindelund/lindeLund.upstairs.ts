@@ -3,8 +3,6 @@ import { Floor, SensorType } from "src/app/components/enum.data";
 import { AppPolygon } from "src/app/model/polygon.model";
 import { Door } from "src/app/house-parts/door.model";
 import { Room } from "src/app/house-parts/room.model";
-import { Sensor } from "src/app/house-parts/sensor.model";
-import { SensorLight } from "src/app/house-parts/svg-sensor/sensorLight.model";
 import {
   CornerType,
   Wall,
@@ -19,8 +17,10 @@ import {
   round,
 } from "src/app/shared/global-functions";
 import { House, xy } from "../house.model";
-import { Water } from "src/app/house-parts/svg-sensor/water.model";
-import { Vent } from "src/app/house-parts/svg-sensor/vent.model";
+import { Sensor } from "src/app/house-parts/sensor-models/sensor.model";
+import { Water } from "src/app/house-parts/sensor-models/water.model";
+import { SensorLight } from "src/app/house-parts/sensor-models/sensorLight.model";
+import { Vent } from "src/app/house-parts/sensor-models/vent.model";
 
 export const lindeLundUpstairs = [
   // toilet upstairs
@@ -76,7 +76,7 @@ export const lindeLundUpstairs = [
                 point[0],
                 room.northWestCorner[1] + room.height / 2,
               ];
-              this.points = [point, point2];
+              this.coords = [point, point2];
             },
           }),
           new Water<Wall>({
@@ -87,7 +87,7 @@ export const lindeLundUpstairs = [
                 [0, 0]
               );
               const room = this.parent.parent;
-              this.points = [
+              this.coords = [
                 point,
                 mixPoints(house.serverRoom, point, true),
                 house.serverRoom,
@@ -151,7 +151,7 @@ export const lindeLundUpstairs = [
             sensorType: SensorType.lightSwitch,
             onUpdate: function (this: Sensor<Wall>, house: House) {
               const point = this.parent.getPosition(WallSide.in, 0, 1);
-              this.points = [
+              this.coords = [
                 point,
                 mixPoints(house.serverRoom, point, true),
                 house.serverRoom,
@@ -166,7 +166,7 @@ export const lindeLundUpstairs = [
                 0,
                 house.wallInnerThickness,
               ]);
-              this.points = [
+              this.coords = [
                 point,
                 mixPoints(house.serverRoom, point, true),
                 house.serverRoom,
@@ -216,7 +216,7 @@ export const lindeLundUpstairs = [
                 this.parent.getPosition(WallSide.in, 1 / 2, 0),
                 [house.cross.minimumHeightWidth + 0.1, 0]
               );
-              this.points = [
+              this.coords = [
                 point,
                 mixPoints(house.serverRoom, point, true),
                 house.serverRoom,
@@ -229,7 +229,7 @@ export const lindeLundUpstairs = [
         onUpdate: function (this: Sensor<Room>, house: House) {
           const room = this.parent;
           const point = offset(room.center, [0, 0]);
-          this.points = [
+          this.coords = [
             point,
             mixPoints(house.serverRoom, point, false),
             house.serverRoom,
@@ -242,7 +242,7 @@ export const lindeLundUpstairs = [
         onUpdate: function (this: Sensor<Room>, house: House) {
           const room = this.parent;
           const point = room.center;
-          this.points = [
+          this.coords = [
             point,
             mixPoints(house.serverRoom, point, false),
             house.serverRoom,
@@ -320,7 +320,7 @@ export const lindeLundUpstairs = [
             sensorType: SensorType.lightSwitch,
             onUpdate: function (this: Sensor<Wall>, house: House) {
               const point = this.parent.getPosition(WallSide.in, 0, 0.8);
-              this.points = [
+              this.coords = [
                 point,
                 mixPoints(house.serverRoom, point, false),
                 house.serverRoom,
@@ -343,7 +343,7 @@ export const lindeLundUpstairs = [
         onUpdate: function (this: Sensor<Room>, house: House) {
           const room = this.parent;
           const point = offset(room.center, [0, 0]);
-          this.points = [
+          this.coords = [
             point,
             mixPoints(house.serverRoom, point, false),
             house.serverRoom,
@@ -408,7 +408,7 @@ export const lindeLundUpstairs = [
             onUpdate: function (this: Sensor<Wall>, house: House) {
               const techRoom = house.serverRoom;
               const point = this.parent.getPosition(WallSide.in, 1 / 2, -0.4);
-              this.points = [point, mixPoints(techRoom, point, true), techRoom];
+              this.coords = [point, mixPoints(techRoom, point, true), techRoom];
             },
           }),
         ],
@@ -456,7 +456,7 @@ export const lindeLundUpstairs = [
                 sensorType,
                 onUpdate: function (this: Sensor<Wall>, house: House) {
                   const point = this.parent.getPosition(WallSide.in, 1, -1);
-                  this.points = [
+                  this.coords = [
                     point,
                     mixPoints(house.serverRoom, point, false),
                     house.serverRoom,
@@ -536,7 +536,7 @@ export const lindeLundUpstairs = [
             onUpdate: function (this: Sensor<Wall>, house: House) {
               const techRoom = house.serverRoom;
               const point = this.parent.getPosition(WallSide.in, 0, 0.3);
-              this.points = [point, mixPoints(techRoom, point, true), techRoom];
+              this.coords = [point, mixPoints(techRoom, point, true), techRoom];
             },
           }),
 
@@ -547,7 +547,7 @@ export const lindeLundUpstairs = [
             onUpdate: function (this: Sensor<Wall>, house: House) {
               const techRoom = house.serverRoom;
               const point = this.parent.getPosition(WallSide.in, 0, 0);
-              this.points = [point, mixPoints(techRoom, point, true), techRoom];
+              this.coords = [point, mixPoints(techRoom, point, true), techRoom];
             },
           }),
         ],
@@ -557,7 +557,7 @@ export const lindeLundUpstairs = [
         sensorType: SensorType.lightSwitch,
         onUpdate: function (this: Sensor<Room>, house: House) {
           const point = this.parent.centralElectricity;
-          this.points = [
+          this.coords = [
             point,
             mixPoints(house.serverRoom, point, false),
             house.serverRoom,
@@ -568,7 +568,7 @@ export const lindeLundUpstairs = [
         onUpdate: function (this: Sensor<Room>, house: House) {
           const room = this.parent;
           const point = offset(room.center, [1, 0]);
-          this.points = [
+          this.coords = [
             point,
             mixPoints(house.serverRoom, point, false),
             house.serverRoom,
@@ -579,7 +579,7 @@ export const lindeLundUpstairs = [
         onUpdate: function (this: Sensor<Room>, house: House) {
           const room = this.parent;
           const point = offset(room.northWestCorner, [room.width / 2, 2]);
-          this.points = [
+          this.coords = [
             point,
             mixPoints(house.serverRoom, point, false),
             house.serverRoom,
@@ -658,7 +658,7 @@ export const lindeLundUpstairs = [
                 house.tower.width
               );
 
-              this.points = [
+              this.coords = [
                 offset(point, [0, -0.3]),
                 point,
                 mixPoints(house.serverRoom, point, true),
@@ -679,7 +679,7 @@ export const lindeLundUpstairs = [
                 house.tower.width
               );
 
-              this.points = [
+              this.coords = [
                 offset(point, [0, -0.3]),
                 point,
                 mixPoints(house.serverRoom, point, true),
@@ -768,7 +768,7 @@ export const lindeLundUpstairs = [
                 sensorType,
                 onUpdate: function (this: Sensor<Wall>, house: House) {
                   const point = this.parent.getPosition(WallSide.in, 1, -1);
-                  this.points = [
+                  this.coords = [
                     point,
                     mixPoints(house.serverRoom, point, true),
                     house.serverRoom,
@@ -786,7 +786,7 @@ export const lindeLundUpstairs = [
                     this.parent.getPosition(WallSide.in, 1, -1),
                     [0, house.wallInnerThickness]
                   );
-                  this.points = [
+                  this.coords = [
                     point,
                     mixPoints(house.serverRoom, point, true),
                     house.serverRoom,
@@ -830,7 +830,7 @@ export const lindeLundUpstairs = [
             onUpdate: function (this: Sensor<Wall>, house: House) {
               const techRoom = house.serverRoom;
               const point = this.parent.getPosition(WallSide.in, 1, -0.5);
-              this.points = [
+              this.coords = [
                 offset(point, [-house.wallInnerThickness, 0]),
                 mixPoints(techRoom, point, true),
                 techRoom,
@@ -851,7 +851,7 @@ export const lindeLundUpstairs = [
                     (i + 1) / 4,
                     0
                   );
-                  this.points = [
+                  this.coords = [
                     offset(point, [i === 1 ? -house.wallInnerThickness : 0, 0]),
                     offset(point, [0, 0]),
                     mixPoints(techRoom, point, false),
@@ -874,7 +874,7 @@ export const lindeLundUpstairs = [
                 wall.getPosition(WallSide.in, 1 / 3, 0),
                 [0.3, 0]
               );
-              this.points = [point, point2];
+              this.coords = [point, point2];
             },
           }),
           new Water<Wall>({
@@ -890,7 +890,7 @@ export const lindeLundUpstairs = [
                 point[0],
                 house.stramien.in.ns.b - (0.5 + house.wallInnerThickness),
               ];
-              this.points = [point, point2];
+              this.coords = [point, point2];
             },
           }),
           new Water<Wall>({
@@ -904,7 +904,7 @@ export const lindeLundUpstairs = [
                 this.parent.getPosition(WallSide.in, 1 / 3, 0),
                 [0.3, 0]
               );
-              this.points = [point, point2];
+              this.coords = [point, point2];
             },
           }),
 
@@ -915,7 +915,7 @@ export const lindeLundUpstairs = [
                 this.parent.getPosition(WallSide.in, 1 / 3, 0),
                 [0.3, 0]
               );
-              this.points = [point];
+              this.coords = [point];
             },
           }),
 
@@ -929,7 +929,7 @@ export const lindeLundUpstairs = [
                     this.parent.getPosition(WallSide.in, 1, -1),
                     [-house.wallInnerThickness, 0]
                   );
-                  this.points = [
+                  this.coords = [
                     point,
                     mixPoints(house.serverRoom, point, false),
                     house.serverRoom,
@@ -943,7 +943,7 @@ export const lindeLundUpstairs = [
         onUpdate: function (this: Sensor<Room>, house: House) {
           const room = this.parent;
           const point = offset(room.center, [0, 0]);
-          this.points = [
+          this.coords = [
             point,
             mixPoints(house.serverRoom, point, false),
             house.serverRoom,
@@ -956,7 +956,7 @@ export const lindeLundUpstairs = [
         onUpdate: function (this: Sensor<Room>, house: House) {
           const room = this.parent;
           const point = offset(house.serverRoom, [0, -1]);
-          this.points = [
+          this.coords = [
             point,
             mixPoints(house.serverRoom, point, false),
             house.serverRoom,
@@ -1024,7 +1024,7 @@ export const lindeLundUpstairs = [
                 sensorType,
                 onUpdate: function (this: Sensor<Wall>, house: House) {
                   const point = this.parent.getPosition(WallSide.in, 0, 1);
-                  this.points = [
+                  this.coords = [
                     point,
                     mixPoints(house.serverRoom, point, false),
                     house.serverRoom,
@@ -1038,7 +1038,7 @@ export const lindeLundUpstairs = [
             onUpdate: function (this: Sensor<Wall>, house: House) {
               const techRoom = house.serverRoom;
               const point = this.parent.getPosition(WallSide.in, 0, 1);
-              this.points = [
+              this.coords = [
                 point,
                 mixPoints(techRoom, point, false),
                 techRoom,
@@ -1151,7 +1151,7 @@ export const lindeLundUpstairs = [
               sensorType: SensorType.socket,
               onUpdate: function (this: Sensor<Room>, house: House) {
                 const room = this.parent;
-                this.points = [
+                this.coords = [
                   offset(room.coords[i], [0, [0, 1].includes(i) ? 1 : -1]),
                 ];
               },
@@ -1165,7 +1165,7 @@ export const lindeLundUpstairs = [
             const techRoom = house.serverRoom;
             const room = this.parent;
             const point = offset(room.coords[0], [1, 0]);
-            this.points = [
+            this.coords = [
               point,
               room.coords[1],
               room.coords[2],
@@ -1181,7 +1181,7 @@ export const lindeLundUpstairs = [
         onUpdate: function (this: Sensor<Room>, house: House) {
           const room = this.parent;
           const point = offset(room.center, [0, 0]);
-          this.points = [
+          this.coords = [
             point,
             mixPoints(house.serverRoom, point, false),
             house.serverRoom,
@@ -1196,7 +1196,7 @@ export const lindeLundUpstairs = [
             room.northWestCorner[0] + room.width / 2,
             house.stramien.in.ns.b + house.balconyWidth / 2,
           ];
-          this.points = [
+          this.coords = [
             point,
             point2,
             mixPoints(house.serverRoom, point2, true),
@@ -1266,7 +1266,7 @@ export const lindeLundUpstairs = [
                 sensorType,
                 onUpdate: function (this: Sensor<Wall>, house: House) {
                   const point = this.parent.getPosition(WallSide.in, 1, -1);
-                  this.points = [
+                  this.coords = [
                     point,
                     mixPoints(house.serverRoom, point, false),
                     house.serverRoom,
@@ -1280,7 +1280,7 @@ export const lindeLundUpstairs = [
             onUpdate: function (this: Sensor<Wall>, house: House) {
               const techRoom = house.serverRoom;
               const point = this.parent.getPosition(WallSide.in, 1, -1);
-              this.points = [
+              this.coords = [
                 point,
                 mixPoints(techRoom, point, false),
                 techRoom,
@@ -1387,7 +1387,7 @@ export const lindeLundUpstairs = [
               sensorType: SensorType.socket,
               onUpdate: function (this: Sensor<Room>, house: House) {
                 const room = this.parent;
-                this.points = [
+                this.coords = [
                   offset(room.coords[i], [0, [0, 1].includes(i) ? 1 : -1]),
                 ];
               },
@@ -1401,7 +1401,7 @@ export const lindeLundUpstairs = [
             const techRoom = house.serverRoom;
             const room = this.parent;
             const point = offset(room.coords[1], [-1, 0]);
-            this.points = [
+            this.coords = [
               room.coords[1],
               room.coords[2],
               room.coords[3],
@@ -1417,7 +1417,7 @@ export const lindeLundUpstairs = [
         onUpdate: function (this: Sensor<Room>, house: House) {
           const room = this.parent;
           const point = offset(room.center, [0, 0]);
-          this.points = [
+          this.coords = [
             point,
             mixPoints(house.serverRoom, point, false),
             house.serverRoom,
@@ -1432,7 +1432,7 @@ export const lindeLundUpstairs = [
             room.northWestCorner[0] + room.width / 2,
             house.stramien.in.ns.b + house.balconyWidth / 2,
           ];
-          this.points = [
+          this.coords = [
             point,
             point2,
             mixPoints(house.serverRoom, point2, true),
@@ -1475,7 +1475,7 @@ export const lindeLundUpstairs = [
             onUpdate: function (this: Sensor<Wall>, house: House) {
               const techRoom = house.serverRoom;
               const point = this.parent.getPosition(WallSide.in, 1, -1);
-              this.points = [
+              this.coords = [
                 point,
                 mixPoints(techRoom, point, false),
                 techRoom,
@@ -1511,7 +1511,7 @@ export const lindeLundUpstairs = [
                 sensorType,
                 onUpdate: function (this: Sensor<Wall>, house: House) {
                   const point = this.parent.getPosition(WallSide.in, 0, 1);
-                  this.points = [
+                  this.coords = [
                     point,
                     mixPoints(house.serverRoom, point, false),
                     house.serverRoom,
@@ -1579,7 +1579,7 @@ export const lindeLundUpstairs = [
               sensorType: SensorType.socket,
               onUpdate: function (this: Sensor<Room>, house: House) {
                 const room = this.parent;
-                this.points = [
+                this.coords = [
                   offset(room.coords[i], [0, [0, 1].includes(i) ? 1 : -1]),
                 ];
               },
@@ -1593,7 +1593,7 @@ export const lindeLundUpstairs = [
             const techRoom = house.serverRoom;
             const room = this.parent;
             const point = offset(room.coords[1], [0, 1]);
-            this.points = [
+            this.coords = [
               point,
               room.coords[2],
               room.coords[3],
@@ -1609,7 +1609,7 @@ export const lindeLundUpstairs = [
         onUpdate: function (this: Sensor<Room>, house: House) {
           const room = this.parent;
           const point = offset(room.center, [0, 0]);
-          this.points = [
+          this.coords = [
             point,
             mixPoints(house.serverRoom, point, false),
             house.serverRoom,
@@ -1625,7 +1625,7 @@ export const lindeLundUpstairs = [
             room.northWestCorner[0] + room.width / 2,
             house.stramien.in.ns.b + house.balconyWidth / 2,
           ];
-          this.points = [
+          this.coords = [
             point,
             point2,
             mixPoints(house.serverRoom, point2, true),
@@ -1711,7 +1711,7 @@ export const lindeLundUpstairs = [
               (house.stramien.in.we.c - house.stramien.in.we.b) / 2,
             house.stramien.in.ns.b,
           ];
-          this.points = [
+          this.coords = [
             offset(point, [-house.wallInnerThickness, 0]),
             mixPoints(techRoom, point, true),
             techRoom,
@@ -1730,7 +1730,7 @@ export const lindeLundUpstairs = [
                   (house.stramien.in.we.c - house.stramien.in.we.b) / 2,
                 house.stramien.in.ns.b,
               ];
-              this.points = [
+              this.coords = [
                 offset(point, [-house.wallInnerThickness, 0]),
                 mixPoints(techRoom, point, true),
                 techRoom,
@@ -1746,7 +1746,7 @@ export const lindeLundUpstairs = [
         onUpdate: function (this: Sensor<Room>, house: House) {
           const room = this.parent;
           const xy = [house.stramien.in.we.b, house.stramien.in.ns.b] as xy;
-          this.points = [offset(xy, [-1, 0])];
+          this.coords = [offset(xy, [-1, 0])];
         },
       }),
       new Sensor<Room>({
@@ -1756,14 +1756,14 @@ export const lindeLundUpstairs = [
         onUpdate: function (this: Sensor<Room>, house: House) {
           const room = this.parent;
           const xy = [house.stramien.in.we.c, house.stramien.in.ns.b] as xy;
-          this.points = [offset(xy, [0, 0])];
+          this.coords = [offset(xy, [0, 0])];
         },
       }),
       new SensorLight<Room>({
         onUpdate: function (this: Sensor<Room>, house: House) {
           const room = this.parent;
           const point = offset(room.coords[0], [1, 0]);
-          this.points = [
+          this.coords = [
             point,
             mixPoints(house.serverRoom, point, false),
             house.serverRoom,
@@ -1826,7 +1826,7 @@ export const lindeLundUpstairs = [
             house.stair.totalWidth / 2,
             1,
           ]);
-          this.points = [
+          this.coords = [
             point,
             mixPoints(house.serverRoom, point, false),
             house.serverRoom,

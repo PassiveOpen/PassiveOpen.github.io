@@ -48,14 +48,22 @@ export class AppSVGComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.httpClient.get(this.url, { responseType: "text" }).subscribe({
-      next: (x) => {
-        x = x.replace(/height=\"64px\"/gi, "").replace(/width=\"64px\"/gi, "");
-        this.svgData = this.sanitizer.bypassSecurityTrustHtml(x);
-      },
-      error: (e) => {
-        this.background = "#aaa";
-      },
-    });
+    // const base = "https://passiveopen.com/";
+    // http://localhost:4200/assets/svg/smoke.svg
+    // http://localhost:4200/assets/svg/sensor-smoke.svg
+    const base = "";
+    this.httpClient
+      .get(`${base}${this.url}`, { responseType: "text" })
+      .subscribe({
+        next: (x) => {
+          x = x
+            .replace(/height=\"64px\"/gi, "")
+            .replace(/width=\"64px\"/gi, "");
+          this.svgData = this.sanitizer.bypassSecurityTrustHtml(x);
+        },
+        error: (e) => {
+          this.background = "#aaa";
+        },
+      });
   }
 }

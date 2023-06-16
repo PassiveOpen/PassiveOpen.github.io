@@ -271,7 +271,7 @@ const drawRoofCircle = () => {
         const radius = extraRadius * 2 + cross.innerWidth;
         this.dataSVG.d = `M${radius},0 a1,1 0 0,0 ${-radius},0`;
         this.dataSVG.transform = `translate(${-extraRadius} ${-y})`;
-        this.setAttr();
+        this.applyDataSVG();
       },
     }),
     new Other<PolylineSVG>({
@@ -440,7 +440,7 @@ const drawRoof70 = () => {
         this.dataSVG.cx = cross.bendPoint[0];
         this.dataSVG.cy = -level + cross.bendPoint[1];
         this.dataSVG.r = pointDiameter;
-        this.setAttr();
+        this.applyDataSVG();
       },
     }),
   ];
@@ -538,7 +538,7 @@ export const crossBuildingParts: HousePartModel[] = [
         cross.viewedRoofStyle === RoofStyle.roof70
           ? cross.roof70Walls
           : cross.roofCircleWalls;
-      const top = cross.elevations[Elevation.topFloor] + roofWall;
+      const top = cross.elevations[RoofPoint.wallInside] - 1;
       this.square(cross.innerWidth, top - cross.elevations[Elevation.ground], [
         0,
         -top,

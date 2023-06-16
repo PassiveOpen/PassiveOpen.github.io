@@ -1,24 +1,16 @@
 import {
-  CdkOverlayOrigin,
   ConnectionPositionPair,
   Overlay,
   OverlayRef,
 } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";
-import {
-  ComponentRef,
-  ElementRef,
-  Injectable,
-  QueryList,
-  ViewChildren,
-} from "@angular/core";
+import { ComponentRef, Injectable } from "@angular/core";
 import { SafeHtml } from "@angular/platform-browser";
 import { BehaviorSubject, Subject, takeUntil } from "rxjs";
-import { BaseSVG } from "src/app/model/base.model";
-import { Sensor } from "src/app/house-parts/sensor.model";
+import { HousePartSVG } from "src/app/house-parts/model/housePart.model";
+import { Sensor } from "src/app/house-parts/sensor-models/sensor.model";
 import { HouseService } from "../../house/house.service";
 import { TooltipComponent } from "./tooltip.component";
-import { HousePartSVG } from "src/app/house-parts/model/housePart.model";
 
 @Injectable({
   providedIn: "root",

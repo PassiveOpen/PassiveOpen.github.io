@@ -38,8 +38,8 @@
         </ng-container>
 
         <ng-container *ngIf="graphic === Graphic.house2D">
-          <!-- <app-svg-stair-plan [isChild]="true" class="svg-plan-stair-plan" fxFlex="0 0 0">
-          </app-svg-stair-plan> -->
+          <app-svg-stair-plan [isChild]="true" class="svg-plan-stair-plan" fxFlex="0 0 0">
+          </app-svg-stair-plan>
           <app-svg-plan class="svg-plan"></app-svg-plan>
         </ng-container>
 
@@ -54,8 +54,8 @@
           </app-svg-stair-plan>
         </ng-container>
         <ng-container *ngIf="graphic === Graphic.stairCross">
-          <app-svg-stair-steps class="svg-stair-steps">
-          </app-svg-stair-steps>
+          <app-svg-stair-cross class="svg-stair-cross">
+          </app-svg-stair-cross>
         </ng-container>
       </div>
     </ng-container>

@@ -16,7 +16,6 @@ import {
 import { Measure } from "../house-parts/measure.model";
 import { Floor, Tag } from "../components/enum.data";
 import { degToRad, radToDeg } from "three/src/math/MathUtils";
-import { AppDistance } from "../model/distance.model";
 import { Roof } from "./roof.model";
 
 export enum RoofPoint {
@@ -114,9 +113,7 @@ export class Cross {
   lowerAngle: number;
   upperAngle: number;
 
-  constructor() {
-    this.parts.push(new AppDistance());
-  }
+  constructor() {}
 
   calculate(house) {
     this.house = house;

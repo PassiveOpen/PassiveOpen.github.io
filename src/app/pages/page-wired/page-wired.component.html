@@ -16,7 +16,7 @@
   </h2>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.socket}}" url="assets/svg/{{SensorType.socket}}.svg">
+    <app-svg class="{{SensorType.socket}}" [url]="getSensorURL(SensorType.socket)">
     </app-svg>
     <span>Normal - 230v</span>
   </h3>
@@ -33,7 +33,7 @@
   </label>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.perilex}}" url="assets/svg/{{SensorType.perilex}}.svg">
+    <app-svg class="{{SensorType.perilex}}" [url]="getSensorURL(SensorType.perilex)">
     </app-svg>
     <span>3Phase - 400v</span>
   </h3>
@@ -60,7 +60,7 @@
   </h2>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.lightBulb}}" url="assets/svg/{{SensorType.lightBulb}}.svg"></app-svg>
+    <app-svg class="{{SensorType.lightBulb}}" [url]="getSensorURL(SensorType.lightBulb)"></app-svg>
     <span>Lamps</span>
   </h3>
   <p>
@@ -70,7 +70,7 @@
   </p>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.lightSwitch}}" url="assets/svg/{{SensorType.lightSwitch}}.svg"></app-svg>
+    <app-svg class="{{SensorType.lightSwitch}}" [url]="getSensorURL(SensorType.lightSwitch)"></app-svg>
     <span>Double switch </span>
   </h3>
   <p>
@@ -80,7 +80,7 @@
   </p>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.dimmer}}" url="assets/svg/{{SensorType.dimmer}}.svg"></app-svg>
+    <app-svg class="{{SensorType.dimmer}}" [url]="getSensorURL(SensorType.dimmer)"></app-svg>
     <span>Dimmer</span>
   </h3>
   <p>
@@ -92,7 +92,7 @@
   </p>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.dlc}}" url="assets/svg/{{SensorType.dlc}}.svg"></app-svg>
+    <app-svg class="{{SensorType.dlc}}" [url]="getSensorURL(SensorType.dlc)"></app-svg>
     <span>DLC, or light-socket</span>
   </h3>
   <p>
@@ -109,7 +109,7 @@
 
 
   <h3>
-    <app-svg class="sensor-{{SensorType.ethernet}}" url="assets/svg/{{SensorType.ethernet}}.svg"></app-svg>
+    <app-svg class="{{SensorType.ethernet}}" [url]="getSensorURL(SensorType.ethernet)"></app-svg>
     <span>Ethernet (rj45)</span>
   </h3>
   <p>
@@ -125,7 +125,7 @@
 
 
   <h3>
-    <app-svg class="sensor-{{SensorType.poe}}" url="assets/svg/{{SensorType.poe}}.svg"></app-svg>
+    <app-svg class="{{SensorType.poe}}" [url]="getSensorURL(SensorType.poe)"></app-svg>
     <span>Power-over-Ethernet </span>
   </h3>
   <p>With a voltage of 48 volts, internet cables can be used to power certain devices without requiring additional
@@ -134,7 +134,7 @@
   </p>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.wifi}}" url="assets/svg/{{SensorType.wifi}}.svg"></app-svg>
+    <app-svg class="{{SensorType.wifi}}" [url]="getSensorURL(SensorType.wifi)"></app-svg>
     <span>Wifi</span>
   </h3>
   <p>Needs no introduction. Know that you can have more complex wifi solutions than your internet provider can provide.
@@ -154,7 +154,7 @@
     Safety
   </h2>
   <h3>
-    <app-svg class="sensor-{{SensorType.smoke}}" url="assets/svg/{{SensorType.smoke}}.svg"></app-svg>
+    <app-svg class="{{SensorType.smoke}}" [url]="getSensorURL(SensorType.smoke)"></app-svg>
     <span>Smoke/heat detectors</span>
   </h3>
   <p>For safety purposes, it is advisable to install several smoke sensors throughout the house, along with a heat
@@ -168,7 +168,7 @@
 
 
   <h3>
-    <app-svg class="sensor-{{SensorType.camera}}" url="assets/svg/{{SensorType.camera}}.svg"></app-svg>
+    <app-svg class="{{SensorType.camera}}" [url]="getSensorURL(SensorType.camera)"></app-svg>
     <span>Camera's</span>
   </h3>
   <p>
@@ -184,8 +184,8 @@
 
 
   <h3>
-    <app-svg class="sensor-{{SensorType.pir}}" url="assets/svg/{{SensorType.pir}}.svg"></app-svg>
-    <app-svg class="sensor-{{SensorType.alarm}}" url="assets/svg/{{SensorType.alarm}}.svg"></app-svg>
+    <app-svg class="{{SensorType.pir}}" [url]="getSensorURL(SensorType.pir)"></app-svg>
+    <app-svg class="{{SensorType.alarm}}" [url]="getSensorURL(SensorType.alarm)"></app-svg>
     <span>Window/Door sensors/Motion detection</span>
   </h3>
   <p>
@@ -205,7 +205,7 @@
   </h2>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.blinds}}" url="assets/svg/{{SensorType.blinds}}.svg"></app-svg>
+    <app-svg class="{{SensorType.blinds}}" [url]="getSensorURL(SensorType.blinds)"></app-svg>
     <span>Sun blinds / screens</span>
   </h3>
   <p>
@@ -215,7 +215,7 @@
   </p>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.pir}}" url="assets/svg/{{SensorType.pir}}.svg"></app-svg>
+    <app-svg class="{{SensorType.pir}}" [url]="getSensorURL(SensorType.pir)"></app-svg>
     <span>Motion sensors</span>
   </h3>
   <p>
@@ -225,7 +225,7 @@
 
 
   <h3>
-    <app-svg class="sensor-{{SensorType.temperature}}" url="assets/svg/{{SensorType.temperature}}.svg"></app-svg>
+    <app-svg class="{{SensorType.temperature}}" [url]="getSensorURL(SensorType.temperature)"></app-svg>
     <span>Temperature</span>
   </h3>
   <p>Temperature sensors play a important role in regulating the heating, cooling, and ventilation in specific areas of
@@ -241,7 +241,7 @@
   </h2>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.ventIn}}" url="assets/svg/{{SensorType.ventIn}}.svg"></app-svg>
+    <app-svg class="{{SensorType.ventIn}}" [url]="getSensorURL(SensorType.ventIn)"></app-svg>
     <span>Ventilation in</span>
   </h3>
   <p>
@@ -250,7 +250,7 @@
   </p>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.ventOut}}" url="assets/svg/{{SensorType.ventOut}}.svg"></app-svg>
+    <app-svg class="{{SensorType.ventOut}}" [url]="getSensorURL(SensorType.ventOut)"></app-svg>
     <span>Ventilation out</span>
   </h3>
   <p>
@@ -267,7 +267,7 @@
   </h2>
 
   <!-- <h3>
-    <app-svg class="sensor-{{SensorType.waterCold}}" url="assets/svg/{{SensorType.waterCold}}.svg"></app-svg>
+    <app-svg class="{{SensorType.waterCold}}" [url]="getSensorURL(SensorType.waterCold)"></app-svg>
     <span>Water, Drinkable & cold</span>
   </h3>
   <p>
@@ -275,7 +275,7 @@
   </p> -->
 
   <h3>
-    <app-svg class="sensor-{{SensorType.waterRain}}" url="assets/svg/{{SensorType.waterRain}}.svg"></app-svg>
+    <app-svg class="{{SensorType.waterRain}}" [url]="getSensorURL(SensorType.waterRain)"></app-svg>
     <span>Rainwater non-drinkable & cold</span>
   </h3>
   <p>
@@ -285,7 +285,7 @@
   </p>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.waterWarm}}" url="assets/svg/{{SensorType.waterWarm}}.svg"></app-svg>
+    <app-svg class="{{SensorType.waterWarm}}" [url]="getSensorURL(SensorType.waterWarm)"></app-svg>
     <span>Water, Drinkable Both warm and cold</span>
   </h3>
   <p>
@@ -293,7 +293,7 @@
   </p>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.shower}}" url="assets/svg/{{SensorType.shower}}.svg"></app-svg>
+    <app-svg class="{{SensorType.shower}}" [url]="getSensorURL(SensorType.shower)"></app-svg>
     <span>Shower, Drinkable Both warm and cold</span>
   </h3>
   <p>
@@ -303,7 +303,7 @@
   </p>
 
   <h3>
-    <app-svg class="sensor-{{SensorType.drain}}" url="assets/svg/{{SensorType.drain}}.svg"></app-svg>
+    <app-svg class="{{SensorType.drain}}" [url]="getSensorURL(SensorType.drain)"></app-svg>
     <span>Drainage</span>
   </h3>
   <p>
@@ -312,7 +312,7 @@
 
 
   <h3>
-    <app-svg class="sensor-{{SensorType.toilet}}" url="assets/svg/{{SensorType.toilet}}.svg"></app-svg>
+    <app-svg class="{{SensorType.toilet}}" [url]="getSensorURL(SensorType.toilet)"></app-svg>
     <span>Toilets</span>
   </h3>
   <p>

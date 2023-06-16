@@ -1,6 +1,8 @@
 import { HousePartSVG } from "../model/housePart.model";
 import * as d3 from "d3";
 import { Window } from "../window.model";
+import { SafeHtml } from "@angular/platform-browser";
+import { round } from "@turf/turf";
 
 export class WindowSVG extends HousePartSVG<Window> {
   svgOpening: d3.Selection<SVGPolygonElement, unknown, HTMLElement, any>;
@@ -86,4 +88,15 @@ export class WindowSVG extends HousePartSVG<Window> {
       this.svgPane.attr("stroke-width", this.meterPerPixel * 1);
     }
   }
+
+  tooltip = (): SafeHtml => {
+    console.log(this.selector);
+
+    let str = `Window <b>${this.name} / ${this.selector}</b> 
+    <br>${round(this.model.width, 1)} x ${round(this.model.height, 1)}m}
+    <br>ELevation: ${round(this.model.elevation, 1)}
+    `;
+
+    return str;
+  };
 }

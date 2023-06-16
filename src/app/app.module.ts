@@ -26,7 +26,7 @@ import { PageConstructionComponent } from "./pages/page-construction/page-constr
 import { PageWiredComponent } from "./pages/page-wired/page-wired.component";
 import { routes } from "./app.router";
 
-import { SvgStairsComponent } from "./2d-svg/svg-stair-steps/svg-stair-steps.component";
+import { SvgStairsComponent } from "./2d-svg/svg-stair-steps/svg-stair-cross.component";
 import { SvgStairPlanComponent } from "./2d-svg/svg-stair-plan/svg-stair-plan.component";
 import { SvgComponent } from "./2d-svg/svg-house-plan/svg-plan.component";
 import { SvgCrossComponent } from "./2d-svg/svg-house-cross/svg-cross.component";

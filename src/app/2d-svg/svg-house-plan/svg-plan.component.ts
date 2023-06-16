@@ -1,12 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   HostListener,
-  ViewChild,
 } from "@angular/core";
 import * as d3 from "d3";
-import { BehaviorSubject, first, take } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { BasicSVGComponent } from "src/app/2d-svg/base-svg.component";
 import {
   Graphic,
@@ -14,16 +12,11 @@ import {
   SensorType,
   State,
 } from "src/app/components/enum.data";
-import { Door } from "src/app/house-parts/door.model";
-import { Measure } from "src/app/house-parts/measure.model";
-import { HousePartModel } from "src/app/house-parts/model/housePart.model";
+import { Other } from "src/app/house-parts/other.model";
+import { Sensor } from "src/app/house-parts/sensor-models/sensor.model";
 import { Wall, WallType } from "src/app/house-parts/wall.model";
 import { HousePart, xy } from "src/app/house/house.model";
-import { Sensor } from "src/app/house-parts/sensor.model";
-import { AppSVG } from "src/app/model/svg.model";
 import { angleXY, ptToScale, round } from "src/app/shared/global-functions";
-import { SvgLoader } from "../d3.service";
-import { Other } from "src/app/house-parts/other.model";
 
 @Component({
   selector: "app-svg-plan",
@@ -44,9 +37,6 @@ export class SvgComponent extends BasicSVGComponent {
     }
   }
 
-  marginInMeters = [0, 0, 0, 0];
-  marginInPixels = [16 + 56, 64, 64, 8];
-
   gridSizeX$ = new BehaviorSubject(100);
   gridSizeY$ = new BehaviorSubject(100);
 
@@ -60,15 +50,7 @@ export class SvgComponent extends BasicSVGComponent {
     });
   }
 
-  beforeInit() {
-    // this.setStairs();
-
-    // this.renderImg = this.svg
-    //   .select(".render-img")
-    //   .attr("xlink:href", "/assets/img/top_render.jpg");
-
-    this.scaleRenderImage();
-  }
+  beforeInit() {}
   afterInit(): void {
     this.svgLoaders.push(
       this.d3Service.loadSVG("assets/models/sun.svg", ".g-sun", (selector) => {
@@ -84,10 +66,11 @@ export class SvgComponent extends BasicSVGComponent {
     );
     for (let sensor of Object.values(SensorType)) {
       const sensorName = sensor.replace("sensor-", "");
+      const selector = `#icon-${sensor}`;
       this.svgLoaders.push(
         this.d3Service.loadSVG(
           `assets/svg/${sensorName}.svg`,
-          `#icon-${sensorName}`,
+          selector,
           (selector) => {
             const house = this.house$.value;
             const size = 20 * this.meterPerPixel;
@@ -101,6 +84,13 @@ export class SvgComponent extends BasicSVGComponent {
         )
       );
     }
+    // this.d3DistanceService.start();
+
+    this.renderImg = this.svg
+      .select(".render-img")
+      .attr("xlink:href", "/assets/img/top_render.jpg");
+    this.scaleRenderImage();
+    this.setStairs();
   }
 
   afterUpdate() {
@@ -119,25 +109,25 @@ export class SvgComponent extends BasicSVGComponent {
   }
 
   setMarginAndSize() {
-    this.gridSizeX$.next(this.house.gridSizeX);
-    this.gridSizeY$.next(this.house.gridSizeY);
-    const margin = this.house.studDistance * 3;
+    const margin = 0.6;
+    this.marginInPixels = [16 + 56, 64, 64 + 4, 40];
     this.marginInMeters = [margin, margin, margin, margin];
-    this.svgHouseSize = [
+    this.svgSizeInMeters = [
       [0, 0],
       [this.house.houseWidth, this.house.houseLength],
     ];
   }
 
   setStairs() {
-    const svg = document.querySelector(".svg-plan-stair-plan")
+    const stairSVG = document.querySelector(".svg-plan-stair-plan")
       .firstChild as SVGGElement;
 
-    const g = this.svg.select(".plan-stair-plan");
+    const g = this.svg.select<SVGGElement>(".included-stairs-plan");
 
-    // this.svg.on("mousedown.drag", null);
-    (g.select(".plan-stair-plan").node() as any).replaceWith(svg);
-    svg.classList.add("plan-stair-plan");
+    console.log(g);
+    this.svg.on("mousedown.drag", null);
+    g.select<SVGElement>("svg").node().replaceWith(stairSVG);
+    stairSVG.classList.add("plan-stair-plan");
   }
 
   scaleStairs() {
@@ -469,14 +459,27 @@ export class SvgComponent extends BasicSVGComponent {
         },
       },
       { housePart: HousePart.windows, show: () => true },
-      { housePart: HousePart.studs, show: () => false },
+      { housePart: HousePart.studs, show: () => true },
       { housePart: HousePart.measures, show: () => states[State.measure] },
       { housePart: HousePart.example, show: () => states[State.examplePlan] },
+      {
+        housePart: HousePart.sensors,
+        show: (model: Sensor<any>) => {
+          return states[model.sensorType];
+          //       SensorType
+          // | CableType
+          return true;
+        },
+      },
     ].forEach((obj: { housePart: HousePart; show: (x?) => boolean }) => {
       house.houseParts[obj.housePart].forEach((model) => {
         model.setVisibility(obj.show(model));
       });
     });
-    // console.log(house.houseParts[HousePart.example]);
+    // console.log(
+    //   this.housePartModels.filter((x) => x.housePart === HousePart.sensors)
+    // );
+
+    // console.log(this.house.houseParts.studs[0]);
   }
 }

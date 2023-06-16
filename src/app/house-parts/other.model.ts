@@ -1,6 +1,7 @@
 import { House, HousePart, xy } from "../house/house.model";
 import { HousePartModel, HousePartSVG } from "./model/housePart.model";
 import { CircleSVG } from "./svg-other/circle.svg";
+import { DistanceSVG } from "./svg-other/distance.svg";
 import { EmbeddedSVG } from "./svg-other/embedded-svg.svg";
 import { PathSVG } from "./svg-other/path.svg";
 import { PolygonSVG } from "./svg-other/polygon.svg";
@@ -10,11 +11,12 @@ export class Other<T extends HousePartSVG> extends HousePartModel {
   housePart = HousePart.other;
   coords: xy[] = [];
   dataSVG: Partial<T>;
-  type: "polygon" | "path" | "polyline" | "circle" | "svg";
+  type: "polygon" | "path" | "polyline" | "circle" | "svg" | "distance";
 
   constructor(data: Partial<Other<T>>) {
     super();
     Object.assign(this, data);
+    if (this.dataSVG === undefined) this.dataSVG = {};
   }
 
   setup(): void {}
@@ -33,14 +35,17 @@ export class Other<T extends HousePartSVG> extends HousePartModel {
     if (this.type === "path") this.svg = new PathSVG(this);
     if (this.type === "circle") this.svg = new CircleSVG(this);
     if (this.type === "svg") this.svg = new EmbeddedSVG(this);
+    if (this.type === "distance") this.svg = new DistanceSVG(this);
     if (this.svg === undefined) {
       console.log(this);
-      throw new Error(`getSVGInstance: SVG is undefined, ${this.selector}`);
+      throw new Error(
+        `getSVGInstance: [type] is unknown ${this.type}, ${this.selector}`
+      );
     }
     Object.assign(this.svg, this.dataSVG);
   }
 
-  setAttr() {
+  applyDataSVG() {
     const setKey = <U>(key: keyof U) => {
       const dataSVG = this.dataSVG as any as Partial<U>;
       if (dataSVG[key] !== undefined) this.svg[key] = dataSVG[key];
@@ -66,7 +71,7 @@ export class Other<T extends HousePartSVG> extends HousePartModel {
     } else {
       console.log(this);
 
-      throw new Error(`setAttr: is undefined, ${this.type}`);
+      throw new Error(`setAttr: is unknown, ${this.type}`);
     }
   }
 

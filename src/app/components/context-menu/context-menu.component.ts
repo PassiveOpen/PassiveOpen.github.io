@@ -15,14 +15,14 @@ export class AppContextMenuComponent implements OnInit {
 
   constructor(
     public appService: AppService,
-    public d3Service: D3DistanceService,
+    public d3DistanceService: D3DistanceService,
     public contextMenuService: ContextMenuService
   ) {}
 
   ngOnInit(): void {}
 
   measure() {
-    this.d3Service.start();
+    this.d3DistanceService.start();
     this.contextMenuService.closeMenu();
   }
   whatIsHere() {

@@ -1,15 +1,17 @@
-import { AfterViewInit, Component } from "@angular/core";
-import { Section, SensorType, Tag } from "src/app/components/enum.data";
-import { HouseService } from "src/app/house/house.service";
-import { Sensor } from "src/app/house-parts/sensor.model";
-import { BehaviorSubject } from "rxjs";
+import { Component } from "@angular/core";
+import { BehaviorSubject, first } from "rxjs";
+import { Section, SensorType } from "src/app/components/enum.data";
 import { Door } from "src/app/house-parts/door.model";
+import { HousePartModel } from "src/app/house-parts/model/housePart.model";
+import { Sensor } from "src/app/house-parts/sensor-models/sensor.model";
+import { SensorLight } from "src/app/house-parts/sensor-models/sensorLight.model";
+import { Water } from "src/app/house-parts/sensor-models/water.model";
 import { Window, WindowForm } from "src/app/house-parts/window.model";
 import { Cost, CostTable, GroupRow } from "src/app/house/cost.model";
-import { Wall } from "src/app/house-parts/wall.model";
+import { House } from "src/app/house/house.model";
+import { HouseService } from "src/app/house/house.service";
 import { round, sum } from "src/app/shared/global-functions";
-import { SensorLight } from "src/app/house-parts/svg-sensor/sensorLight.model";
-import { Water } from "src/app/house-parts/svg-sensor/water.model";
+import { generateUUID } from "three/src/math/MathUtils";
 
 @Component({
   selector: "app-page-costs",
@@ -19,20 +21,105 @@ import { Water } from "src/app/house-parts/svg-sensor/water.model";
 export class PageCostsComponent {
   Section = Section;
 
-  tables = [
-    this.getPreps(),
-    this.getConstruction(),
-    this.getOpenings(),
-    this.getElectra(),
-    this.getFinish(),
-    this.getWater(),
-    this.getOutsideFinish(),
-  ];
-  hiddenTables = [this.getKitchen(), this.getBathroom()];
+  tables$ = new BehaviorSubject<CostTable[]>([]);
+  hiddenTables$ = new BehaviorSubject<CostTable[]>([]);
+  totals$ = new BehaviorSubject<CostTable>(undefined);
 
-  totals = this.getTotals();
+  house: House;
+  all: HousePartModel[];
 
-  constructor(private houseService: HouseService) {}
+  constructor(private houseService: HouseService) {
+    this.houseService.house$
+      .pipe(first((x) => x !== undefined))
+      .subscribe((house) => {
+        this.house = house;
+
+        this.all = Object.keys(house.houseParts).flatMap((key) => {
+          return house.houseParts[key];
+        });
+
+        this.tables$.next([
+          this.getPreps(),
+          this.getConstruction(),
+          this.getOpenings(),
+          this.getElectra(),
+          this.getFinish(),
+          this.getWater(),
+          this.getOutsideFinish(),
+        ]);
+        this.hiddenTables$.next([this.getKitchen(), this.getBathroom()]);
+        this.totals$.next(this.getTotals());
+      });
+  }
+
+  getT<T extends HousePartModel<any>>(
+    type: any,
+    keys: (keyof T)[],
+    callback: (key: T) => Partial<Cost>,
+    filterCallback: (key: T) => boolean = () => true,
+    count = true
+  ) {
+    const uuid = generateUUID();
+
+    // this.getT<Door>(Door, [], (door) => ({
+    //   name: "Door casing",
+    //   price: 60,
+    // })),
+    // this.getT<Water<any>>(
+    //   Water,
+    //   ["sensorType"],
+    //   (x) => ({
+    //     name: "Warm water",
+    //     price: 20,
+    //     unit: "m",
+    //   }),
+    //   (x) => x.sensorType === SensorType.waterWarm,
+    //   false
+    // ),
+
+    const parts = Object.values(
+      this.all
+        .filter((x) => x instanceof type)
+        .filter((x) => filterCallback(x as any))
+        .reduce((accumulator, value: any) => {
+          const key = keys.map((x) => `${value[x as any]}`).join(",");
+          if (!(key in accumulator)) {
+            accumulator[key] = {
+              count: 0,
+              part: value,
+            };
+          }
+          if (type === Sensor && !count) {
+            //@ts-ignore //todo repair
+            accumulator[key].count += (value as Sensor<any>).getLength();
+          } else {
+            accumulator[key].count += 1;
+          }
+          return accumulator;
+        }, {})
+    ).map((counter: { count: number; part: T }) => {
+      const cost = new Cost(callback(counter.part));
+
+      cost.amount = round(counter.count, 1);
+      cost.uuid = uuid;
+      return cost;
+    });
+
+    if (parts.length > 1) {
+      const groupRow = new GroupRow({
+        uuid,
+        name: `${parts[0].name}`,
+        costs: parts,
+      });
+      groupRow[parts[0].name] = false;
+      return groupRow;
+    } else {
+      if (!parts[0]) return undefined;
+      const row = parts[0];
+      row.uuid = undefined;
+      return row;
+    }
+  }
 
   getFinish(): CostTable {
     const house = this.houseService.house$.value;
@@ -56,11 +143,11 @@ export class PageCostsComponent {
           price: 3,
           unit: "m",
         }),
-        this.houseService.getT<Door>(Door, [], (door) => ({
+        this.getT<Door>(Door, [], (door) => ({
           name: "Door casing",
           price: 60,
         })),
-        this.houseService.getT<Window>(Window, [], (door) => ({
+        this.getT<Window>(Window, [], (door) => ({
           name: "Window casing",
           price: 60,
         })),
@@ -83,7 +170,7 @@ export class PageCostsComponent {
       alias: "Water ",
       // desc: TemplateRef<any>,
       costs: [
-        this.houseService.getT<Water<any>>(
+        this.getT<Water<any>>(
           Water,
           ["sensorType"],
           (x) => ({
@@ -94,7 +181,7 @@ export class PageCostsComponent {
           (x) => x.sensorType === SensorType.waterCold,
           false
         ),
-        this.houseService.getT<Water<any>>(
+        this.getT<Water<any>>(
           Water,
           ["sensorType"],
           (x) => ({
@@ -105,7 +192,7 @@ export class PageCostsComponent {
           (x) => x.sensorType === SensorType.waterWarm,
           false
         ),
-        this.houseService.getT<Water<any>>(
+        this.getT<Water<any>>(
           Water,
           ["sensorType"],
           (x) => ({
@@ -116,7 +203,7 @@ export class PageCostsComponent {
           (x) => x.sensorType === SensorType.waterWarm,
           false
         ),
-        this.houseService.getT<Water<any>>(
+        this.getT<Water<any>>(
           Water,
           ["sensorType"],
           (x) => ({
@@ -151,11 +238,11 @@ export class PageCostsComponent {
           price: 3,
           unit: "m",
         }),
-        this.houseService.getT<Door>(Door, [], (door) => ({
+        this.getT<Door>(Door, [], (door) => ({
           name: "Door casing",
           price: 60,
         })),
-        this.houseService.getT<Window>(Window, [], (door) => ({
+        this.getT<Window>(Window, [], (door) => ({
           name: "Window casing",
           price: 60,
         })),
@@ -191,7 +278,7 @@ export class PageCostsComponent {
           price: 80,
         }),
 
-        this.houseService.getT<Sensor<any>>(
+        this.getT<Sensor<any>>(
           Sensor,
           ["sensorType"],
           (x) => ({
@@ -204,7 +291,7 @@ export class PageCostsComponent {
           }
         ),
 
-        this.houseService.getT<Sensor<any>>(
+        this.getT<Sensor<any>>(
           Sensor,
           ["sensorType"],
           (x) => ({
@@ -217,7 +304,7 @@ export class PageCostsComponent {
           false
         ),
 
-        this.houseService.getT<Sensor<any>>(
+        this.getT<Sensor<any>>(
           Sensor,
           ["sensorType"],
           (x) => ({
@@ -229,7 +316,7 @@ export class PageCostsComponent {
           }
         ),
 
-        this.houseService.getT<Sensor<any>>(
+        this.getT<Sensor<any>>(
           Sensor,
           ["sensorType"],
           (x) => ({
@@ -242,7 +329,7 @@ export class PageCostsComponent {
           false
         ),
 
-        this.houseService.getT<SensorLight<any>>(
+        this.getT<SensorLight<any>>(
           SensorLight,
           ["sensorType"],
           (x) => ({
@@ -252,7 +339,7 @@ export class PageCostsComponent {
           (x) => true
         ),
 
-        this.houseService.getT<Sensor<any>>(
+        this.getT<Sensor<any>>(
           Sensor,
           ["sensorType"],
           (x) => ({
@@ -264,7 +351,7 @@ export class PageCostsComponent {
             return x.sensorType === SensorType.lightSwitch;
           }
         ),
-        this.houseService.getT<Sensor<any>>(
+        this.getT<Sensor<any>>(
           Sensor,
           ["sensorType"],
           (x) => ({
@@ -275,7 +362,7 @@ export class PageCostsComponent {
             return x.sensorType === SensorType.dimmer;
           }
         ),
-        this.houseService.getT<Sensor<any>>(
+        this.getT<Sensor<any>>(
           Sensor,
           ["sensorType"],
           (x) => ({
@@ -286,7 +373,7 @@ export class PageCostsComponent {
             return x.sensorType === SensorType.wifi;
           }
         ),
-        this.houseService.getT<Sensor<any>>(
+        this.getT<Sensor<any>>(
           Sensor,
           [],
           (x) => ({
@@ -403,7 +490,7 @@ export class PageCostsComponent {
       section: Section.costsOpenings,
       alias: "Openings",
       costs: [
-        this.houseService.getT<Door>(Door, ["outside"], (door) => ({
+        this.getT<Door>(Door, ["outside"], (door) => ({
           name: "Door",
           sizeOrVersion: `230x${door.width}`,
           price: door.outside ? 600 : 200,
@@ -411,7 +498,7 @@ export class PageCostsComponent {
           other: `${door.outside ? "Outer door" : "Inner door"}`,
         })),
 
-        this.houseService.getT<Window>(
+        this.getT<Window>(
           Window,
           ["width", "height", "windowForm"],
           (x) => ({
@@ -422,7 +509,7 @@ export class PageCostsComponent {
           }),
           (x) => ![WindowForm.windowWall].includes(x.windowForm)
         ),
-        this.houseService.getT<Window>(
+        this.getT<Window>(
           Window,
           ["width", "height", "windowForm"],
           (x) => ({
@@ -437,7 +524,10 @@ export class PageCostsComponent {
     });
   }
   getTotals(): CostTable {
-    const allCosts = [...this.tables, ...this.hiddenTables].flatMap(
+    const allCosts = [
+      ...this.tables$.value,
+      ...this.hiddenTables$.value,
+    ].flatMap(
       (costTable) =>
         new Cost({
           price: sum(

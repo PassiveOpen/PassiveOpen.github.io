@@ -31,7 +31,7 @@ export enum CornerType {
   straight = "straight",
 }
 type Sides = {
-  [key in WallSide]?: [number, number][];
+  [key in WallSide]?: xy[];
 };
 
 export class Wall extends HousePartModel {
@@ -41,7 +41,7 @@ export class Wall extends HousePartModel {
   sides: Sides;
   thickness: number;
   parent: Room;
-  origin: [number, number] = [0, 0];
+  origin: xy = [0, 0];
   innerWallLength: number;
   outerWallLength: number;
   orientation = "";
@@ -90,6 +90,7 @@ export class Wall extends HousePartModel {
     this.selector = `${this.parent.name}-wall-${this.orientation}-${
       ids[this.selector]
     }`;
+    this.setCoords();
   }
 
   getLength(side: WallSide, decimals = 2) {
@@ -199,6 +200,13 @@ export class Wall extends HousePartModel {
         ),
       ];
     }
+  }
+
+  setCoords() {
+    const coords = [];
+    if (this.sides[WallSide.in]) coords.push(...this.sides[WallSide.in]);
+    if (this.sides[WallSide.out]) coords.push(...this.sides[WallSide.out]);
+    this.coords = coords;
   }
 
   getFootPrint() {

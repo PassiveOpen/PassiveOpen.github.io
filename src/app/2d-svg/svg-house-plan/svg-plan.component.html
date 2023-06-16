@@ -21,9 +21,9 @@
     </filter>
   </defs>
   <g class="all" transform="rotate(0)">
+
     <g class="icons" style="display: none;">
-      <g id="icon-{{SensorType}}" *ngFor="let SensorType of SensorTypes; let i = index">
-      </g>
+      <g id="icon-{{SensorType}}" *ngFor="let SensorType of SensorTypes"> </g>
     </g>
 
     <g class="house-grid-line">
@@ -40,7 +40,7 @@
       <g [id]="key" *ngFor="let key of selectors[HousePart.rooms]"></g>
     </g>
 
-    <g class="svg-plan-stair-plan included-stairs-plan">
+    <g class="included-stairs-plan">
       <svg class="plan-stair-plan"></svg>
     </g>
 
@@ -68,12 +68,13 @@
     </g>
 
     <g class="extra">
-      <g [id]="key" *ngFor="let key of selectors[HousePart.other]">
-      </g>
+      <g [id]="key" *ngFor="let key of selectors[HousePart.other]"> </g>
     </g>
     <g class="g-studs">
-      <g [id]="key" *ngFor="let key of selectors[HousePart.studs]">
-      </g>
+      <g [id]="key" *ngFor="let key of selectors[HousePart.studs]"> </g>
+    </g>
+    <g class="g-sensor">
+      <g [id]="key" *ngFor="let key of selectors[HousePart.sensors]"> </g>
     </g>
 
 
@@ -81,25 +82,15 @@
       <g class="measure" [id]="key" *ngFor="let key of selectors[HousePart.measures]"> </g>
     </g>
 
-
-    <!-- <g class="g-sensor">
-      <polyline *ngFor="let key of sensorKeys" id="{{key}}" class="sensor-cable"></polyline>
-      <g id="{{key}}" *ngFor="let key of sensorKeys" class="sensor-g">
-        <use id="{{key}}" class="sensor-icon" />
-      </g>
-
-    </g>-->
-
     <g class="g-example">
       <g class="example-g" [id]="key" *ngFor="let key of selectors[HousePart.example]"> </g>
-
     </g>
 
     <image class="render-img"></image>
 
     <g class="g-sun"></g>
 
-    <g id="g-distance"></g>
+    <g *ngIf="!isChild" id="g-distance"></g>
 
 
   </g>

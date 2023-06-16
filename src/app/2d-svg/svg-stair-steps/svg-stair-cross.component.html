@@ -1,0 +1,25 @@
+<svg #svg class="stairs-step" class="{{graphic}}" preserveAspectRatio="xMidYMid meet">
+  <g>
+
+
+    <g class="g-building">
+      <g [id]="key" *ngFor="let key of selectors[HousePart.stairCrossBuilding]"> </g>
+    </g>
+
+
+    <g class="g-step">
+      <g class="step" [id]="key" *ngFor="let key of selectors[HousePart.stairPlan]">
+        <polygon class="step-run"></polygon>
+        <polygon class="step-rise"></polygon>
+        <text class="step-text"></text>
+      </g>
+    </g>
+
+    <g class="g-helper">
+      <g [id]="key" *ngFor="let key of selectors[HousePart.measures]"> </g>
+    </g>
+
+    <g *ngIf="!isChild" id="g-distance"></g>
+  </g>
+
+</svg>

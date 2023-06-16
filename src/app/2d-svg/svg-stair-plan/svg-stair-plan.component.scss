@@ -31,11 +31,17 @@
     }
 
     .step-plan-rise,
-    .step-stinger,
-    .walk-line-dot,
     .walk-line,
     .step-plan-text {
       display: none;
+    }
+    #clip-roof-ref,
+    #clip-ground-floor-ref {
+      polygon {
+        stroke-width: 0.01px;
+        fill: var(--color-5);
+        stroke: var(--accent);
+      }
     }
   }
 
@@ -50,17 +56,15 @@
       display: initial !important;
     }
     .walk-line-dot {
-      opacity: 0;
       fill: var(--first-color);
     }
     #walk-line {
       fill: none;
       transition: 0s;
-      opacity: 0;
+      // opacity: 0;
       stroke: var(--first-color);
     }
     .step-stinger {
-      opacity: 0;
       fill: var(--third-color);
     }
     .step-plan-text {

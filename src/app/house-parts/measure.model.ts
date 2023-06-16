@@ -108,9 +108,8 @@ export class Measure extends HousePartModel {
   offsetPixels = 0;
   offsetMeters = 0;
   direction = 90;
-
   decimals = 1;
-  textRotate: number;
+  textRotate: number = 0;
 
   constructor(data: Partial<Measure>) {
     super();

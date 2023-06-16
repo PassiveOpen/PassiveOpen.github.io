@@ -6,11 +6,16 @@ $sun-color: rgb(253, 200, 101);
     top: 0;
     height: auto !important;
   }
-  .floor-top .included-stairs-plan .floor-clip {
-    clip-path: inherit;
-  }
+  // .floor-top
   .included-stairs-plan {
     pointer-events: none;
+    .g-debug,
+    .g-walk-line {
+      display: none;
+    }
+    .floor-clip {
+      clip-path: inherit;
+    }
   }
 
   .sensor-water-cold,
@@ -99,7 +104,11 @@ $sun-color: rgb(253, 200, 101);
       // transition: 1s ease-in-out; // overruled to 0 in fullscreen
     }
 
-    polyline[id^="roof-line-"] {
+    g[id^="stud-"] {
+      fill: var(--accent-color);
+      stroke: var(--primary-color);
+    }
+    g[id^="roof-line-"] {
       fill: none;
       stroke: var(--primary-color);
     }

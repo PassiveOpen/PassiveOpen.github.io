@@ -2,9 +2,9 @@ import { AfterViewInit, Component, NgZone } from "@angular/core";
 import { filter } from "d3";
 import { AppService } from "src/app/app.service";
 import { Section, SensorType, State, Tag } from "src/app/components/enum.data";
+import { Sensor } from "src/app/house-parts/sensor-models/sensor.model";
 import { House } from "src/app/house/house.model";
 import { HouseService } from "src/app/house/house.service";
-import { Sensor } from "src/app/house-parts/sensor.model";
 import { StatesService } from "src/app/services/states.service";
 import { round } from "src/app/shared/global-functions";
 
@@ -47,7 +47,7 @@ export class PageWiredComponent implements AfterViewInit {
   }
 
   getOutlets(sensorType: SensorType) {
-    const house = this.houseService.house$.value;
+    this.house = this.houseService.house$.value;
     return (this.house.houseParts.sensors as Sensor<any>[])
 
       .filter((x: Sensor<any>) => x.sensorType === sensorType)
@@ -56,7 +56,7 @@ export class PageWiredComponent implements AfterViewInit {
   }
 
   getCable(sensorType: SensorType, decimals = 1) {
-    const house = this.houseService.house$.value;
+    this.house = this.houseService.house$.value;
     return round(
       (this.house.houseParts.sensors as Sensor<any>[])
 
@@ -65,5 +65,9 @@ export class PageWiredComponent implements AfterViewInit {
         .reduce((a, b) => a + b, 0),
       decimals
     );
+  }
+
+  getSensorURL(sensorType: SensorType) {
+    return `assets/svg/${sensorType.replace("sensor-", "")}.svg`;
   }
 }

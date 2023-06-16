@@ -11,7 +11,7 @@
 </h3>
 
 
-<ng-container *ngFor="let d of tables">
+<ng-container *ngFor="let d of tables$ |async">
   <ng-container *ngTemplateOutlet="simple; context: { $implicit: d}">
   </ng-container>
 </ng-container>
@@ -48,5 +48,5 @@
 
 <section [id]="Section.costsTotals" style="margin-bottom: 40px;">
   <h1>Totals</h1>
-  <app-table [data]="totals"></app-table>
+  <app-table [data]="totals$ |async"></app-table>
 </section>

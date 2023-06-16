@@ -64,7 +64,7 @@ export class SvgCrossComponent extends BasicSVGComponent {
 
   setMarginAndSize() {
     const low = this.cross.elevations[Elevation.crawlerFloor];
-    this.svgHouseSize = [
+    this.svgSizeInMeters = [
       [0, -this.cross.elevations[RoofPoint.topOutside]],
       [
         this.house.outerBase,

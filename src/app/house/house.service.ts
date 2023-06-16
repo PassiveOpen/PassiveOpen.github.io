@@ -1,42 +1,26 @@
-import { Injectable, OnInit } from "@angular/core";
-import { BehaviorSubject, combineLatest, merge, Subject } from "rxjs";
-import { House, HouseUser, xy } from "./house.model";
-import * as d3 from "d3";
-import { lindeLund } from "./lindelund/lindeLund";
-import { Wall, WallSide, WallType } from "../house-parts/wall.model";
-import { Floor, SensorType, State, Tag } from "../components/enum.data";
+import { Injectable } from "@angular/core";
+import { CookieService } from "ngx-cookie-service";
+import { LineString, MultiLineString } from "ol/geom";
+import { fromLonLat } from "ol/proj";
+import { BehaviorSubject } from "rxjs";
+import { generateUUID } from "three/src/math/MathUtils";
 import { AppService } from "../app.service";
+import { Floor, SensorType, Tag } from "../components/enum.data";
+import { Wall, WallSide, WallType } from "../house-parts/wall.model";
 import { BaseSVG } from "../model/base.model";
-import { Room } from "../house-parts/room.model";
-import { Door } from "../house-parts/door.model";
-import { Sensor } from "../house-parts/sensor.model";
-import { Window } from "../house-parts/window.model";
+import { TurfService } from "../pages/page-map/openlayers/turf.service";
 import {
-  angleXY,
   centerBetweenPoints,
-  offset,
   rotateXY,
   round,
   sum,
 } from "../shared/global-functions";
-import { generateUUID } from "three/src/math/MathUtils";
 import { Cost, GroupRow } from "./cost.model";
-import { Measure } from "../house-parts/measure.model";
-import { AppSVG } from "../model/svg.model";
-import { fromLonLat } from "ol/proj";
-import {
-  LineString,
-  MultiLineString,
-  MultiPoint,
-  Point,
-  Polygon,
-} from "ol/geom";
-import { TurfService } from "../pages/page-map/openlayers/turf.service";
-import { CookieService } from "ngx-cookie-service";
-import { Coordinate } from "ol/coordinate";
-import VectorSource from "ol/source/Vector";
-import VectorLayer from "ol/layer/Vector";
-import Feature from "ol/Feature";
+import { House, HouseUser, xy } from "./house.model";
+import { lindeLund } from "./lindelund/lindeLund";
+import { Sensor } from "../house-parts/sensor-models/sensor.model";
+import { HousePartModel } from "../house-parts/model/housePart.model";
+import { Water } from "../house-parts/sensor-models/water.model";
 
 @Injectable({
   providedIn: "root",
@@ -237,59 +221,6 @@ export class HouseService {
       innerArea,
       outerArea,
     };
-  }
-
-  getT<T>(
-    type,
-    keys: (keyof T)[],
-    callback: (key: T) => Partial<Cost>,
-    filterCallback: (key: T) => boolean = () => true,
-    count = true
-  ) {
-    const uuid = generateUUID();
-    const parts = Object.values(
-      //@ts-ignore //todo repair
-      this.house$.value.partsFlatten
-        .filter((x) => x instanceof (type as any))
-        .filter((x) => filterCallback(x as any))
-        .reduce((accumulator, value: BaseSVG) => {
-          const key = keys.map((x) => `${value[x as any]}`).join(",");
-          if (!(key in accumulator)) {
-            accumulator[key] = {
-              count: 0,
-              part: value,
-            };
-          }
-          if (type === Sensor && !count) {
-            //@ts-ignore //todo repair
-            accumulator[key].count += (value as Sensor<any>).getLength();
-          } else {
-            accumulator[key].count += 1;
-          }
-          return accumulator;
-        }, {})
-    ).map((counter: { count: number; part: T }) => {
-      const cost = new Cost(callback(counter.part));
-
-      cost.amount = round(counter.count, 1);
-      cost.uuid = uuid;
-      return cost;
-    });
-
-    if (parts.length > 1) {
-      const groupRow = new GroupRow({
-        uuid,
-        name: `${parts[0].name}`,
-        costs: parts,
-      });
-      groupRow[parts[0].name] = false;
-      return groupRow;
-    } else {
-      if (!parts[0]) return undefined;
-      const row = parts[0];
-      row.uuid = undefined;
-      return row;
-    }
   }
 
   fromLonLatToLocal(xy: number[]): number[] {
